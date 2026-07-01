@@ -1,0 +1,168 @@
+"use client";
+import OwnerCard from "@/components/cards/property/ownerCard";
+import PropertyCard from "@/components/cards/property/property-card";
+import PropertySkeletonCard from "@/components/cards/property/propertySkeletonCard";
+import CitiesSection from "@/components/city/cities-section";
+import PaginationComponent, {
+	PaginationComponent2,
+} from "@/components/global/paginationComponent";
+import { Button } from "@/components/ui/button";
+import {
+	clearFilters,
+	fetchProperties,
+	setFilters,
+} from "@/state/slices/searchSlice";
+import { AppDispatch, RootState } from "@/state/store";
+import { List, MapIcon, SearchX } from "lucide-react";
+import { usePathname, useSearchParams } from "next/navigation";
+import React, { Suspense } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
+export default function MapViewList({
+	filter,
+	view,
+}: {
+	view: any;
+	filter: any;
+}) {
+	const {
+		mobileMapView,
+		success,
+		list,
+		listView,
+		error,
+		loading,
+		total,
+		totalPages,
+		filters,
+	} = useSelector((state: RootState) => state.search);
+	const path = usePathname();
+	const searchParams = useSearchParams();
+
+	const dispatch = useDispatch<AppDispatch>();
+	React.useEffect(() => {
+		if (view !== "map") {
+			dispatch(
+				setFilters({
+					...filters,
+					...filter,
+				})
+			);
+			dispatch(fetchProperties());
+		}
+	}, [dispatch, view]);
+
+	const gridClass =
+		view === "map"
+			? "grid mx-2 xl:mx-4 gap-2 lg:grid-cols-1 xl:grid-cols-2 md:grid-cols-1"
+			: "grid w-11/12 mx-auto gap-2 lg:grid-cols-3 grid-cols-1 xl:grid-cols-3 md:grid-cols-2";
+
+	if (loading) {
+		return (
+			<div className={"h-full flex justify-center items-center"}>
+				<div className={gridClass}>
+					{Array.from({ length: 18 }).map((_, i) => (
+						<PropertySkeletonCard key={i} />
+					))}
+				</div>
+			</div>
+		);
+	}
+
+	if ((success && total === 0) || error) {
+		return (
+			<div
+				className={
+					"w-full overflow-x-hidden flex flex-col items-center justify-center text-center py-20 px-4 bg-muted/10 rounded-lg border border-border"
+				}>
+				<div className="mb-6">
+					<SearchX className="w-12 h-12 text-muted-foreground" />
+				</div>
+				<h2 className="text-xl font-semibold text-foreground mb-2">
+					No Listing Found
+				</h2>
+				<p className="text-sm text-muted-foreground mb-6 max-w-md">
+					Try adjusting your filters or explore other locations.
+				</p>
+
+				<Button
+					onClick={() => {
+						dispatch(clearFilters());
+						history.pushState(
+							null,
+							"",
+							"/Florida-Real-Estate-Search"
+						);
+					}}
+					variant="default"
+					className="text-sm">
+					Reset Filters
+				</Button>
+
+				<hr />
+				<div className={`bg-white w-dvw rounded-t-xl mt-20`}>
+					<div className="flex flex-col text-start items-start justify-start px-5 md:px-6 lg:px-7">
+						<div className="items-start justify-start flex flex-col">
+							<h2 className="lg:text-xl text-lg text-start font-semibold lg:font-medium">
+								Search By City
+							</h2>
+							<p className="py-2 text-start text-xs md:text-sm lg:font-medium font-semibold lg:text-base text-gray-700">
+								Explore Active Listings in each{" "}
+								<span className="text-(--primary-color) font-semibold">
+									SW Florida City
+								</span>
+								.
+							</p>
+						</div>
+					</div>
+					<Suspense>
+						<CitiesSection />
+					</Suspense>
+				</div>
+			</div>
+		);
+	}
+
+	return (
+		<div>
+			<div className={gridClass}>
+				{list.map((property, i: number) => (
+					<PropertyCard key={i} {...property} />
+				))}
+			</div>
+			{Number(totalPages) >= 1 && (
+				<PaginationComponent2
+					currentPage={Number(filters.page) || 1}
+					totalPages={Number(totalPages)}
+				/>
+			)}
+			<section className="py-2 mt-4 bg-white/10">
+				<div className="flex justify-center items-center">
+					<OwnerCard layout={view === "map" ? "column" : "row"} />
+				</div>
+			</section>
+
+			<a
+				className="fixed bottom-2 z-10 right-3 md:hidden"
+				href={`${path}?${(() => {
+					const next = new URLSearchParams(searchParams.toString());
+					next.set("view", view === "map" ? "list" : "map");
+					return next.toString();
+				})()}`}>
+				<Button
+					className="rounded-lg shadow-none border-gray-900 bg-black text-white md:h-10"
+					variant="outline">
+					{view === "map" ? (
+						<>
+							<List /> List View
+						</>
+					) : (
+						<>
+							<MapIcon /> Map View
+						</>
+					)}
+				</Button>
+			</a>
+		</div>
+	);
+}

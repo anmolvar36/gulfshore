@@ -1,0 +1,81 @@
+import User from "@/models/user";
+import { auth } from "@clerk/nextjs/server";
+
+import { NextRequest, NextResponse } from "next/server";
+import { redisGet, redisSet } from "@/lib/safeRedis";
+import prisma from "@/lib/prisma";
+
+export async function GET(
+	request: NextRequest,
+	{ params }: { params: Promise<{ property: string }> }
+) {
+	try {
+		const { property } = await params;
+		const { userId } = await auth();
+
+		const Mls = property;
+		/**
+		 * 🌟 CACHE KEY (Different for logged-in and logged-out)
+		 */
+		const cacheKey = userId
+			? `property:${Mls}:user:${userId}`
+			: `property:${Mls}`;
+
+		// 1️⃣ CHECK REDIS CACHE FIRST
+		const cached = await redisGet(cacheKey);
+		if (typeof cached === "string") {
+			return NextResponse.json({
+				success: true,
+				data: JSON.parse(cached),
+				cached: true,
+			});
+		}
+
+		const res = await prisma.property.findUnique({
+			where: {
+				ListingId: Mls,
+			},
+		});
+
+		if (!res) {
+			return NextResponse.json(
+				{ error: "Property Not Found" },
+				{ status: 404 }
+			);
+		}
+
+		// 🔥 Fetch similar properties
+		const similar: any[] = await prisma.property.findMany({
+			where: {
+				StandardStatus: "Active",
+
+				City: res.City,
+				Community: res.Community,
+				ListingId: {
+					not: res.ListingId,
+				},
+			},
+			take: 9,
+		});
+
+		const finalData = {
+			...res,
+			similar,
+		};
+
+		// Cache logged-out version for 5 minutes
+		await redisSet(cacheKey, JSON.stringify(finalData), 1800);
+
+		return NextResponse.json({
+			success: true,
+			data: finalData,
+			cached: false,
+		});
+	} catch (error) {
+		console.log(error);
+		return NextResponse.json(
+			{ error: "Internal Server Error" },
+			{ status: 500 }
+		);
+	}
+}

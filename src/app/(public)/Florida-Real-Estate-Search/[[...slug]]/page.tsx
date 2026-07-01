@@ -1,0 +1,36 @@
+import ExtractSearchParams from "@/hooks/extractSearchParams";
+import MapViewList from "./mapViewList";
+import React from "react";
+import { parseFiltersFromQuery } from "@/lib/search-filters";
+
+export default async function ListingsPage({
+	params,
+	searchParams,
+}: {
+	params: {
+		slug: string[];
+	};
+	searchParams: Record<string, string | string[] | undefined>;
+}) {
+	let data;
+	const slug = (await params).slug || [];
+	const sp = await searchParams;
+	const view = typeof sp.view === "string" ? sp.view : undefined;
+	const filterFromSlug = await ExtractSearchParams(slug);
+	const filterFromQuery = parseFiltersFromQuery(sp);
+	const filter = {
+		...filterFromSlug,
+		...filterFromQuery,
+		propertyTypes:
+			filterFromQuery.propertyTypes ?? filterFromSlug.propertyTypes,
+		features: filterFromQuery.features ?? filterFromSlug.features,
+		page: filterFromQuery.page ?? filterFromSlug.page ?? "1",
+	};
+
+	return (
+		<MapViewList
+			filter={filter}
+			view={view === "map" ? "map" : "list"}
+		/>
+	);
+}

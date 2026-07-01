@@ -1,0 +1,41 @@
+export const LEAD_ADMIN_ACTIONS = {
+	SIGNUP: "signup",
+	SAVE_PROPERTY: "save_property",
+	INQUIRY: "inquiry",
+	SAVE_SEARCH: "save_search",
+} as const;
+
+export type LeadAdminActionType =
+	(typeof LEAD_ADMIN_ACTIONS)[keyof typeof LEAD_ADMIN_ACTIONS];
+
+/** Dedupe identical searches within this window (milliseconds) */
+export const SEARCH_HISTORY_DEDUPE_WINDOW_MS = 5 * 60 * 1000;
+
+export const VIEWED_PROPERTY_SORT_FIELDS = [
+	"lastViewedAt",
+	"viewedAt",
+	"viewCount",
+] as const;
+
+export const SEARCH_HISTORY_SORT_FIELDS = ["createdAt", "updatedAt"] as const;
+
+export const SAVED_SEARCH_SORT_FIELDS = ["createdAt", "updatedAt"] as const;
+
+export const WISHLIST_SORT_FIELDS = ["createdAt"] as const;
+
+export const PROPERTY_SUMMARY_SELECT = {
+	id: true,
+	ListingId: true,
+	MLSNumber: true,
+	FullAddress: true,
+	City: true,
+	StateOrProvince: true,
+	PostalCode: true,
+	ListPrice: true,
+	PropertyType: true,
+	PropertySubType: true,
+	BedroomsTotal: true,
+	BathroomsTotalInteger: true,
+	StandardStatus: true,
+	images: true,
+} as const;

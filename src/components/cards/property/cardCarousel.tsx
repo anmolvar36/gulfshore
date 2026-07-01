@@ -1,0 +1,149 @@
+"use client";
+import { Property } from "@/app/generated/prisma/client";
+import ListingLabels from "@/components/property/listingLabels";
+import SocialShare from "@/components/property/share-card";
+import { WishListButton } from "@/components/property/wishlistButton";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+import {
+	Carousel,
+	CarouselContent,
+	CarouselItem,
+	CarouselNext,
+	CarouselPrevious,
+} from "@/components/ui/carousel";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
+import UrlMaker from "@/hooks/url-maker";
+import Image from "next/image";
+
+export default function CardCarousel({
+	property,
+}: {
+	property: Property;
+}) {
+	const media = property.images as any;
+	let images: string[] = [];
+	if (media && media.length > 0) {
+		images = media
+			.filter((item: any) => item.MediaCategory === "Photo")
+			.map((item: any) => item.MediaURL);
+	}
+	const imageArray = images;
+
+	return (
+		<div className="p-0 bg-gray-300">
+			<div className="relative overflow-hidden">
+				{imageArray.length ? (
+					<Carousel
+						opts={{
+							loop: true,
+						}}>
+						<CarouselContent>
+							{imageArray.map((img: string, index: number) => (
+								<CarouselItem key={index}>
+									<AspectRatio
+										ratio={16 / 9}
+										className="w-full max-w-[456px]">
+										<Image
+											src={img}
+											alt={`${property.FullAddress}-${index}`}
+											width={456}
+											height={Math.round((426 * 9) / 16)}
+											loading={index === 0 ? "eager" : "lazy"}
+											priority={index === 0}
+											className="object-cover group-hover:scale-105 transition duration-700 ease-in-out"
+										/>
+									</AspectRatio>
+								</CarouselItem>
+							))}
+						</CarouselContent>
+
+						<div
+							onClick={(e) => {
+								e.preventDefault();
+								e.stopPropagation();
+							}}>
+							<CarouselPrevious
+								variant={"ghost"}
+								size={"icon"}
+								className="left-1 p-2  cursor-pointer bg-transparent lg-svg top-1/2 md:left-1"
+							/>
+							<CarouselNext
+								variant={"ghost"}
+								className="right-1 p-2 cursor-pointer bg-transparent top-1/2 lg-svg md:right-1"
+							/>
+						</div>
+					</Carousel>
+				) : (
+					<AspectRatio ratio={16 / 9}>
+						<Skeleton className="object-cover h-full w-full" />
+					</AspectRatio>
+				)}
+
+				{/* Status Labels */}
+				<div className="absolute top-3 max-w-3/5 left-3 flex gap-2">
+					<ListingLabels
+						CreatedDate={
+							property.OnMarketTimestamp ||
+							property.ModificationTimestamp ||
+							property.OnMarketDate ||
+							""
+						}
+						
+						spa={property.SpaYN || false}
+						pool={property.PoolPrivateYN || false}
+						waterFront={property.WaterfrontYN || false}
+					/>
+				</div>
+
+				{/* Action Buttons */}
+				<div
+					onClick={(e) => {
+						e.preventDefault();
+						e.stopPropagation();
+					}}
+					className="absolute z-1 top-3 right-3 flex gap-2">
+					<div className="flex gap-2 opacity-90 group-hover:opacity-100 transition-opacity duration-300">
+						<TooltipProvider>
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<div className="bg-white/90 backdrop-blur-sm text-center rounded-full flex items-center justify-center w-10 h-10 p-2 hover:bg-white hover:scale-110 transition-all duration-200 shadow-md">
+										<SocialShare
+											propertyUrl={UrlMaker(
+												property.City,
+												property.Community || "",
+												property.FullAddress,
+												property.MLSNumber
+											)}
+										/>
+									</div>
+								</TooltipTrigger>
+								<TooltipContent className="bg-gray-900 text-white border-0">
+									<p>Share Property</p>
+								</TooltipContent>
+							</Tooltip>
+						</TooltipProvider>
+
+						<TooltipProvider>
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<div className="hover:scale-110 transition-all duration-200">
+										<WishListButton propertyId={property.id} />
+									</div>
+								</TooltipTrigger>
+								<TooltipContent className="bg-gray-900 text-white border-0">
+									<p>Save Property</p>
+								</TooltipContent>
+							</Tooltip>
+						</TooltipProvider>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+}
