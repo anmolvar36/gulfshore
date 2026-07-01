@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/table";
 import { Plus, Eye, Edit, Trash2, Loader } from "lucide-react";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 const getStatusColor = (status: string) => {
 	switch (status) {
@@ -74,6 +75,7 @@ const getChannelLabel = (channel: string) => {
 export default function NotificationsPage() {
 	const [notifications, setNotifications] = useState<any[]>([]);
 	const [loading, setLoading] = useState(true);
+	const [viewingNotification, setViewingNotification] = useState<any | null>(null);
 
 	useEffect(() => {
 		fetchNotifications();
@@ -266,12 +268,18 @@ export default function NotificationsPage() {
 										</TableCell>
 										<TableCell className="text-right">
 											<div className="flex items-center justify-end gap-2">
-												<Button variant="ghost" size="sm">
+												<Button
+													variant="ghost"
+													size="sm"
+													onClick={() => setViewingNotification(notification)}
+												>
 													<Eye className="h-4 w-4" />
 												</Button>
-												<Button variant="ghost" size="sm">
-													<Edit className="h-4 w-4" />
-												</Button>
+												<Link href={`/admin/notifications/schedule?id=${notification._id}`}>
+													<Button variant="ghost" size="sm">
+														<Edit className="h-4 w-4" />
+													</Button>
+												</Link>
 												<Button
 													variant="ghost"
 													size="sm"
@@ -290,6 +298,110 @@ export default function NotificationsPage() {
 					)}
 				</CardContent>
 			</Card>
+
+			{viewingNotification && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 animate-in fade-in duration-200">
+					<Card className="w-full max-w-lg bg-card shadow-lg border border-border">
+						<CardHeader className="flex flex-row items-start justify-between pb-4 border-b border-border">
+							<div>
+								<CardTitle className="text-xl font-bold">
+									Notification Details
+								</CardTitle>
+								<CardDescription className="mt-1">
+									Complete setup configurations
+								</CardDescription>
+							</div>
+							<Badge className={getStatusColor(viewingNotification.status)}>
+								{viewingNotification.status}
+							</Badge>
+						</CardHeader>
+						<CardContent className="space-y-4 pt-4">
+							<div className="grid grid-cols-2 gap-4">
+								<div>
+									<p className="text-xs text-muted-foreground font-semibold">Title</p>
+									<p className="text-sm font-medium text-foreground">{viewingNotification.title}</p>
+								</div>
+								<div>
+									<p className="text-xs text-muted-foreground font-semibold">Type</p>
+									<Badge className={cn("mt-0.5", getTypeColor(viewingNotification.type))}>
+										{getTypeLabel(viewingNotification.type)}
+									</Badge>
+								</div>
+								<div>
+									<p className="text-xs text-muted-foreground font-semibold">Channel</p>
+									<p className="text-sm font-medium capitalize text-foreground">{viewingNotification.channel}</p>
+								</div>
+								<div>
+									<p className="text-xs text-muted-foreground font-semibold">Target Segment</p>
+									<p className="text-sm font-medium capitalize text-foreground">{viewingNotification.segment}</p>
+								</div>
+								<div className="col-span-2">
+									<p className="text-xs text-muted-foreground font-semibold">Scheduled For</p>
+									<p className="text-sm font-medium text-foreground">
+										{viewingNotification.scheduledFor
+											? new Date(viewingNotification.scheduledFor).toLocaleString()
+											: "Not Scheduled"}
+									</p>
+								</div>
+							</div>
+							
+							<div className="border-t border-border pt-3">
+								<p className="text-xs text-muted-foreground font-semibold mb-1">Message Template</p>
+								<div className="bg-muted p-3 rounded-md text-sm text-foreground whitespace-pre-wrap border border-border">
+									{viewingNotification.message || "(No message content)"}
+								</div>
+							</div>
+
+							{viewingNotification.propertyCriteria && (
+								<div className="border-t border-border pt-3">
+									<p className="text-xs text-muted-foreground font-semibold mb-2">Property Filter Criteria</p>
+									<div className="grid grid-cols-2 gap-2 bg-muted/50 p-3 rounded-md border border-border text-xs text-foreground">
+										<div>
+											<span className="font-semibold text-muted-foreground">Min Price: </span>
+											<span>{viewingNotification.propertyCriteria.minPrice ? `$${Number(viewingNotification.propertyCriteria.minPrice).toLocaleString()}` : "Any"}</span>
+										</div>
+										<div>
+											<span className="font-semibold text-muted-foreground">Max Price: </span>
+											<span>{viewingNotification.propertyCriteria.maxPrice ? `$${Number(viewingNotification.propertyCriteria.maxPrice).toLocaleString()}` : "Any"}</span>
+										</div>
+										<div>
+											<span className="font-semibold text-muted-foreground">Min Beds: </span>
+											<span>{viewingNotification.propertyCriteria.beds || "Any"}</span>
+										</div>
+										<div>
+											<span className="font-semibold text-muted-foreground">Min Baths: </span>
+											<span>{viewingNotification.propertyCriteria.baths || "Any"}</span>
+										</div>
+										{viewingNotification.propertyCriteria.propertyTypes?.length > 0 && (
+											<div className="col-span-2">
+												<span className="font-semibold text-muted-foreground">Types: </span>
+												<span>{viewingNotification.propertyCriteria.propertyTypes.join(", ")}</span>
+											</div>
+										)}
+										{viewingNotification.propertyCriteria.features?.length > 0 && (
+											<div className="col-span-2">
+												<span className="font-semibold text-muted-foreground">Amenities: </span>
+												<span>{viewingNotification.propertyCriteria.features.join(", ")}</span>
+											</div>
+										)}
+									</div>
+								</div>
+							)}
+
+							<div className="flex justify-end gap-2 pt-4 border-t border-border">
+								<Button variant="outline" onClick={() => setViewingNotification(null)}>
+									Close
+								</Button>
+								<Link href={`/admin/notifications/schedule?id=${viewingNotification._id}`}>
+									<Button onClick={() => setViewingNotification(null)}>
+										Edit Notification
+									</Button>
+								</Link>
+							</div>
+						</CardContent>
+					</Card>
+				</div>
+			)}
 		</div>
 	);
 }

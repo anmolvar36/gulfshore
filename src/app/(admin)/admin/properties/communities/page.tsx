@@ -163,7 +163,7 @@ export default function CommunitiesPage() {
 									<TableCell>{community.PropertyCount}</TableCell>
 									<TableCell>
 										<Link
-											href={`/communities/${capitalizeWords(
+											href={`/admin/communities/${capitalizeWords(
 												community.Development
 											).replaceAll(" ", "-")}/edit`}>
 											<Button variant="ghost" size="icon">

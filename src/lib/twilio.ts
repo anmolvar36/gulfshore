@@ -6,17 +6,19 @@ const client = Twilio(
 );
 
 export const sendSMS = async (to: string, body: string) => {
+	const from = process.env.TWILIO_NUMBER ? "+" + process.env.TWILIO_NUMBER.replace(/[^0-9]/g, "") : "";
 	await client.messages.create({
 		body,
-		from: process.env.TWILIO_NUMBER,
+		from,
 		to,
 	});
 };
 
 export const sendWhatsAppMessage = async (to: string) => {
 	try {
+		const from = process.env.TWILIO_NUMBER ? "+" + process.env.TWILIO_NUMBER.replace(/[^0-9]/g, "") : "";
 		const res = await client.messages.create({
-			from: `whatsapp:${process.env.TWILIO_NUMBER}`,
+			from: `whatsapp:${from}`,
 			to: `whatsapp:${to}`,
 			contentSid: "HX27c542817f11499df2301c22fb7998a0",
 			messagingServiceSid: "MGb9a7f084e43f105cece9b308e2d8113b",

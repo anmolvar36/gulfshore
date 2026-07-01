@@ -5,8 +5,9 @@ import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
-import { TrendingUp, TrendingDown, MousePointer, Users, Mail, MessageSquare, Phone } from "lucide-react"
-import { useState } from "react"
+import { TrendingUp, TrendingDown, MousePointer, Users, Mail, MessageSquare, Phone, Facebook, Instagram, Linkedin, Share2 } from "lucide-react"
+import { useState, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 
 // Mock performance data
 const performanceData = [
@@ -60,6 +61,46 @@ const performanceData = [
   },
 ]
 
+// Mock social media performance data
+const socialPerformanceData = [
+  {
+    id: 1,
+    title: "Beautiful New Naples Listing",
+    type: "New Listings",
+    channel: "Facebook",
+    sentAt: "2024-01-15 10:00 AM",
+    totalReceivers: 4500, // Reach
+    clicks: 684,
+    clickRate: 15.2,
+    openRate: 45.3, // Engagement Rate
+    deliveryRate: 100,
+  },
+  {
+    id: 2,
+    title: "Price Drop Alert on Waterfront Villa",
+    type: "Price Drop",
+    channel: "Instagram",
+    sentAt: "2024-01-16 09:00 AM",
+    totalReceivers: 8200,
+    clicks: 1240,
+    clickRate: 15.1,
+    openRate: 68.4,
+    deliveryRate: 100,
+  },
+  {
+    id: 3,
+    title: "Market Report: SW Florida Real Estate",
+    type: "Market Trends",
+    channel: "LinkedIn",
+    sentAt: "2024-01-17 02:00 PM",
+    totalReceivers: 1200,
+    clicks: 180,
+    clickRate: 15.0,
+    openRate: 35.5,
+    deliveryRate: 100,
+  },
+]
+
 const chartData = [
   { name: "Mon", clicks: 120, opens: 340 },
   { name: "Tue", clicks: 98, opens: 280 },
@@ -76,6 +117,12 @@ const channelData = [
   { name: "Text", value: 10, color: "#f59e0b" },
 ]
 
+const socialChannelData = [
+  { name: "Facebook", value: 55, color: "#1877f2" },
+  { name: "Instagram", value: 30, color: "#e1306c" },
+  { name: "LinkedIn", value: 15, color: "#0077b5" },
+]
+
 const typeData = [
   { name: "New Updates", value: 35, color: "#8b5cf6" },
   { name: "Welcome", value: 20, color: "#10b981" },
@@ -84,33 +131,48 @@ const typeData = [
   { name: "New User", value: 5, color: "#3b82f6" },
 ]
 
-export default function PerformancePage() {
+function PerformanceContent() {
   const [timeFilter, setTimeFilter] = useState("7d")
   const [channelFilter, setChannelFilter] = useState("all")
 
-  const totalClicks = performanceData.reduce((sum, item) => sum + item.clicks, 0)
-  const totalReceivers = performanceData.reduce((sum, item) => sum + item.totalReceivers, 0)
-  const avgClickRate = performanceData.reduce((sum, item) => sum + item.clickRate, 0) / performanceData.length
-  const avgOpenRate = performanceData.reduce((sum, item) => sum + item.openRate, 0) / performanceData.length
+  const searchParams = useSearchParams()
+  const tab = searchParams.get("tab")
+  const isSocial = tab === "social"
+
+  const activeData = isSocial ? socialPerformanceData : performanceData
+  const activeChannelData = isSocial ? socialChannelData : channelData
+
+  const totalClicks = activeData.reduce((sum, item) => sum + item.clicks, 0)
+  const totalReceivers = activeData.reduce((sum, item) => sum + item.totalReceivers, 0)
+  const avgClickRate = activeData.reduce((sum, item) => sum + item.clickRate, 0) / activeData.length
+  const avgOpenRate = activeData.reduce((sum, item) => sum + item.openRate, 0) / activeData.length
 
   const getChannelIcon = (channel: string) => {
     switch (channel) {
       case "Email":
-        return <Mail className="h-4 w-4" />
+        return <Mail className="h-4 w-4 text-blue-500" />
       case "WhatsApp":
-        return <Phone className="h-4 w-4" />
+        return <Phone className="h-4 w-4 text-green-500" />
       case "Text":
-        return <MessageSquare className="h-4 w-4" />
+        return <MessageSquare className="h-4 w-4 text-amber-500" />
+      case "Facebook":
+        return <Facebook className="h-4 w-4 text-blue-600" />
+      case "Instagram":
+        return <Instagram className="h-4 w-4 text-pink-600" />
+      case "LinkedIn":
+        return <Linkedin className="h-4 w-4 text-blue-700" />
       default:
-        return <MessageSquare className="h-4 w-4" />
+        return <Share2 className="h-4 w-4" />
     }
   }
 
   const getTypeColor = (type: string) => {
     switch (type) {
       case "New Updates":
+      case "New Listings":
         return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300"
       case "Welcome":
+      case "Market Trends":
         return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
       case "Price Drop":
         return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
@@ -127,8 +189,14 @@ export default function PerformancePage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Notification Performance</h1>
-          <p className="text-muted-foreground mt-2">Track clicks, engagement, and delivery metrics</p>
+          <h1 className="text-3xl font-bold text-foreground">
+            {isSocial ? "Social Media Campaign Performance" : "Notification Performance"}
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            {isSocial 
+              ? "Track post reach, clicks, and engagement metrics across networks" 
+              : "Track clicks, engagement, and delivery metrics"}
+          </p>
         </div>
         <div className="flex gap-2">
           <Select value={timeFilter} onValueChange={setTimeFilter}>
@@ -147,9 +215,19 @@ export default function PerformancePage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Channels</SelectItem>
-              <SelectItem value="email">Email</SelectItem>
-              <SelectItem value="whatsapp">WhatsApp</SelectItem>
-              <SelectItem value="text">Text</SelectItem>
+              {isSocial ? (
+                <>
+                  <SelectItem value="facebook">Facebook</SelectItem>
+                  <SelectItem value="instagram">Instagram</SelectItem>
+                  <SelectItem value="linkedin">LinkedIn</SelectItem>
+                </>
+              ) : (
+                <>
+                  <SelectItem value="email">Email</SelectItem>
+                  <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                  <SelectItem value="text">Text</SelectItem>
+                </>
+              )}
             </SelectContent>
           </Select>
         </div>
@@ -176,7 +254,7 @@ export default function PerformancePage() {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <Users className="h-4 w-4" />
-              Total Receivers
+              {isSocial ? "Total Reach" : "Total Receivers"}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -201,7 +279,9 @@ export default function PerformancePage() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Avg Open Rate</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              {isSocial ? "Avg Engagement" : "Avg Open Rate"}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-foreground">{avgOpenRate.toFixed(1)}%</div>
@@ -218,7 +298,9 @@ export default function PerformancePage() {
         <Card>
           <CardHeader>
             <CardTitle>Weekly Performance</CardTitle>
-            <CardDescription>Clicks and opens over the last 7 days</CardDescription>
+            <CardDescription>
+              {isSocial ? "Post clicks and engagement over the last 7 days" : "Clicks and opens over the last 7 days"}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -228,7 +310,7 @@ export default function PerformancePage() {
                 <YAxis />
                 <Tooltip />
                 <Bar dataKey="clicks" fill="#3b82f6" name="Clicks" />
-                <Bar dataKey="opens" fill="#10b981" name="Opens" />
+                <Bar dataKey="opens" fill="#10b981" name={isSocial ? "Engagement" : "Opens"} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -237,20 +319,22 @@ export default function PerformancePage() {
         <Card>
           <CardHeader>
             <CardTitle>Channel Distribution</CardTitle>
-            <CardDescription>Notification distribution by channel</CardDescription>
+            <CardDescription>
+              {isSocial ? "Distribution of clicks by social network" : "Notification distribution by channel"}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={channelData}
+                  data={activeChannelData}
                   cx="50%"
                   cy="50%"
                   outerRadius={80}
                   dataKey="value"
                   label={({ name, value }) => `${name}: ${value}%`}
                 >
-                  {channelData.map((entry, index) => (
+                  {activeChannelData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
@@ -265,7 +349,9 @@ export default function PerformancePage() {
       <Card>
         <CardHeader>
           <CardTitle>Detailed Performance</CardTitle>
-          <CardDescription>Individual notification performance metrics</CardDescription>
+          <CardDescription>
+            {isSocial ? "Individual social media post metrics" : "Individual notification performance metrics"}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -274,16 +360,16 @@ export default function PerformancePage() {
                 <TableHead>Title</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Channel</TableHead>
-                <TableHead>Sent At</TableHead>
-                <TableHead className="text-right">Receivers</TableHead>
+                <TableHead>{isSocial ? "Posted At" : "Sent At"}</TableHead>
+                <TableHead className="text-right">{isSocial ? "Reach" : "Receivers"}</TableHead>
                 <TableHead className="text-right">Clicks</TableHead>
                 <TableHead className="text-right">Click Rate</TableHead>
-                <TableHead className="text-right">Open Rate</TableHead>
-                <TableHead className="text-right">Delivery</TableHead>
+                <TableHead className="text-right">{isSocial ? "Engagement" : "Open Rate"}</TableHead>
+                <TableHead className="text-right">{isSocial ? "Status" : "Delivery"}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {performanceData.map((item) => (
+              {activeData.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell className="font-medium">{item.title}</TableCell>
                   <TableCell>
@@ -322,7 +408,7 @@ export default function PerformancePage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <span className={item.deliveryRate > 95 ? "text-green-600" : "text-yellow-600"}>
-                      {item.deliveryRate}%
+                      {isSocial ? "Active" : `${item.deliveryRate}%`}
                     </span>
                   </TableCell>
                 </TableRow>
@@ -332,5 +418,13 @@ export default function PerformancePage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function PerformancePage() {
+  return (
+    <Suspense fallback={<div className="p-6 text-center text-muted-foreground font-medium animate-pulse">Loading performance metrics...</div>}>
+      <PerformanceContent />
+    </Suspense>
   )
 }

@@ -2,7 +2,8 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import {
 	Card,
 	CardContent,
@@ -91,7 +92,7 @@ const amenitiesOptions = [
 	"Gulf Access",
 ];
 
-export default function ScheduleNotificationPage() {
+function ScheduleNotificationContent() {
 	const [date, setDate] = useState<Date>();
 	const [time, setTime] = useState("");
 	const [userId, setUserId] = useState("");
@@ -125,6 +126,63 @@ export default function ScheduleNotificationPage() {
 	const [newListingsOnly, setNewListingsOnly] = useState(false);
 	const [priceDropOnly, setPriceDropOnly] = useState(false);
 
+	const searchParams = useSearchParams();
+	const router = useRouter();
+	const id = searchParams.get("id");
+
+	useEffect(() => {
+		if (id) {
+			const fetchNotification = async () => {
+				try {
+					const res = await fetch(`/api/notifications/${id}`);
+					if (!res.ok) throw new Error("Failed to fetch notification");
+					const data = await res.json();
+					setTitle(data.title || "");
+					setMessage(data.message || "");
+					setSelectedType(data.type || "");
+					setSelectedChannel(data.channel?.toLowerCase() || "");
+					setSelectedSegment(data.segment || "");
+					
+					if (data.scheduledFor) {
+						const d = new Date(data.scheduledFor);
+						setDate(d);
+						setTime(format(d, "HH:mm"));
+					}
+
+					if (data.propertyCriteria) {
+						setPriceRange({
+							min: data.propertyCriteria.minPrice || "",
+							max: data.propertyCriteria.maxPrice || "",
+						});
+						setBedroomRange({
+							min: data.propertyCriteria.beds || "",
+							max: "",
+						});
+						setBathroomRange({
+							min: data.propertyCriteria.baths || "",
+							max: "",
+						});
+						setSelectedPropertyTypes(data.propertyCriteria.propertyTypes || []);
+						setSelectedAmenities(data.propertyCriteria.features || []);
+						if (
+							data.propertyCriteria.minPrice ||
+							data.propertyCriteria.maxPrice ||
+							data.propertyCriteria.beds ||
+							data.propertyCriteria.baths ||
+							(data.propertyCriteria.propertyTypes && data.propertyCriteria.propertyTypes.length > 0) ||
+							(data.propertyCriteria.features && data.propertyCriteria.features.length > 0)
+						) {
+							setShowPropertyCriteria(true);
+						}
+					}
+				} catch (err) {
+					console.error("Error loading notification details:", err);
+				}
+			};
+			fetchNotification();
+		}
+	}, [id]);
+
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
@@ -134,18 +192,18 @@ export default function ScheduleNotificationPage() {
 				: null;
 
 		try {
-			const response = await fetch("/api/notifications", {
-				method: "POST",
+			const url = id ? `/api/notifications/${id}` : "/api/notifications";
+			const method = id ? "PUT" : "POST";
+			const response = await fetch(url, {
+				method: method,
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
-					name: title,
-					notificationType: selectedType,
-					channel:
-						selectedChannel.charAt(0).toUpperCase() +
-						selectedChannel.slice(1),
+					title: title,
+					type: selectedType,
+					channel: selectedChannel,
 					segment: selectedSegment,
-					scheduledTime: scheduledDateTime,
-					messageTemplate: message,
+					scheduledFor: scheduledDateTime,
+					message: message,
 
 					propertyCriteria: {
 						minPrice: priceRange.min,
@@ -162,30 +220,14 @@ export default function ScheduleNotificationPage() {
 			});
 
 			if (response.ok) {
-				console.log("[v0] Notification scheduled successfully");
-				alert("Notification scheduled successfully!");
-				// Reset form
-				setTitle("");
-				setMessage("");
-				setSelectedType("");
-				setSelectedChannel("");
-				setSelectedSegment("");
-				setDate(undefined);
-				setTime("");
-				setPriceRange({ min: "", max: "" });
-				setSelectedLocations([]);
-				setSelectedPropertyTypes([]);
-				setBedroomRange({ min: "", max: "" });
-				setBathroomRange({ min: "", max: "" });
-				setSelectedAmenities([]);
-				setNewListingsOnly(false);
-				setPriceDropOnly(false);
+				alert(id ? "Notification updated successfully!" : "Notification scheduled successfully!");
+				router.push("/admin/notifications");
 			} else {
-				alert("Failed to schedule notification");
+				alert(id ? "Failed to update notification" : "Failed to schedule notification");
 			}
 		} catch (error) {
-			console.error("[v0] Error scheduling notification:", error);
-			alert("Error scheduling notification");
+			console.error("Error saving notification:", error);
+			alert("Error saving notification");
 		}
 	};
 
@@ -227,10 +269,10 @@ export default function ScheduleNotificationPage() {
 				</Link>
 				<div>
 					<h1 className="text-3xl font-bold text-foreground">
-						Schedule Notification
+						{id ? "Edit Notification" : "Schedule Notification"}
 					</h1>
 					<p className="text-muted-foreground mt-2">
-						Create and schedule a new notification campaign
+						{id ? "Edit and update the notification campaign parameters" : "Create and schedule a new notification campaign"}
 					</p>
 				</div>
 			</div>
@@ -586,7 +628,7 @@ export default function ScheduleNotificationPage() {
 
 								<div className="flex gap-3 pt-4">
 									<Button type="submit" className="flex-1">
-										Schedule Notification
+										{id ? "Update Notification" : "Schedule Notification"}
 									</Button>
 								</div>
 							</form>
@@ -703,5 +745,13 @@ export default function ScheduleNotificationPage() {
 				</div>
 			</div>
 		</div>
+	);
+}
+
+export default function ScheduleNotificationPage() {
+	return (
+		<Suspense fallback={<div className="p-6 text-center text-muted-foreground font-medium animate-pulse">Loading schedule configurations...</div>}>
+			<ScheduleNotificationContent />
+		</Suspense>
 	);
 }

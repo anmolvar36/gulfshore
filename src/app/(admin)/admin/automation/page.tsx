@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -21,6 +22,7 @@ const initialAutomations = [
     successRate: "98.5%",
     lastResult: "success",
     recordsProcessed: 1247,
+    type: "mls"
   },
   {
     id: "AUTO002",
@@ -33,6 +35,7 @@ const initialAutomations = [
     successRate: "99.2%",
     lastResult: "success",
     recordsProcessed: 89,
+    type: "mls"
   },
   {
     id: "AUTO003",
@@ -45,6 +48,7 @@ const initialAutomations = [
     successRate: "97.8%",
     lastResult: "error",
     recordsProcessed: 0,
+    type: "mls"
   },
   {
     id: "AUTO004",
@@ -57,6 +61,7 @@ const initialAutomations = [
     successRate: "99.9%",
     lastResult: "success",
     recordsProcessed: 2156,
+    type: "mls"
   },
   {
     id: "AUTO005",
@@ -69,12 +74,34 @@ const initialAutomations = [
     successRate: "94.2%",
     lastResult: "error",
     recordsProcessed: 0,
+    type: "mls"
   },
+  {
+    id: "AUTO006",
+    name: "Social Media Auto-Post",
+    description: "Automatically shares new properties and price drops on Facebook & Instagram",
+    status: "running",
+    lastRun: "2024-01-15 10:00:00",
+    nextRun: "Upon new listing detection",
+    frequency: "Real-time",
+    successRate: "100%",
+    lastResult: "success",
+    recordsProcessed: 432,
+    type: "social"
+  }
 ]
 
-export default function AutomationPage() {
+function AutomationContent() {
   const [automations, setAutomations] = useState(initialAutomations)
   const [runningSync, setRunningSync] = useState<string | null>(null)
+  const searchParams = useSearchParams()
+  const tab = searchParams.get("tab")
+
+  const filteredAutomations = automations.filter((auto) => {
+    if (tab === "social") return auto.type === "social";
+    if (tab === "mls") return auto.type === "mls";
+    return true; // Show all if no tab specified
+  })
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -222,7 +249,7 @@ export default function AutomationPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {automations.map((automation) => (
+              {filteredAutomations.map((automation) => (
                 <TableRow key={automation.id}>
                   <TableCell>
                     <div>
@@ -283,5 +310,13 @@ export default function AutomationPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function AutomationPage() {
+  return (
+    <Suspense fallback={<div className="p-6 text-center text-muted-foreground font-medium animate-pulse">Loading automation settings...</div>}>
+      <AutomationContent />
+    </Suspense>
   )
 }
