@@ -3,11 +3,11 @@ import prisma from "@/lib/prisma";
 
 export async function GET(
 	req: Request,
-	{ params }: { params: { id: string } }
+	{ params }: { params: Promise<{ id: string }> | any }
 ) {
 	try {
 		await connectDB();
-		const { id } = params;
+		const { id } = await params;
 		const notification = await prisma.scheduledNotification.findUnique({
 			where: { id },
 		});
@@ -45,11 +45,11 @@ export async function GET(
 
 export async function PUT(
 	req: Request,
-	{ params }: { params: { id: string } }
+	{ params }: { params: Promise<{ id: string }> | any }
 ) {
 	try {
 		await connectDB();
-		const { id } = params;
+		const { id } = await params;
 		const body = await req.json();
 
 		// Normalize fields if body contains Mongoose fields
@@ -94,11 +94,11 @@ export async function PUT(
 
 export async function DELETE(
 	req: Request,
-	{ params }: { params: { id: string } }
+	{ params }: { params: Promise<{ id: string }> | any }
 ) {
 	try {
 		await connectDB();
-		const { id } = params;
+		const { id } = await params;
 
 		const notification = await prisma.scheduledNotification.delete({
 			where: { id },

@@ -7,5 +7,5 @@ export default function UrlMaker(city: string, community: string, address: strin
 	const formattedCommunity = capitalizeWords(communityName)?.replaceAll(/\s+/g, "-");
 	const formattedAddress = address?.replaceAll(", ", "-").replaceAll(" ", "-").replaceAll("/", "-").replaceAll('--','-');
 
-	return `/Florida-Real-Estate-Listings/${formattedCity}/${formattedCommunity}/${formattedAddress}`;
+	return `/Florida-Real-Estate-Listings/${formattedCity}/${formattedCommunity}/${formattedAddress}${id ? `/${id}` : ""}`;
 }

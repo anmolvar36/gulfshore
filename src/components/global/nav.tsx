@@ -26,6 +26,7 @@ import {
 	SignedIn,
 	SignedOut,
 	SignInButton,
+	SignUpButton,
 	UserButton,
 	useUser,
 } from "@clerk/nextjs";
@@ -152,11 +153,18 @@ const Navbar = () => {
 							</NavigationMenuItem>
 							<SignedOut>
 								<NavigationMenuItem>
-									<Link href="/admin/dashboard">
-										<Button variant="outline" className="rounded-lg font-bold cursor-pointer border-[#B89A6A] text-[#B89A6A] hover:bg-[#B89A6A]/10">
-											Admin Panel
+									<SignInButton>
+										<Button variant="ghost" className="rounded-lg font-bold cursor-pointer text-black hover:bg-gray-100">
+											Sign In
 										</Button>
-									</Link>
+									</SignInButton>
+								</NavigationMenuItem>
+								<NavigationMenuItem>
+									<SignUpButton>
+										<Button className="rounded-lg font-bold cursor-pointer bg-[#B89A6A] hover:bg-[#a6895b] text-white">
+											Sign Up
+										</Button>
+									</SignUpButton>
 								</NavigationMenuItem>
 							</SignedOut>
 							<SignedIn>
@@ -164,7 +172,7 @@ const Navbar = () => {
 									<div className="flex items-center gap-4">
 										{user?.publicMetadata?.role === "admin" && (
 											<Link href="/admin/dashboard">
-												<Button variant="outline" className="rounded-lg font-bold cursor-pointer border-[#B89A6A] text-[#B89A6A] hover:bg-[#B89A6A]/10">
+												<Button variant="outline" className="rounded-lg font-bold cursor-pointer border-blue-600 text-blue-600 hover:bg-blue-50">
 													Admin Panel
 												</Button>
 											</Link>
@@ -251,18 +259,25 @@ export const DrawerMenu = ({
 							</NavigationMenuLink>
 						))}
 						<SignedOut>
-							<NavigationMenuLink
-								href="/admin/dashboard"
-								className="relative px-4 py-3 rounded-xl text-[#B89A6A] hover:bg-[#B89A6A]/10 transition-all duration-200 font-bold">
-								<span>Admin Panel</span>
-							</NavigationMenuLink>
+							<SignInButton>
+								<NavigationMenuLink
+									className="relative block w-full px-4 py-3 rounded-xl hover:bg-linear-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200 font-bold cursor-pointer">
+									<span>Sign In</span>
+								</NavigationMenuLink>
+							</SignInButton>
+							<SignUpButton>
+								<NavigationMenuLink
+									className="relative block w-full px-4 py-3 rounded-xl hover:bg-linear-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200 font-bold cursor-pointer text-[#B89A6A]">
+									<span>Sign Up</span>
+								</NavigationMenuLink>
+							</SignUpButton>
 						</SignedOut>
 						<SignedIn>
 							{" "}
 							{user?.publicMetadata?.role === "admin" && (
 								<NavigationMenuLink
 									href="/admin/dashboard"
-									className="relative px-4 py-3 rounded-xl text-[#B89A6A] hover:bg-[#B89A6A]/10 transition-all duration-200 font-bold">
+									className="relative px-4 py-3 rounded-xl text-blue-600 hover:bg-blue-50 transition-all duration-200 font-bold">
 									<span>Admin Dashboard</span>
 								</NavigationMenuLink>
 							)}

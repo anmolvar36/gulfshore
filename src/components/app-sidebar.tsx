@@ -50,7 +50,7 @@ import {
 	CollapsibleContent,
 	CollapsibleTrigger,
 } from "./ui/collapsible";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 const navigationItems = [
 	{
@@ -90,7 +90,7 @@ const navigationItems = [
 			{
 				label: "Social Media",
 				icon: Share2,
-				href: "/admin/automation",
+				href: "/admin/automation?tab=social",
 			},
 			{
 				label: "Notifications",
@@ -100,7 +100,7 @@ const navigationItems = [
 			{
 				label: "MLS",
 				icon: Database,
-				href: "/admin/automation",
+				href: "/admin/automation?tab=mls",
 			},
 		],
 	},
@@ -113,7 +113,7 @@ const navigationItems = [
 			{
 				label: "Property Performance",
 				icon: TrendingUp,
-				href: "/admin/performance",
+				href: "/admin/performance?tab=properties",
 			},
 			{
 				label: "Notification",
@@ -123,7 +123,7 @@ const navigationItems = [
 			{
 				label: "Social Media",
 				icon: Facebook,
-				href: "/admin/performance",
+				href: "/admin/performance?tab=social",
 			},
 			{
 				label: "Tour Requests",
@@ -184,13 +184,31 @@ const data = {
 
 const NavItems = () => {
 	const path = usePathname();
+	const searchParams = useSearchParams();
+	const tab = searchParams.get("tab");
+
 	const isActive = (item: { label: string; href: string }) => {
 		// De-duplicate active highlights first
 		if (item.href === "/admin/users" && item.label !== "Users List") return false;
 		if (item.href === "/admin/tours" && item.label !== "Tours") return false;
-		if (item.href === "/admin/performance" && item.label !== "Property Performance") return false;
-		if (item.href === "/admin/notifications" && item.label !== "Notifications") return false;
-		if (item.href === "/admin/automation" && item.label === "Social Media") return false;
+
+		if (item.href.startsWith("/admin/automation")) {
+			if (item.label === "Social Media") {
+				return path === "/admin/automation" && tab === "social";
+			}
+			if (item.label === "MLS") {
+				return path === "/admin/automation" && (tab === "mls" || !tab);
+			}
+		}
+
+		if (item.href.startsWith("/admin/performance")) {
+			if (item.label === "Social Media") {
+				return path === "/admin/performance" && tab === "social";
+			}
+			if (item.label === "Property Performance") {
+				return path === "/admin/performance" && (tab === "properties" || !tab);
+			}
+		}
 
 		// Path hierarchy prefix check
 		if (path === item.href) return true;

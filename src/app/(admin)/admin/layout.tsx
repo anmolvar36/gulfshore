@@ -1,4 +1,5 @@
 import React from "react";
+import "./globals.css";
 import VerifyAdmin from "@/hooks/auth";
 import { LayoutContent } from "@/components/layout-content";
 import { Toaster } from "@/components/ui/sonner";

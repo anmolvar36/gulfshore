@@ -60,6 +60,7 @@ export async function GET(
 					City: true,
 					ListPrice: true,
 					Development: true,
+					MLSNumber: true,
 				},
 			});
 
@@ -80,6 +81,7 @@ export async function GET(
 								City: prop.City,
 								CurrentPrice: prop.ListPrice || 0,
 								Development: prop.Development || "",
+								MLSNumber: prop.MLSNumber,
 						  }
 						: null,
 				};
@@ -95,6 +97,7 @@ export async function GET(
 					City: true,
 					ListPrice: true,
 					Development: true,
+					MLSNumber: true,
 				},
 			});
 
@@ -113,6 +116,7 @@ export async function GET(
 								City: prop.City,
 								CurrentPrice: prop.ListPrice || 0,
 								Development: prop.Development || "",
+								MLSNumber: prop.MLSNumber,
 						  }
 						: null,
 				};

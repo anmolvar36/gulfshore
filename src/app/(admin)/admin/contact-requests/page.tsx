@@ -282,13 +282,16 @@ export default function ContactRequestsPage() {
 												{request.message || "N/A"}
 											</td>
 											<td className="py-3 px-4 ">
-												{request.ref === "/"
-													? "https://gulfshoregroup.com"
-													: `https://gulfshoregroup.com/${request.ref}` ||
-													  "N/A"}
+												{!request.ref || request.ref === "null" || request.ref === "N/A"
+													? ""
+													: request.ref === "/"
+														? "https://gulfshoregroup.com"
+														: `https://gulfshoregroup.com/${request.ref}`}
 											</td>
 											<td className="py-3 px-4 ">
-												{request.refType || "N/A"}
+												{!request.ref || request.ref === "null" || request.ref === "N/A"
+													? ""
+													: request.refType || "Link"}
 											</td>
 											<td className="py-3 px-4">
 												<Button
@@ -354,9 +357,13 @@ export default function ContactRequestsPage() {
 								<div>
 									<span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Page Ref</span>
 									<p className="text-sm mt-0.5 text-blue-600 hover:underline break-all">
-										<a href={selectedRequest.ref === "/" ? "https://gulfshoregroup.com" : `https://gulfshoregroup.com/${selectedRequest.ref}`} target="_blank" rel="noreferrer">
-											{selectedRequest.refType || "Link"}
-										</a>
+										{!selectedRequest.ref || selectedRequest.ref === "null" || selectedRequest.ref === "N/A" ? (
+											<span className="text-gray-400 font-normal">-</span>
+										) : (
+											<a href={selectedRequest.ref === "/" ? "https://gulfshoregroup.com" : `https://gulfshoregroup.com/${selectedRequest.ref}`} target="_blank" rel="noreferrer">
+												{selectedRequest.refType || "Link"}
+											</a>
+										)}
 									</p>
 								</div>
 							</div>

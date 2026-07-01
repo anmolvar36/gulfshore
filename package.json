@@ -6,8 +6,7 @@
 		"dev": "next dev --webpack -p 3000",
 		"build": "next build --turbopack",
 		"start": "next start -p 3000",
-		"lint": "next lint",
-		"postinstall": "prisma generate"
+		"lint": "next lint"
 	},
 	"dependencies": {
 		"@clerk/nextjs": "^6.36.5",
@@ -70,6 +69,7 @@
 		"handlebars": "^4.7.8",
 		"input-otp": "^1.4.2",
 		"ioredis": "^5.8.2",
+		"lightningcss-win32-x64-msvc": "^1.32.0",
 		"lodash.debounce": "^4.0.8",
 		"lucide-react": "^0.548.0",
 		"mariadb": "^3.5.3",

@@ -102,7 +102,7 @@ export default function CitiesPage() {
 								<TableCell>{city.PropertyCount}</TableCell>
 								<TableCell>
 									<Link
-										href={`/cities/${capitalizeWords(
+										href={`/admin/cities/${capitalizeWords(
 											city.City
 										).replaceAll(" ", "-")}/edit`}>
 										<Button variant="ghost" size="icon">

@@ -123,7 +123,7 @@ export default function UsersPage() {
 								<TableCell>
 									<Link
 										className="items-center border px-2 hover:bg-black hover:text-white py-1 rounded-lg shadow inline-flex"
-										href={`/users/${user._id}`}>
+										href={`/admin/users/${user._id}`}>
 										<Eye className="mr-2 h-4 w-4" />
 										View Details
 									</Link>

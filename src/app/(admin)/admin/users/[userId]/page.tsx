@@ -174,14 +174,15 @@ export default function UserDetailPage() {
 												{userData.wishlistProperties?.length > 0 ? (
 													userData.wishlistProperties.map(
 														(property: any) => (
-															<TableRow key={property._id}>
+															<TableRow key={property.id}>
 																<TableCell className="font-medium">
 																	<a
 																		className="underline"
 																		href={`${UrlMaker(
 																			property.property.City,
 																			property.property.Development,
-																			property.PropertyAddress
+																			property.property.PropertyAddress,
+																			property.property.MLSNumber
 																		)}`}>
 																		{" "}
 																		{
@@ -239,14 +240,15 @@ export default function UserDetailPage() {
 													userData.viewedProperties.map(
 														(property: any) => (
 															<TableRow
-																key={`${property._id}-${property.createdAt}`}>
+																key={`${property.id}-${property.createdAt}`}>
 																<TableCell className="font-medium">
 																	<a
 																		className="underline"
 																		href={`${UrlMaker(
 																			property.property.City,
 																			property.property.Development,
-																			property.PropertyAddress
+																			property.property.PropertyAddress,
+																			property.property.MLSNumber
 																		)}`}>
 																		{" "}
 																		{

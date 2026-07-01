@@ -41,8 +41,15 @@ const nextConfig = {
 	poweredByHeader: false,
 	compress: true,
 
+	turbopack: process.env.NEXT_PUBLIC_USE_REAL_CLERK !== "true" ? {
+		resolveAlias: {
+			"@clerk/nextjs/server": "./src/lib/mock-clerk-server.ts",
+			"@clerk/nextjs": "./src/lib/mock-clerk.tsx",
+		},
+	} : {},
+
 	webpack: (config) => {
-		if (process.env.NEXT_PUBLIC_ENV === "DEV") {
+		if (process.env.NEXT_PUBLIC_USE_REAL_CLERK !== "true") {
 			config.resolve.alias["@clerk/nextjs/server$"] = join(__dirname, "src/lib/mock-clerk-server.ts");
 			config.resolve.alias["@clerk/nextjs$"] = join(__dirname, "src/lib/mock-clerk.tsx");
 		}

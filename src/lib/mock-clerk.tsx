@@ -193,18 +193,24 @@ const setCookie = (name: string, val: string) => {
 };
 
 export function SignedIn({ children }: { children: React.ReactNode }) {
+	const [mounted, setMounted] = React.useState(false);
 	const [signedIn, setSignedIn] = React.useState(false);
 	React.useEffect(() => {
 		setSignedIn(getCookie("mock_signed_in") === "true");
+		setMounted(true);
 	}, []);
+	if (!mounted) return null;
 	return signedIn ? <>{children}</> : null;
 }
 
 export function SignedOut({ children }: { children: React.ReactNode }) {
+	const [mounted, setMounted] = React.useState(false);
 	const [signedIn, setSignedIn] = React.useState(false);
 	React.useEffect(() => {
 		setSignedIn(getCookie("mock_signed_in") === "true");
+		setMounted(true);
 	}, []);
+	if (!mounted) return null;
 	return !signedIn ? <>{children}</> : null;
 }
 
@@ -246,6 +252,7 @@ export function UserButton() {
 }
 
 export function useUser() {
+	const [isLoaded, setIsLoaded] = React.useState(false);
 	const [signedIn, setSignedIn] = React.useState(false);
 	const [email, setEmail] = React.useState("user@gulfshore.com");
 
@@ -255,12 +262,13 @@ export function useUser() {
 		if (mockEmail && mockEmail !== "false") {
 			setEmail(mockEmail);
 		}
+		setIsLoaded(true);
 	}, []);
 
 	const isAdmin = email === "admin@gulfshore.com";
 
 	return {
-		isLoaded: true,
+		isLoaded,
 		isSignedIn: signedIn,
 		user: signedIn ? {
 			id: isAdmin ? "admin_dummy_123" : "user_dummy_123",
@@ -272,6 +280,7 @@ export function useUser() {
 }
 
 export function useAuth() {
+	const [isLoaded, setIsLoaded] = React.useState(false);
 	const [signedIn, setSignedIn] = React.useState(false);
 	const [email, setEmail] = React.useState("user@gulfshore.com");
 
@@ -281,12 +290,13 @@ export function useAuth() {
 		if (mockEmail && mockEmail !== "false") {
 			setEmail(mockEmail);
 		}
+		setIsLoaded(true);
 	}, []);
 
 	const isAdmin = email === "admin@gulfshore.com";
 
 	return {
-		isLoaded: true,
+		isLoaded,
 		isSignedIn: signedIn,
 		userId: signedIn ? (isAdmin ? "admin_dummy_123" : "user_dummy_123") : null,
 		getToken: async () => "dummy-token"

@@ -221,7 +221,27 @@ export function mapProperty(raw: any) {
 		Description: raw.PublicRemarks,
 		images: raw.Media ?? null,
 		// ---- RAW ----
-		raw,
+		raw: {
+			PublicRemarks: raw.PublicRemarks ?? null,
+			ExteriorFeatures: raw.ExteriorFeatures ?? null,
+			InteriorFeatures: raw.InteriorFeatures ?? null,
+			Appliances: raw.Appliances ?? null,
+			Flooring: raw.Flooring ?? null,
+			Heating: raw.Heating ?? null,
+			Cooling: raw.Cooling ?? null,
+			NABOR_MandatoryHOAYN: raw.NABOR_MandatoryHOAYN ?? null,
+			NABOR_HOAFee: raw.NABOR_HOAFee ?? null,
+			NABOR_HOAFeeFrequency: raw.NABOR_HOAFeeFrequency ?? null,
+			NABOR_MasterHOAFee: raw.NABOR_MasterHOAFee ?? null,
+			NABOR_MasterHOAFeeFrequency: raw.NABOR_MasterHOAFeeFrequency ?? null,
+			TaxAnnualAmount: raw.TaxAnnualAmount ?? null,
+			MLSAreaMajor: raw.MLSAreaMajor ?? null,
+			ListOfficeName: raw.ListOfficeName ?? null,
+			HighSchool: raw.HighSchool ?? null,
+			MiddleSchool: raw.MiddleSchool ?? null,
+			ElementarySchool: raw.ElementarySchool ?? null,
+			VirtualTourThumbnail: raw.VirtualTourThumbnail ?? null,
+		},
 	};
 }
 
