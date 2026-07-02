@@ -21,10 +21,8 @@ function createPrismaClient() {
 		return new PrismaClient({ adapter });
 	}
 
-	// In production, use standard DATABASE_URL env var
-	return new PrismaClient({
-		datasourceUrl: process.env.DATABASE_URL,
-	});
+	// In production, Prisma v7 reads DATABASE_URL from env automatically
+	return new PrismaClient();
 }
 
 const prisma = globalForPrisma.prisma || createPrismaClient();
