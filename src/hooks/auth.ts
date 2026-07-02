@@ -1,25 +1,24 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+import { getAdminCredentials } from "@/lib/admin-store";
 
 export default async function VerifyAdmin() {
-	console.log("[VerifyAdmin] Hook executing...");
-	const { userId } = await auth();
-	const user = await currentUser();
-	console.log("[VerifyAdmin] Auth state:", { 
-		userId, 
-		email: user?.primaryEmailAddress?.emailAddress, 
-		role: user?.publicMetadata?.role 
-	});
+	const cookieStore = await cookies();
+	const signedIn = cookieStore.get("mock_signed_in");
+	const userEmail = cookieStore.get("mock_user_email");
 
-	// Check if authenticated and has admin metadata role
-	const isAdmin = userId && user && user.publicMetadata?.role === "admin";
-	console.log("[VerifyAdmin] isAdmin check:", isAdmin);
+	const isSignedIn = signedIn?.value === "true";
+	const email = userEmail?.value || "";
 
-	if (!isAdmin) {
-		console.log("[VerifyAdmin] Redirecting to /admin/sign-in");
+	if (!isSignedIn || !email) {
 		return redirect("/admin/sign-in");
 	}
 
-	console.log("[VerifyAdmin] Access granted!");
+	// Verify email matches stored admin credentials
+	const creds = getAdminCredentials();
+	if (email !== creds.email) {
+		return redirect("/admin/sign-in");
+	}
+
 	return null;
 }

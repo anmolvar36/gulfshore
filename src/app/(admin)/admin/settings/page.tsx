@@ -7,13 +7,64 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Settings, Bell, Shield, Palette, Globe, Save } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { useUser } from "@clerk/nextjs";
 
 export default function SettingsPage() {
 	const [notifications, setNotifications] = useState(true);
 	const [emailAlerts, setEmailAlerts] = useState(true);
 	const [darkMode, setDarkMode] = useState(false);
+
+	const { user } = useUser();
+	const [email, setEmail] = useState("");
+	const [currentPassword, setCurrentPassword] = useState("");
+	const [newPassword, setNewPassword] = useState("");
+	const [updating, setUpdating] = useState(false);
+
+	useEffect(() => {
+		if (user?.primaryEmailAddress?.emailAddress) {
+			setEmail(user.primaryEmailAddress.emailAddress);
+		}
+	}, [user]);
+
+	const handleUpdateSecurity = async () => {
+		if (!currentPassword) {
+			toast.error("Please enter your current password to save changes.");
+			return;
+		}
+		if (!email) {
+			toast.error("Email cannot be empty.");
+			return;
+		}
+
+		setUpdating(true);
+		try {
+			const res = await fetch("/api/admin/auth", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					action: "change-credentials",
+					password: currentPassword,
+					newEmail: email,
+					newPassword: newPassword || undefined
+				})
+			});
+			const data = await res.json();
+			if (data.success) {
+				toast.success("Credentials updated successfully!");
+				document.cookie = `mock_user_email=${email}; path=/; max-age=31536000`;
+				setCurrentPassword("");
+				setNewPassword("");
+			} else {
+				toast.error(data.error || "Failed to update credentials.");
+			}
+		} catch (err) {
+			toast.error("Error updating credentials.");
+		} finally {
+			setUpdating(false);
+		}
+	};
 
 	return (
 		<div className="space-y-6 px-4 my-5">
@@ -110,21 +161,47 @@ export default function SettingsPage() {
 					<CardHeader>
 						<CardTitle className="flex items-center gap-2">
 							<Shield className="h-5 w-5" />
-							Security
+							Security & Account
 						</CardTitle>
-						<CardDescription>Manage your account security</CardDescription>
+						<CardDescription>Manage your administrative login credentials</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-4">
 						<div className="space-y-2">
-							<Label>Current Password</Label>
-							<Input type="password" placeholder="Enter current password" />
+							<Label htmlFor="adminEmail">Admin Email / ID</Label>
+							<Input
+								id="adminEmail"
+								type="email"
+								value={email}
+								onChange={(e) => setEmail(e.target.value)}
+								placeholder="admin@gulfshore.com"
+							/>
 						</div>
 						<div className="space-y-2">
-							<Label>New Password</Label>
-							<Input type="password" placeholder="Enter new password" />
+							<Label htmlFor="currPassword">Current Password (Required to make changes)</Label>
+							<Input
+								id="currPassword"
+								type="password"
+								value={currentPassword}
+								onChange={(e) => setCurrentPassword(e.target.value)}
+								placeholder="Enter current password"
+							/>
 						</div>
-						<Button variant="outline" onClick={() => toast.success("Password updated!")}>
-							Update Password
+						<div className="space-y-2">
+							<Label htmlFor="newPassword">New Password (Leave blank to keep current)</Label>
+							<Input
+								id="newPassword"
+								type="password"
+								value={newPassword}
+								onChange={(e) => setNewPassword(e.target.value)}
+								placeholder="Enter new password"
+							/>
+						</div>
+						<Button 
+							variant="outline" 
+							disabled={updating}
+							onClick={handleUpdateSecurity}
+						>
+							{updating ? "Saving..." : "Update Credentials"}
 						</Button>
 					</CardContent>
 				</Card>

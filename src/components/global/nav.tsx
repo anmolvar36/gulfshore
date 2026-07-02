@@ -153,18 +153,11 @@ const Navbar = () => {
 							</NavigationMenuItem>
 							<SignedOut>
 								<NavigationMenuItem>
-									<SignInButton>
-										<Button variant="ghost" className="rounded-lg font-bold cursor-pointer text-black hover:bg-gray-100">
-											Sign In
+									<Link href="/admin/dashboard">
+										<Button variant="outline" className="rounded-lg font-bold cursor-pointer border-[#B89A6A] text-[#B89A6A] hover:bg-[#B89A6A]/10">
+											Admin Panel
 										</Button>
-									</SignInButton>
-								</NavigationMenuItem>
-								<NavigationMenuItem>
-									<SignUpButton>
-										<Button className="rounded-lg font-bold cursor-pointer bg-[#B89A6A] hover:bg-[#a6895b] text-white">
-											Sign Up
-										</Button>
-									</SignUpButton>
+									</Link>
 								</NavigationMenuItem>
 							</SignedOut>
 							<SignedIn>
@@ -259,18 +252,11 @@ export const DrawerMenu = ({
 							</NavigationMenuLink>
 						))}
 						<SignedOut>
-							<SignInButton>
-								<NavigationMenuLink
-									className="relative block w-full px-4 py-3 rounded-xl hover:bg-linear-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200 font-bold cursor-pointer">
-									<span>Sign In</span>
-								</NavigationMenuLink>
-							</SignInButton>
-							<SignUpButton>
-								<NavigationMenuLink
-									className="relative block w-full px-4 py-3 rounded-xl hover:bg-linear-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200 font-bold cursor-pointer text-[#B89A6A]">
-									<span>Sign Up</span>
-								</NavigationMenuLink>
-							</SignUpButton>
+							<NavigationMenuLink
+								href="/admin/dashboard"
+								className="relative px-4 py-3 rounded-xl text-[#B89A6A] hover:bg-[#B89A6A]/10 transition-all duration-200 font-bold">
+								<span>Admin Panel</span>
+							</NavigationMenuLink>
 						</SignedOut>
 						<SignedIn>
 							{" "}

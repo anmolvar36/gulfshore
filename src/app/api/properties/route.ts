@@ -136,6 +136,16 @@ export async function GET(req: NextRequest) {
 				},
 				skip: (page - 1) * limit,
 				take: limit,
+				select: {
+					id: true, FullAddress: true, PropertyType: true, ListPrice: true,
+					Latitude: true, Longitude: true, createdAt: true, images: true,
+					PropertySubType: true, LotSizeAcres: true, LivingArea: true,
+					BathroomsFull: true, BedroomsTotal: true, StandardStatus: true,
+					YearBuilt: true, City: true, PostalCode: true, MLSNumber: true,
+					Development: true, Community: true, Latitude: true, Longitude: true,
+					WaterfrontYN: true, GarageYN: true, PoolPrivateYN: true,
+					ListingKey: true, ListingId: true, raw: true,
+				},
 			}),
 		]);
 
@@ -150,8 +160,13 @@ export async function GET(req: NextRequest) {
 		}
 
 		// Map properties back to Mongoose representation for Frontend compatibility
-		const mappedData = properties.map((p) => {
-			const imagesArray = Array.isArray(p.images) ? (p.images as any[]) : [];
+		const mappedData = properties.map((p: any) => {
+			// Extract images from raw.Media if images field is null
+			let sourceImages = p.images;
+			if (!sourceImages && p.raw && (p.raw as any).Media) {
+				sourceImages = (p.raw as any).Media;
+			}
+			const imagesArray = Array.isArray(sourceImages) ? (sourceImages as any[]) : [];
 			const imagePaths = imagesArray.map((img: any) => img.MediaURL || img);
 			const defaultPic = imagePaths.length > 0 ? imagePaths[0] : "";
 			return {

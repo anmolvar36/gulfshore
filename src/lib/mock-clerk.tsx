@@ -34,30 +34,29 @@ export function ClerkProvider({ children }: { children: React.ReactNode }) {
 		};
 	}, []);
 
-	const handleLogin = (e: React.FormEvent) => {
+	const handleLogin = async (e: React.FormEvent) => {
 		e.preventDefault();
-		if (email === "admin@gulfshore.com") {
-			if (password === "admin") {
+		setError("");
+		try {
+			const res = await fetch("/api/admin/auth", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ action: "login", email, password })
+			});
+			const data = await res.json();
+			if (data.success) {
 				setCookie("mock_signed_in", "true");
-				setCookie("mock_user_email", email);
+				setCookie("mock_user_email", data.email);
 				if (typeof sessionStorage !== "undefined") {
 					sessionStorage.setItem("just_signed_in", "true");
 				}
 				setShowModal(false);
 				window.location.reload();
 			} else {
-				setError("Invalid password for admin. Use: admin");
+				setError(data.error || "Invalid credentials");
 			}
-		} else {
-			// Normal user login: require password to be at least 4 characters
-			if (password.length >= 4) {
-				setCookie("mock_signed_in", "true");
-				setCookie("mock_user_email", email);
-				setShowModal(false);
-				window.location.reload();
-			} else {
-				setError("Password must be at least 4 characters long");
-			}
+		} catch (err) {
+			setError("Failed to connect to authentication service.");
 		}
 	};
 
@@ -265,7 +264,7 @@ export function useUser() {
 		setIsLoaded(true);
 	}, []);
 
-	const isAdmin = email === "admin@gulfshore.com";
+	const isAdmin = signedIn;
 
 	return {
 		isLoaded,
@@ -293,7 +292,7 @@ export function useAuth() {
 		setIsLoaded(true);
 	}, []);
 
-	const isAdmin = email === "admin@gulfshore.com";
+	const isAdmin = signedIn;
 
 	return {
 		isLoaded,

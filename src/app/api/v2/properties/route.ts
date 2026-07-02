@@ -311,6 +311,7 @@ export async function GET(req: NextRequest) {
 					AllPixDownloaded: true,
 					images: true,
 					communityId: true,
+					raw: true,
 				  },
 				orderBy: { [sortField]: sortOrder },
 			}),
@@ -335,10 +336,20 @@ export async function GET(req: NextRequest) {
 		// 	);
 		// }
 
-		const data = properties.map((p: { id: string }) => ({
-			...p,
-			isWishlisted: false,
-		}));
+		const data = properties.map((p: any) => {
+			// Extract images from raw.Media if images field is null
+			let resolvedImages = p.images;
+			if (!resolvedImages && p.raw && (p.raw as any).Media) {
+				resolvedImages = (p.raw as any).Media;
+			}
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			const { raw: _raw, ...rest } = p;
+			return {
+				...rest,
+				images: resolvedImages,
+				isWishlisted: false,
+			};
+		});
 
 		const response = {
 			success: true,

@@ -52,13 +52,14 @@ export default async function Listing({
 }) {
 	const id = (await params).mls?.[0];
 	const property: Property = await FetchProperty(id);
-	const media = property.images as any;
+	const media = (property.images ?? (property as any)?.raw?.Media) as any;
 	let images: string[] = [];
 	if (media && media.length > 0) {
 		images = media
 			.filter((item: any) => item.MediaCategory === "Photo")
 			.map((item: any) => item.MediaURL);
 	}
+
 	const isValidField = (value: any) => {
 		return (
 			value !== null &&

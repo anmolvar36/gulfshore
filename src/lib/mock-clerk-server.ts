@@ -15,19 +15,17 @@ async function getMockEmailServer() {
 	try {
 		const cookieStore = await cookies();
 		const mockEmail = cookieStore.get("mock_user_email");
-		return mockEmail && mockEmail.value !== "false" ? mockEmail.value : "user@gulfshore.com";
+		return mockEmail && mockEmail.value !== "false" ? mockEmail.value : "admin@gulfshore.com";
 	} catch (e) {
-		return "user@gulfshore.com";
+		return "admin@gulfshore.com";
 	}
 }
 
 export function clerkMiddleware(callback?: any) {
 	return async (req: any, event: any) => {
 		const signedIn = await getIsSignedInServer();
-		const email = await getMockEmailServer();
-		const isAdmin = email === "admin@gulfshore.com";
 		const mockAuth = async () => ({ 
-			userId: signedIn ? (isAdmin ? "admin_dummy_123" : "user_dummy_123") : null 
+			userId: signedIn ? "admin_dummy_123" : null 
 		});
 		if (callback && typeof callback === "function") {
 			return await callback(mockAuth, req, event);
@@ -45,10 +43,8 @@ export function createRouteMatcher(routes: string[]) {
 
 export async function auth() {
 	const signedIn = await getIsSignedInServer();
-	const email = await getMockEmailServer();
-	const isAdmin = email === "admin@gulfshore.com";
 	return { 
-		userId: signedIn ? (isAdmin ? "admin_dummy_123" : "user_dummy_123") : null 
+		userId: signedIn ? "admin_dummy_123" : null 
 	};
 }
 
@@ -57,12 +53,11 @@ export async function currentUser() {
 	if (!signedIn) return null;
 	
 	const email = await getMockEmailServer();
-	const isAdmin = email === "admin@gulfshore.com";
 
 	return {
-		id: isAdmin ? "admin_dummy_123" : "user_dummy_123",
-		fullName: isAdmin ? "Admin User" : "Regular User",
+		id: "admin_dummy_123",
+		fullName: "Admin User",
 		primaryEmailAddress: { emailAddress: email },
-		publicMetadata: { role: isAdmin ? "admin" : "user" }
+		publicMetadata: { role: "admin" }
 	};
 }

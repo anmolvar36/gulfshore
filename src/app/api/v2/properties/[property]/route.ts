@@ -44,11 +44,15 @@ export async function GET(
 			);
 		}
 
+		// Inject images from raw.Media if images field is null
+		const rawData = res.raw as any;
+		const resolvedImages =
+			res.images ?? (rawData?.Media ? rawData.Media : null);
+
 		// 🔥 Fetch similar properties
-		const similar: any[] = await prisma.property.findMany({
+		const similarRaw: any[] = await prisma.property.findMany({
 			where: {
 				StandardStatus: "Active",
-
 				City: res.City,
 				Community: res.Community,
 				ListingId: {
@@ -58,8 +62,22 @@ export async function GET(
 			take: 9,
 		});
 
+		// Inject images into similar properties too
+		const similar = similarRaw.map((s: any) => {
+			const sRaw = s.raw as any;
+			const sImages = s.images ?? (sRaw?.Media ? sRaw.Media : null);
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			const { raw: _raw, ...rest } = s;
+			return { ...rest, images: sImages };
+		});
+
+		// Strip raw from main property response (large field, not needed by frontend)
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { raw: _raw, ...resWithoutRaw } = res as any;
+
 		const finalData = {
-			...res,
+			...resWithoutRaw,
+			images: resolvedImages,
 			similar,
 		};
 
@@ -79,3 +97,4 @@ export async function GET(
 		);
 	}
 }
+
