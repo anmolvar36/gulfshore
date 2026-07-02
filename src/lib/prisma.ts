@@ -23,11 +23,7 @@ function createPrismaClient() {
 
 	// In production, use standard DATABASE_URL env var
 	return new PrismaClient({
-		datasources: {
-			db: {
-				url: process.env.DATABASE_URL,
-			},
-		},
+		datasourceUrl: process.env.DATABASE_URL,
 	});
 }
 
