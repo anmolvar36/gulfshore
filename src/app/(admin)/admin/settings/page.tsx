@@ -9,24 +9,31 @@ import { Separator } from "@/components/ui/separator";
 import { Settings, Bell, Shield, Palette, Globe, Save } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { useUser } from "@clerk/nextjs";
-
 export default function SettingsPage() {
 	const [notifications, setNotifications] = useState(true);
 	const [emailAlerts, setEmailAlerts] = useState(true);
 	const [darkMode, setDarkMode] = useState(false);
 
-	const { user } = useUser();
 	const [email, setEmail] = useState("");
 	const [currentPassword, setCurrentPassword] = useState("");
 	const [newPassword, setNewPassword] = useState("");
 	const [updating, setUpdating] = useState(false);
 
 	useEffect(() => {
-		if (user?.primaryEmailAddress?.emailAddress) {
-			setEmail(user.primaryEmailAddress.emailAddress);
+		// Read admin email from cookie
+		const getCookie = (name: string) => {
+			const value = `; ${document.cookie}`;
+			const parts = value.split(`; ${name}=`);
+			if (parts.length === 2) return parts.pop()?.split(';').shift() || "";
+			return "";
+		};
+		const cookieEmail = getCookie("mock_user_email");
+		if (cookieEmail && cookieEmail !== "false") {
+			setEmail(cookieEmail);
+		} else {
+			setEmail("admin@gulfshore.com");
 		}
-	}, [user]);
+	}, []);
 
 	const handleUpdateSecurity = async () => {
 		if (!currentPassword) {
