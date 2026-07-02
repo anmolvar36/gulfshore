@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
+import { cookies } from "next/headers";
 
 export async function GET(req: NextRequest) {
 	try {
@@ -9,11 +9,14 @@ export async function GET(req: NextRequest) {
 		const limit = parseInt(query.get("limit") || "10");
 		const sortField = query.get("sort") || "ListPrice";
 		const sortOrder = query.get("order") === "asc" ? "asc" : "desc";
-		const { userId } = await auth();
+		const cookieStore = await cookies();
+		const userId = cookieStore.get("user_id")?.value || null;
 
-		const where: any = {
-			StandardStatus: query.get("Status") || "Active",
-		};
+		// Status: default Active for public. Pass ?Status=All to show everything (admin)
+		const statusParam = query.get("status") || query.get("Status");
+		const where: any = statusParam && statusParam !== "Active"
+			? {} // no status filter — show all
+			: { StandardStatus: "Active" };
 
 		// Price Range Filter
 		const minPrice = query.get("minPrice") ? Number(query.get("minPrice")) : null;
@@ -49,20 +52,43 @@ export async function GET(req: NextRequest) {
 		}
 
 		// Features
-		const features = query.getAll("features[]");
+		const featuresRaw = query.get("features") || "";
+		const features = featuresRaw ? featuresRaw.split(",").map(f => f.trim().toLowerCase()) : query.getAll("features[]").map(f => f.toLowerCase());
 		if (features.length > 0) {
-			if (features.includes("spa")) {
-				where.SpaYN = true;
-			}
-			if (features.includes("waterfront")) {
-				where.WaterfrontYN = true;
-			}
-			if (features.includes("pool")) {
-				where.PoolPrivateYN = true;
-			}
-			if (features.includes("gulfaccess")) {
-				where.GulfAccessYN = true;
-			}
+			if (features.some(f => f.includes("spa"))) where.SpaYN = true;
+			if (features.some(f => f.includes("waterfront"))) where.WaterfrontYN = true;
+			if (features.some(f => f.includes("pool"))) where.PoolPrivateYN = true;
+			if (features.some(f => f.includes("gulf"))) where.GulfAccessYN = true;
+			if (features.some(f => f.includes("garage"))) where.GarageYN = true;
+		}
+
+		// HOA Filter
+		const hoa = query.get("hoa");
+		if (hoa === "yes") where.WaterfrontYN = { not: null }; // placeholder — HOA field
+		// Acres filter
+		const minAcres = query.get("minAcres") ? parseFloat(query.get("minAcres")!) : null;
+		const maxAcres = query.get("maxAcres") ? parseFloat(query.get("maxAcres")!) : null;
+		if (minAcres !== null || maxAcres !== null) {
+			where.LotSizeAcres = {
+				...(minAcres !== null && { gte: minAcres }),
+				...(maxAcres !== null && { lte: maxAcres }),
+			};
+		}
+
+		// Bedroom/Bathroom filters
+		const bedsParam = query.get("beds");
+		if (bedsParam) where.BedroomsTotal = { gte: parseInt(bedsParam) };
+		const bathsParam = query.get("baths");
+		if (bathsParam) where.BathroomsFull = { gte: parseInt(bathsParam) };
+
+		// Year Built
+		const builtYearMin = query.get("builtYearMin") ? parseInt(query.get("builtYearMin")!) : null;
+		const builtYearMax = query.get("builtYearMax") ? parseInt(query.get("builtYearMax")!) : null;
+		if (builtYearMin !== null || builtYearMax !== null) {
+			where.YearBuilt = {
+				...(builtYearMin !== null && { gte: builtYearMin }),
+				...(builtYearMax !== null && { lte: builtYearMax }),
+			};
 		}
 
 		// Bounding Box Location Filter

@@ -105,6 +105,10 @@ export const Filters = ({
 	const [postalCode, setPostalCode] = useState("");
 	const [mlsNumber, setMlsNumber] = useState("");
 	const [open, setOpen] = useState(false);
+	const [hoa, setHoa] = useState("Any");
+	const [minAcres, setMinAcres] = useState("");
+	const [maxAcres, setMaxAcres] = useState("");
+	const [statusFilter, setStatusFilter] = useState("Active");
 
 	// Parse filters from URL query on mount
 	useEffect(() => {
@@ -120,6 +124,10 @@ export const Filters = ({
 		setPostalCode(parsed.postalCode || "");
 		setPropertyType(parsed.propertyTypes || []);
 		setKeywords(parsed.features || []);
+		setHoa((searchParams.get("hoa") as string) || "Any");
+		setMinAcres(searchParams.get("minAcres") || "");
+		setMaxAcres(searchParams.get("maxAcres") || "");
+		setStatusFilter(searchParams.get("status") || "Active");
 	}, [searchParams, pathname]);
 
 	const scrollResultsToTop = () => {
@@ -160,6 +168,10 @@ export const Filters = ({
 			postalCode,
 			propertyTypes: propertyType,
 			features: keywords,
+			hoa,
+			minAcres,
+			maxAcres,
+			status: statusFilter,
 			page: "1",
 		};
 		const nextQuery = buildQueryFromFilters(nextFilters, searchParams);
@@ -525,12 +537,13 @@ export const Filters = ({
 							))}
 						</div>
 					</div>
+					{/* Features */}
 					<div className="col-span-2">
 						<Label className="text-sm font-medium text-gray-900 mb-2 block">
 							Features
 						</Label>
 						<div className="grid grid-cols-3 gap-4">
-							{["Gulf Access", "Waterfront", "Pool"].map((f, i) => (
+							{["Gulf Access", "Waterfront", "Pool", "Garage", "Spa"].map((f, i) => (
 								<div key={i} className="flex items-center space-x-2">
 									<Checkbox
 										id={`keywords-${i}`}
@@ -551,6 +564,66 @@ export const Filters = ({
 								</div>
 							))}
 						</div>
+					</div>
+
+					{/* HOA */}
+					<div className="flex flex-col space-y-2">
+						<Label className="text-sm font-medium text-gray-900">HOA</Label>
+						<DropdownMenu>
+							<DropdownMenuTrigger className="text-center border rounded-lg justify-between p-2 items-center inline-flex text-sm">
+								{hoa || "Any"} <ChevronDown size={14} />
+							</DropdownMenuTrigger>
+							<DropdownMenuContent>
+								<DropdownMenuRadioGroup value={hoa} onValueChange={setHoa}>
+									{["Any", "Yes", "No"].map((v) => (
+										<DropdownMenuRadioItem key={v} value={v}>{v}</DropdownMenuRadioItem>
+									))}
+								</DropdownMenuRadioGroup>
+							</DropdownMenuContent>
+						</DropdownMenu>
+					</div>
+
+					{/* Min Acres */}
+					<div className="flex flex-col space-y-2">
+						<Label className="text-sm font-medium text-gray-900">Min Acres</Label>
+						<Input
+							type="number"
+							step="0.1"
+							value={minAcres}
+							onChange={(e) => setMinAcres(e.target.value)}
+							className="text-sm"
+							placeholder="e.g. 0.5"
+						/>
+					</div>
+
+					{/* Max Acres */}
+					<div className="flex flex-col space-y-2">
+						<Label className="text-sm font-medium text-gray-900">Max Acres</Label>
+						<Input
+							type="number"
+							step="0.1"
+							value={maxAcres}
+							onChange={(e) => setMaxAcres(e.target.value)}
+							className="text-sm"
+							placeholder="e.g. 5"
+						/>
+					</div>
+
+					{/* Status */}
+					<div className="flex flex-col space-y-2">
+						<Label className="text-sm font-medium text-gray-900">Listing Status</Label>
+						<DropdownMenu>
+							<DropdownMenuTrigger className="text-center border rounded-lg justify-between p-2 items-center inline-flex text-sm">
+								{statusFilter || "Active"} <ChevronDown size={14} />
+							</DropdownMenuTrigger>
+							<DropdownMenuContent>
+								<DropdownMenuRadioGroup value={statusFilter} onValueChange={setStatusFilter}>
+									{["Active", "Sold", "Pending", "Short Sale", "Foreclosure", "All"].map((v) => (
+										<DropdownMenuRadioItem key={v} value={v}>{v}</DropdownMenuRadioItem>
+									))}
+								</DropdownMenuRadioGroup>
+							</DropdownMenuContent>
+						</DropdownMenu>
 					</div>
 				</div>
 
