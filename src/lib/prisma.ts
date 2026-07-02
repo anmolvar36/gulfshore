@@ -21,8 +21,20 @@ function createPrismaClient() {
 		return new PrismaClient({ adapter });
 	}
 
-	// In production, Prisma v7 reads DATABASE_URL from env automatically
-	return new PrismaClient();
+	// In production, Prisma v7 requires an adapter - use DATABASE_URL env var
+	const { PrismaMariaDb } = require("@prisma/adapter-mariadb");
+	const url = new URL(process.env.DATABASE_URL!);
+	const adapter = new PrismaMariaDb({
+		host: url.hostname,
+		port: parseInt(url.port, 10),
+		user: url.username,
+		password: url.password,
+		database: url.pathname.slice(1),
+		connectTimeout: 10000,
+		connectionLimit: 10,
+		acquireTimeout: 10000,
+	} as any);
+	return new PrismaClient({ adapter });
 }
 
 const prisma = globalForPrisma.prisma || createPrismaClient();
