@@ -63,6 +63,7 @@ model Media {
   createdAt DateTime @default(now())
 
   @@index([propertyId])
+  @@map("media")
 }
 
 model SavedProperty {
@@ -78,6 +79,7 @@ model SavedProperty {
   property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@unique([leadId, propertyId])
+  @@map("savedproperty")
 }
 
 model SavedSearch {
@@ -97,6 +99,7 @@ model SavedSearch {
   user Lead @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@map("savedsearch")
 }
 
 model SearchHistory {
@@ -115,6 +118,7 @@ model SearchHistory {
   @@index([userId])
   @@index([createdAt])
   @@index([userId, fingerprint])
+  @@map("searchhistory")
 }
 
 model Lead {
@@ -149,6 +153,8 @@ model Lead {
   searchHistory   SearchHistory[]
   savedSearch     SavedSearch[]
   savedProperties SavedProperty[]
+
+  @@map("lead")
 }
 
 model Inquiry {
@@ -162,6 +168,7 @@ model Inquiry {
   Lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
 
   @@index([leadId])
+  @@map("inquiry")
 }
 
 model Note {
@@ -173,6 +180,7 @@ model Note {
   Lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
 
   @@index([leadId])
+  @@map("note")
 }
 
 model Property {
@@ -376,6 +384,7 @@ model ViewedProperty {
   @@index([userId])
   @@index([propertyId])
   @@index([userId, lastViewedAt])
+  @@map("viewedproperty")
 }
 
 model UserAlert {
@@ -390,6 +399,7 @@ model UserAlert {
   user            Lead     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId])
+  @@map("useralert")
 }
 
 model Sequence {
@@ -400,6 +410,8 @@ model Sequence {
   updatedAt    DateTime
   steps        Json?
   SequenceStep SequenceStep[]
+
+  @@map("sequence")
 }
 
 model SequenceStep {
@@ -419,6 +431,7 @@ model SequenceStep {
   @@index([scheduledAt])
   @@index([sequenceId])
   @@index([status])
+  @@map("sequencestep")
 }
 
 model City {
@@ -435,6 +448,7 @@ model City {
 
   @@index([name])
   @@index([slug])
+  @@map("city")
 }
 
 model Community {
@@ -453,6 +467,7 @@ model Community {
   @@index([name])
   @@index([slug])
   @@index([cityId])
+  @@map("community")
 }
 
 model ContactRequest {
@@ -469,6 +484,7 @@ model ContactRequest {
   updatedAt DateTime @updatedAt
 
   @@index([email])
+  @@map("contactrequest")
 }
 
 model Wishlist {
@@ -479,6 +495,7 @@ model Wishlist {
   updatedAt  DateTime @updatedAt
 
   @@unique([userId, propertyId])
+  @@map("wishlist")
 }
 
 model UserSearchQuery {
@@ -492,6 +509,7 @@ model UserSearchQuery {
   updatedAt         DateTime @updatedAt
 
   @@index([userId])
+  @@map("usersearchquery")
 }
 
 model UserViewedProperty {
@@ -504,6 +522,7 @@ model UserViewedProperty {
   updatedAt  DateTime @updatedAt
 
   @@unique([userId, propertyId])
+  @@map("userviewedproperty")
 }
 
 model User {
@@ -519,6 +538,8 @@ model User {
   metadata     Json?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  @@map("user")
 }
 
 model ScheduleTour {
@@ -535,6 +556,7 @@ model ScheduleTour {
   updatedAt  DateTime @updatedAt
 
   @@index([propertyId])
+  @@map("scheduletour")
 }
 
 model Blog {
@@ -553,6 +575,8 @@ model Blog {
   publishedAt     DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+
+  @@map("blog")
 }
 
 model ScheduledNotification {
@@ -572,6 +596,8 @@ model ScheduledNotification {
   messageTemplate  String    @db.Text
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
+
+  @@map("schedulednotification")
 }
 
 
