@@ -1,5 +1,16 @@
 import "dotenv/config";
-import { prisma } from "../src/lib/prisma";
+import { PrismaClient } from "../src/app/generated/prisma/client";
+import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+
+const adapter = new PrismaMariaDb({
+	host: "127.0.0.1",
+	port: 3307,
+	user: "root",
+	password: "",
+	database: "gulfshoregroup",
+} as any);
+
+const prisma = new PrismaClient({ adapter } as any);
 
 async function main() {
 	try {
@@ -8,7 +19,7 @@ async function main() {
 		const totalCount = await prisma.property.count();
 		console.log(`Total properties found: ${totalCount}`);
 
-		const batchSize = 200;
+		const batchSize = 100;
 		let offset = 0;
 		let updatedCount = 0;
 
@@ -25,11 +36,13 @@ async function main() {
 
 			if (properties.length === 0) break;
 
+			const updates: Promise<any>[] = [];
+
 			for (const prop of properties) {
 				const rawObj = prop.raw as any;
 
 				if (rawObj) {
-					// Extract only the fields used in the codebase
+					// Extract only the fields used in the codebase or keep it minimal
 					const filteredRaw = {
 						PublicRemarks: rawObj.PublicRemarks ?? null,
 						ExteriorFeatures: rawObj.ExteriorFeatures ?? null,
@@ -52,16 +65,21 @@ async function main() {
 						VirtualTourThumbnail: rawObj.VirtualTourThumbnail ?? null,
 					};
 
-					// Update record in database
-					await prisma.property.update({
-						where: { id: prop.id },
-						data: {
-							raw: filteredRaw as any,
-						},
-					});
+					// Push update promise to array
+					updates.push(
+						prisma.property.update({
+							where: { id: prop.id },
+							data: {
+								raw: filteredRaw as any,
+							},
+						})
+					);
 					updatedCount++;
 				}
 			}
+
+			// Run updates in parallel for current batch
+			await Promise.all(updates);
 
 			offset += batchSize;
 			console.log(`Processed: ${updatedCount} / ${totalCount} properties.`);

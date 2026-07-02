@@ -136,13 +136,13 @@ export async function GET(req: NextRequest) {
 				},
 				skip: (page - 1) * limit,
 				take: limit,
-				select: {
+					select: {
 					id: true, FullAddress: true, PropertyType: true, ListPrice: true,
 					Latitude: true, Longitude: true, createdAt: true, images: true,
 					PropertySubType: true, LotSizeAcres: true, LivingArea: true,
 					BathroomsFull: true, BedroomsTotal: true, StandardStatus: true,
 					YearBuilt: true, City: true, PostalCode: true, MLSNumber: true,
-					Development: true, Community: true, Latitude: true, Longitude: true,
+					Development: true, Community: true,
 					WaterfrontYN: true, GarageYN: true, PoolPrivateYN: true,
 					ListingKey: true, ListingId: true, raw: true,
 				},
