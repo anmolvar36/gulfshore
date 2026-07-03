@@ -9,7 +9,9 @@ const Cities = [
 	"lehigh-acres",
 	"immokalee",
 	"pine-island",
+	"pineland",
 	"sanibel-island",
+	"sanibel",
 	"cape-coral",
 ];
 
