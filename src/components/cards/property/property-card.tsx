@@ -110,7 +110,17 @@ const PropertyCard = (property: Property) => {
 						text-[13px] text-[#7A7060] leading-snug line-clamp-2 mb-3
 						group-hover:text-[#B89A6A] transition-colors duration-300
 					">
-						{capitalizeWords(property.FullAddress).replace(" Fl", " FL")}
+						{(() => {
+							const address = property.FullAddress || "";
+							const city = property.City || "";
+							const state = property.StateOrProvince || "FL";
+							const zip = property.PostalCode || "";
+							
+							if (address.toLowerCase().includes(city.toLowerCase())) {
+								return capitalizeWords(address).replace(" Fl", " FL");
+							}
+							return `${capitalizeWords(address)}, ${capitalizeWords(city)}, ${state} ${zip}`.trim().replace(/,\s*$/, "");
+						})()}
 					</p>
 
 					{/* Divider */}
@@ -230,7 +240,17 @@ export const PropertyCard2 = ({
 
 					{/* Address */}
 					<p className="text-[12px] sm:text-[13px] text-[#7A7060] line-clamp-2 leading-snug mb-3">
-						{property.FullAddress}
+						{(() => {
+							const address = property.FullAddress || "";
+							const city = property.City || "";
+							const state = property.StateOrProvince || "FL";
+							const zip = property.PostalCode || "";
+							
+							if (address.toLowerCase().includes(city.toLowerCase())) {
+								return capitalizeWords(address).replace(" Fl", " FL");
+							}
+							return `${capitalizeWords(address)}, ${capitalizeWords(city)}, ${state} ${zip}`.trim().replace(/,\s*$/, "");
+						})()}
 					</p>
 
 					{/* Divider */}

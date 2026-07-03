@@ -192,10 +192,17 @@ export default async function Listing({
 
 							{/* Property address with better typography */}
 							<h1 className="text-lg lg:text-xl font-medium text-gray-700 mb-4 leading-relaxed">
-								{capitalizeWords(property.FullAddress).replace(
-									" Fl",
-									" FL"
-								)}
+								{(() => {
+									const address = property.FullAddress || "";
+									const city = property.City || "";
+									const state = property.StateOrProvince || "FL";
+									const zip = property.PostalCode || "";
+									
+									if (address.toLowerCase().includes(city.toLowerCase())) {
+										return capitalizeWords(address).replace(" Fl", " FL");
+									}
+									return `${capitalizeWords(address)}, ${capitalizeWords(city)}, ${state} ${zip}`.trim().replace(/,\s*$/, "");
+								})()}
 							</h1>
 
 							{/* Enhanced property features with improved layout */}

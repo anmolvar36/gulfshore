@@ -30,8 +30,10 @@ interface Suggestion {
 
 const SearchBox = ({
 	classname = "w-full flex justify-between p-1 rounded-lg bg-white items-center gap-1 border mb-2",
+	compact = false,
 }: {
 	classname?: string;
+	compact?: boolean;
 }) => {
 	const router = useRouter();
 	const [query, setQuery] = useState("");
@@ -314,14 +316,17 @@ const SearchBox = ({
 	return (
 		<div
 			ref={containerRef}
-			className="relative w-full mx-auto">
+			className={`relative w-full mx-auto ${compact ? "" : "max-w-4xl"}`}>
 			
-			{/* Zillow Style Search Container */}
-			<div className="flex items-center bg-white rounded-md shadow-xl border border-gray-200 overflow-hidden h-full min-h-[40px] transition-all duration-300 focus-within:ring-4 focus-within:ring-white/30">
+			<div className={`flex items-center bg-white border border-gray-200 overflow-hidden transition-all duration-300 focus-within:ring-2 focus-within:ring-primary/20 
+				${compact 
+					? "rounded-md h-9 md:h-10 shadow-sm" 
+					: "rounded-lg h-14 md:h-16 shadow-xl"
+				}`}>
 				
 				{/* Search Icon */}
-				<div className="pl-5 md:pl-6">
-					<Search className="w-5 h-5 md:w-6 md:h-6 text-gray-500" />
+				<div className={compact ? "pl-3" : "pl-5 md:pl-6"}>
+					<Search className={compact ? "w-4 h-4 text-gray-400" : "w-5 h-5 md:w-6 md:h-6 text-gray-500"} />
 				</div>
 	
 				{/* Input */}
@@ -334,8 +339,9 @@ const SearchBox = ({
 						onKeyDown={handleKeyDown}
 						onFocus={handleFocus}
 						onBlur={handleBlur}
-						placeholder="Enter an address, neighborhood, city, or ZIP code"
-						className="w-full h-full px-4 text-[15px] md:text-lg font-medium text-gray-800 placeholder:text-gray-400 bg-transparent border-none outline-none"
+						placeholder={compact ? "Search city, zip, or address..." : "Enter an address, neighborhood, city, or ZIP code"}
+						className={`w-full h-full px-3 font-medium text-gray-800 placeholder:text-gray-400 bg-transparent border-none outline-none 
+							${compact ? "text-sm" : "text-[15px] md:text-lg"}`}
 						autoComplete="off"
 						spellCheck="false"
 					/>
@@ -345,9 +351,9 @@ const SearchBox = ({
 				{query && (
 					<button
 						onClick={clearSearch}
-						className="mr-2 md:mr-3 p-2 rounded-full hover:bg-gray-100 transition"
+						className={`p-1.5 rounded-full hover:bg-gray-100 transition ${compact ? "mr-1" : "mr-2 md:mr-3"}`}
 						type="button">
-						<X className="w-5 h-5 text-gray-500" />
+						<X className={compact ? "w-4 h-4 text-gray-400" : "w-5 h-5 text-gray-500"} />
 					</button>
 				)}
 	
@@ -355,11 +361,17 @@ const SearchBox = ({
 				<button
 					onClick={handleSearchButtonClick}
 					type="button"
-					className="h-full min-h-[40px] px-6 md:px-8 bg-red-700 hover:bg-red-800 text-white font-semibold transition-all duration-200 flex items-center justify-center">
-					<Search className="w-5 h-5 md:hidden" />
-					<span className="hidden md:block text-base">
-						Search
-					</span>
+					className={`bg-red-700 hover:bg-red-800 text-white font-semibold transition-all duration-200 flex items-center justify-center
+						${compact 
+							? "h-full px-4" 
+							: "h-full px-6 md:px-8"
+						}`}>
+					<Search className="w-4 h-4" />
+					{!compact && (
+						<span className="hidden md:block text-base ml-2">
+							Search
+						</span>
+					)}
 				</button>
 			</div>
 	
