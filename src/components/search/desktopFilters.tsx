@@ -299,7 +299,7 @@ export const Filters = ({
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger
 				className={
-					"px-4 py-2 border h-9 md:h-12 border-gray-200  w-full rounded-md inline-flex justify-center text-center items-center gap-1" +
+					"px-4 py-2 border h-9 md:h-12 border-gray-200 w-full rounded-md hidden md:inline-flex justify-center text-center items-center gap-1" +
 					` ${classname}`
 				}>
 				<Settings2 size={16} /> <span>Filters</span>

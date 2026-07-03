@@ -25,7 +25,7 @@ const ReadMore: React.FC<ReadMoreProps> = ({
 	const shouldTruncate = children.length > maxLength;
 
 	const toggleExpanded = () => {
-		if (link.trim()) {
+		if (link && typeof link === "string" && link.trim()) {
 			router.push(link, {
 				scroll: true,
 			});

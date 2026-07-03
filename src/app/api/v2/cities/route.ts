@@ -18,11 +18,30 @@ export async function GET(req: NextRequest) {
 			return NextResponse.json(JSON.parse(cached));
 		}
 
+		const allowedNames = [
+			"NAPLES", "Naples",
+			"BONITA SPRINGS", "Bonita Springs",
+			"ESTERO", "Estero",
+			"AVE MARIA", "Ave Maria",
+			"MARCO ISLAND", "Marco Island",
+			"FORT MYERS", "Fort Myers",
+			"BABCOCK RANCH", "Babcock Ranch",
+			"LEHIGH ACRES", "Lehigh Acres",
+			"IMMOKALEE", "Immokalee",
+			"PINE ISLAND", "Pine Island",
+			"PINELAND", "Pineland",
+			"SANIBEL", "Sanibel",
+			"CAPE CORAL", "Cape Coral"
+		];
+
 		let data;
 		if (type) {
 			data = await prisma.city.findMany({
 				where: {
 					isFeatured: true,
+					name: {
+						in: allowedNames,
+					},
 				},
 				include: {
 					_count: { select: { communities: true } }, // show community count per city
@@ -34,6 +53,11 @@ export async function GET(req: NextRequest) {
 			});
 		} else {
 			data = await prisma.city.findMany({
+				where: {
+					name: {
+						in: allowedNames,
+					},
+				},
 				include: {
 					_count: { select: { communities: true } }, // show community count per city
 				  },
