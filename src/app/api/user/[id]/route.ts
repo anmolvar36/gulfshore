@@ -1,4 +1,3 @@
-import connectDB from "@/lib/dbconfig";
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -7,7 +6,6 @@ export async function GET(
 	{ params }: { params: Promise<{ id: string }> }
 ) {
 	try {
-		await connectDB();
 		const { id } = await params;
 		const userRecord = await prisma.lead.findUnique({
 			where: { id },
@@ -20,6 +18,7 @@ export async function GET(
 			name: userRecord.fullName || `${userRecord.firstName || ""} ${userRecord.lastName || ""}`.trim() || "Unknown User",
 			profileImage: "",
 			isActive: true,
+			propertyCriteria: (userRecord.tags as any)?.propertyCriteria || [],
 		} : null;
 
 		if (user) {

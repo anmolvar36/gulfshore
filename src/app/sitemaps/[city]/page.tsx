@@ -1,6 +1,5 @@
 import capitalizeWords from "@/hooks/capitalize-letter";
-import connectDB from "@/lib/dbconfig";
-import Property from "@/models/property";
+import prisma from "@/lib/prisma";
 import { Metadata } from "next";
 import Link from "next/link";
 import React from "react";
@@ -17,25 +16,26 @@ export const metadata: Metadata = {
 async function FetchAllCommunities(city: string) {
 	try {
 		const cityName = city.trim().toUpperCase().replaceAll("-", " ");
-		await connectDB();
-		const res = await Property.aggregate([
-			{ $match: { City: cityName, Development: { $ne: null } } },
-			{
-				$group: {
-					_id: "$Development",
+		const res = await prisma.property.findMany({
+			where: {
+				City: {
+					equals: cityName,
+				},
+				Development: {
+					not: null,
 				},
 			},
-			{
-				$sort: { _id: 1 },
-			}, // sort alphabetically
-
-			{
-				$project: {
-					DevelopmentName: "$_id",
-				},
+			distinct: ["Development"],
+			select: {
+				Development: true,
 			},
-		]);
-		return res;
+			orderBy: {
+				Development: "asc",
+			},
+		});
+		return res.map((p) => ({
+			DevelopmentName: p.Development,
+		}));
 	} catch (error) {
 		console.error(error);
 	}

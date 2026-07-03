@@ -28,6 +28,7 @@ const initialState: UiState = {
 	loading: false,
 	error: null,
 	filters: { ...EMPTY_FILTERS },
+	hoveredMLS: null,
 };
 
 // --- Fetch Properties with Filters ---
@@ -90,7 +91,11 @@ const searchSlice = createSlice({
 		setMapCard: (state, action: PayloadAction<Property | null>) => {
 			state.details = action.payload;
 		},
+		setHoveredMLS: (state, action: PayloadAction<string | null>) => {
+			state.hoveredMLS = action.payload;
+		},
 		setCoordinates: (state, action: PayloadAction<Coordinates>) => {
+
 			const coordinate = action.payload;
 			state.filters = {
 				...state.filters,
@@ -146,6 +151,7 @@ export const {
 	setLimit,
 	setListView,
 	setMapCard,
+	setHoveredMLS,
 } = searchSlice.actions;
 export default searchSlice.reducer;
 export const selectUi = (s: RootState) => s.search;

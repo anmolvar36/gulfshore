@@ -1,5 +1,3 @@
-import connectDB from "@/lib/dbconfig";
-import City from "@/models/city";
 import { NextRequest, NextResponse } from "next/server";
 import { redisGet, redisSet } from "@/lib/safeRedis";
 import prisma from "@/lib/prisma";

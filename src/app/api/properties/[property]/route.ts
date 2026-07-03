@@ -1,8 +1,5 @@
-import connectDB from "@/lib/dbconfig";
-import Property from "@/models/property";
-import User from "@/models/user";
+import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
-import { Types } from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -18,84 +15,87 @@ export async function GET(
 			.replaceAll(/\s+/g, "-")
 			.replace("-Fl-", "-FL-");
 
-		await connectDB();
+		// Try finding by ID / MLS Number / ListingKey
+		let propertyRecord = await prisma.property.findFirst({
+			where: {
+				OR: [
+					{ ListingId: property },
+					{ ListingKey: property },
+					{ MLSNumber: property },
+				],
+			},
+		});
 
-		if (userId) {
-			const user = await User.findOne({
-				clerkId: userId,
+		// Fallback to address matching
+		if (!propertyRecord) {
+			const addressWithSpaces = propertyAddress.replaceAll("-", " ");
+			propertyRecord = await prisma.property.findFirst({
+				where: {
+					FullAddress: {
+						contains: addressWithSpaces,
+					},
+				},
 			});
-			const uid =
-				user?._id instanceof Types.ObjectId
-					? user._id
-					: new Types.ObjectId(user?._id as string);
-			const res = await Property.aggregate([
-				{
-					$match: {
-						PropertySearchSlug: propertyAddress,
-					},
-				},
-
-				{
-					$lookup: {
-						from: "wishlists",
-						let: { propertyId: "$_id" },
-						pipeline: [
-							{
-								$match: {
-									$expr: {
-										$and: [
-											{ $eq: ["$property", "$$propertyId"] },
-											{ $eq: ["$user", uid] },
-										],
-									},
-								},
-							},
-						],
-						as: "wishlistInfo",
-					},
-				},
-			]).limit(1);
-
-			if (!res.length) {
-				return NextResponse.json(
-					{ error: "Property Not Found" },
-					{ status: 404 }
-				);
-			}
-
-			return NextResponse.json({ success: true, data: res[0] });
 		}
 
-		const res = await Property.find({
-			PropertySearchSlug: propertyAddress,
-		})
-			.limit(1)
-			.lean();
-		if (!res.length) {
+		if (!propertyRecord) {
 			return NextResponse.json(
 				{ error: "Property Not Found" },
 				{ status: 404 }
 			);
 		}
 
-		const similar: string[] = await Property.find({
-			Status: "Active",
-			City: res[0].City,
-			DevelopmentName: res[0].DevelopmentName,
-			_id: { $ne: res[0]._id },
-		})
-			.select(
-				"slug City DevelopmentName CurrentPrice FullAddress PropertyAddress"
-			)
-			.limit(9);
-		return NextResponse.json({
-			success: true,
-			data: {
-				...res[0],
-				similar: similar,
+		let isWishlisted = false;
+		if (userId) {
+			const wishlistRecord = await prisma.wishlist.findFirst({
+				where: {
+					userId,
+					propertyId: propertyRecord.id,
+				},
+			});
+			isWishlisted = !!wishlistRecord;
+		}
+
+		const similarRaw = await prisma.property.findMany({
+			where: {
+				StandardStatus: "Active",
+				City: propertyRecord.City,
+				Community: propertyRecord.Community,
+				id: {
+					not: propertyRecord.id,
+				},
 			},
+			take: 9,
 		});
+
+		const similar = similarRaw.map((s: any) => {
+			const sRaw = s.raw as any;
+			const sImages = s.images ?? (sRaw?.Media ? sRaw.Media : null);
+			const { raw: _raw, ...rest } = s;
+			return { ...rest, images: sImages };
+		});
+
+		const rawData = propertyRecord.raw as any;
+		const resolvedImages = propertyRecord.images ?? (rawData?.Media ? rawData.Media : null);
+
+		const mappedData = {
+			...propertyRecord,
+			_id: propertyRecord.id,
+			PropertyAddress: propertyRecord.FullAddress,
+			FullAddress: propertyRecord.FullAddress,
+			LotType: propertyRecord.PropertyType,
+			CurrentPrice: propertyRecord.ListPrice || 0,
+			Latitude: propertyRecord.Latitude || 0,
+			Longitude: propertyRecord.Longitude || 0,
+			CreatedDate: propertyRecord.createdAt,
+			images: resolvedImages,
+			similar,
+			wishlistInfo: isWishlisted ? [{ id: "wishlisted" }] : [],
+		};
+
+		return NextResponse.json({ success: true, data: mappedData });
 	} catch (error) {
+		console.error("Error in legacy GET property detail:", error);
 		return NextResponse.json(
 			{ error: "Internal Server Error" },
 			{ status: 500 }

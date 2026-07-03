@@ -1,5 +1,4 @@
-import connectDB from "@/lib/dbconfig";
-import Community from "@/models/community";
+import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -9,11 +8,22 @@ export async function GET(
 	try {
 		const { community } = await params;
 		const communityName = community.trim().toUpperCase();
-		await connectDB();
-		const res = await Community.findOne({
-			name: communityName,
+		const res = await prisma.community.findFirst({
+			where: {
+				OR: [
+					{ name: { equals: communityName.replaceAll("-", " ") } },
+					{ slug: { equals: communityName } },
+				],
+			},
 		});
-		return NextResponse.json({ success: true, data: res });
+
+		const mappedData = res ? {
+			...res,
+			_id: res.id,
+			Community: res.name,
+		} : null;
+
+		return NextResponse.json({ success: true, data: mappedData });
 	} catch (error) {
 		return NextResponse.json(
 			{ error: "Internal Server Error" },

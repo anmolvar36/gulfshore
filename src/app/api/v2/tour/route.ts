@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
-import Lead from "@/models/leads";
-import connectDB from "@/lib/dbconfig";
 import prisma from "@/lib/prisma";
 
 export async function POST(req: Request) {
 	try {
-		await connectDB();
 		const body = await req.json();
 		const {
 			firstName,
@@ -69,38 +66,6 @@ export async function POST(req: Request) {
 				propertyId: propertyId || "",
 			},
 		});
-
-		// 4. Fallback: Save to MongoDB for backward compatibility
-		try {
-			await Lead.findOneAndUpdate(
-				{ email },
-				{
-					$setOnInsert: {
-						firstName,
-						lastName,
-						email,
-						phone,
-						source: "Tour_Request",
-						status: "New",
-						createdAt: new Date(),
-					},
-					$push: {
-						inquiryHistory: {
-							inquiryType: "Schedule_Tour",
-							message: message || "",
-							propertyAddress: propertyAddress || "",
-							MLSNumber: MLSNumber || "",
-						},
-					},
-					$set: {
-						lastContactedAt: new Date(),
-					},
-				},
-				{ new: true, upsert: true, setDefaultsOnInsert: true }
-			);
-		} catch (mongoErr) {
-			console.error("Failed to save tour to MongoDB, continuing with SQL: ", mongoErr);
-		}
 
 		return NextResponse.json({ success: true, lead: sqlLead, tour: sqlTour });
 	} catch (err: any) {

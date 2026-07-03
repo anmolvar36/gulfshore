@@ -1,9 +1,16 @@
-import capitalizeWords from "@/hooks/capitalize-letter";
-import connectDB from "@/lib/dbconfig";
-import City from "@/models/city";
+import prisma from "@/lib/prisma";
 import { Metadata } from "next";
 import Link from "next/link";
 import React from "react";
+
+function capitalizeWords(str: string) {
+	return str
+		.toLowerCase()
+		.split(" ")
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(" ");
+}
+
 
 export const metadata: Metadata = {
 	title:
@@ -16,10 +23,15 @@ export const metadata: Metadata = {
 
 async function FetchAllCities() {
 	try {
-		await connectDB();
-		const res = await City.find().sort({ index: -1 });
+		const res = await prisma.city.findMany({
+			orderBy: {
+				name: "asc",
+			},
+		});
 
-		return res;
+		return res.map((c) => ({
+			City: c.name,
+		}));
 	} catch (error) {
 		console.error(error);
 	}

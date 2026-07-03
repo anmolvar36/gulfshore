@@ -215,37 +215,75 @@ export function SignedOut({ children }: { children: React.ReactNode }) {
 
 export function UserButton() {
 	const [email, setEmail] = React.useState("user@gulfshore.com");
+	const [isOpen, setIsOpen] = React.useState(false);
+	const dropdownRef = React.useRef<HTMLDivElement>(null);
+
 	React.useEffect(() => {
 		const mockEmail = getCookie("mock_user_email");
 		if (mockEmail && mockEmail !== "false") {
 			setEmail(mockEmail);
 		}
+
+		const handleClickOutside = (event: MouseEvent) => {
+			if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+				setIsOpen(false);
+			}
+		};
+		document.addEventListener("mousedown", handleClickOutside);
+		return () => document.removeEventListener("mousedown", handleClickOutside);
 	}, []);
 
-	const initials = email === "admin@gulfshore.com" ? "AD" : email.substring(0, 2).toUpperCase();
+	const initials = email.toLowerCase().includes("admin@gulfshore.com") ? "AD" : email.substring(0, 2).toUpperCase();
+
+	const handleSignOut = () => {
+		setCookie("mock_signed_in", "false");
+		setCookie("mock_user_email", "false");
+		setCookie("mock_user_id", "false");
+		window.location.href = "/";
+	};
 
 	return (
-		<div 
-			onClick={() => {
-				setCookie("mock_signed_in", "false");
-				setCookie("mock_user_email", "false");
-				window.location.href = "/";
-			}}
-			style={{
-				width: "32px",
-				height: "32px",
-				borderRadius: "50%",
-				backgroundColor: "#3b82f6",
-				color: "white",
-				display: "flex",
-				alignItems: "center",
-				justifyContent: "center",
-				fontSize: "14px",
-				fontWeight: "bold",
-				cursor: "pointer"
-			}}
-			title="Click to sign out (mock)">
-			{initials}
+		<div className="relative" ref={dropdownRef}>
+			<button 
+				onClick={() => setIsOpen(!isOpen)}
+				className="w-9 h-9 rounded-full bg-[#d90429] hover:bg-[#bf0022] text-white flex items-center justify-center text-sm font-bold shadow-xs transition-all focus:outline-hidden cursor-pointer"
+			>
+				{initials}
+			</button>
+
+			{isOpen && (
+				<div 
+					className="absolute right-0 mt-2 w-56 rounded-xl bg-white border border-gray-200 shadow-xl py-2 z-50 text-left"
+					style={{ top: "100%" }}
+				>
+					<div className="px-4 py-2 border-b border-gray-100">
+						<p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">Logged in as</p>
+						<p className="text-xs font-semibold text-gray-800 truncate mt-0.5">{email}</p>
+					</div>
+					<div className="py-1">
+						<a 
+							href="/favorites"
+							className="flex items-center px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+						>
+							Saved Properties
+						</a>
+						<a 
+							href="/user/saved-searches"
+							className="flex items-center px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+						>
+							Saved Searches
+						</a>
+					</div>
+					<div className="border-t border-gray-100 pt-1">
+						<button 
+							onClick={handleSignOut}
+							className="w-full text-left flex items-center px-4 py-2 text-xs text-red-600 hover:bg-red-50 font-semibold transition-colors cursor-pointer"
+						>
+							Sign Out
+						</button>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 }
@@ -254,23 +292,28 @@ export function useUser() {
 	const [isLoaded, setIsLoaded] = React.useState(false);
 	const [signedIn, setSignedIn] = React.useState(false);
 	const [email, setEmail] = React.useState("user@gulfshore.com");
+	const [userId, setUserId] = React.useState("");
 
 	React.useEffect(() => {
 		setSignedIn(getCookie("mock_signed_in") === "true");
 		const mockEmail = getCookie("mock_user_email");
+		const mockUserId = getCookie("mock_user_id");
 		if (mockEmail && mockEmail !== "false") {
 			setEmail(mockEmail);
+		}
+		if (mockUserId && mockUserId !== "false") {
+			setUserId(mockUserId);
 		}
 		setIsLoaded(true);
 	}, []);
 
-	const isAdmin = signedIn;
+	const isAdmin = signedIn && email.toLowerCase().includes("admin@gulfshore.com");
 
 	return {
 		isLoaded,
 		isSignedIn: signedIn,
 		user: signedIn ? {
-			id: isAdmin ? "admin_dummy_123" : "user_dummy_123",
+			id: userId || (isAdmin ? "admin_dummy_123" : "user_dummy_123"),
 			fullName: isAdmin ? "Admin User" : "Regular User",
 			primaryEmailAddress: { emailAddress: email },
 			publicMetadata: { role: isAdmin ? "admin" : "user" }
@@ -281,23 +324,24 @@ export function useUser() {
 export function useAuth() {
 	const [isLoaded, setIsLoaded] = React.useState(false);
 	const [signedIn, setSignedIn] = React.useState(false);
-	const [email, setEmail] = React.useState("user@gulfshore.com");
+	const [userId, setUserId] = React.useState("");
 
 	React.useEffect(() => {
 		setSignedIn(getCookie("mock_signed_in") === "true");
-		const mockEmail = getCookie("mock_user_email");
-		if (mockEmail && mockEmail !== "false") {
-			setEmail(mockEmail);
+		const mockUserId = getCookie("mock_user_id");
+		if (mockUserId && mockUserId !== "false") {
+			setUserId(mockUserId);
 		}
 		setIsLoaded(true);
 	}, []);
 
-	const isAdmin = signedIn;
+	const mockEmail = getCookie("mock_user_email");
+	const isAdmin = signedIn && mockEmail.toLowerCase().includes("admin@gulfshore.com");
 
 	return {
 		isLoaded,
 		isSignedIn: signedIn,
-		userId: signedIn ? (isAdmin ? "admin_dummy_123" : "user_dummy_123") : null,
+		userId: signedIn ? (userId || (isAdmin ? "admin_dummy_123" : "user_dummy_123")) : null,
 		getToken: async () => "dummy-token"
 	};
 }
@@ -305,7 +349,7 @@ export function useAuth() {
 export function SignInButton({ children }: { children: React.ReactNode }) {
 	const handleSignIn = () => {
 		if (typeof window !== "undefined") {
-			window.dispatchEvent(new Event("open-mock-signin"));
+			window.location.href = "/signup?mode=signin";
 		}
 	};
 	return <span onClick={handleSignIn} style={{ cursor: "pointer" }}>{children}</span>;
@@ -315,6 +359,7 @@ export function SignOutButton({ children }: { children: React.ReactNode }) {
 	const handleSignOut = () => {
 		setCookie("mock_signed_in", "false");
 		setCookie("mock_user_email", "false");
+		setCookie("mock_user_id", "false");
 		window.location.href = "/";
 	};
 	return <span onClick={handleSignOut} style={{ cursor: "pointer" }}>{children}</span>;
@@ -359,9 +404,25 @@ export function useSignUp() {
 	return {
 		isLoaded: true,
 		signUp: {
-			create: async () => {},
-			prepareEmailAddressVerification: async () => {},
-			attemptEmailAddressVerification: async () => {},
+			create: async (params: any) => {
+				console.log("Mock signup create called:", params);
+				return { status: "missing_requirements" };
+			},
+			prepareEmailAddressVerification: async (params: any) => {
+				console.log("Mock prepare email verification:", params);
+				if (typeof window !== "undefined") {
+					alert("Gulfshore Mock Clerk Mode:\nYour verification code is: 123456");
+				}
+				return { status: "missing_requirements" };
+			},
+			attemptEmailAddressVerification: async (params: { code: string }) => {
+				console.log("Mock attempt verification code:", params.code);
+				if (params.code === "123456" || params.code.length === 6) {
+					setCookie("mock_signed_in", "true");
+					return { status: "complete", createdSessionId: "mock_session_id" };
+				}
+				return { status: "missing_requirements", missingFields: ["code"] };
+			},
 		}
 	};
 }

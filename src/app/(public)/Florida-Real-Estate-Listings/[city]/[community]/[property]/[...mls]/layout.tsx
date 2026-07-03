@@ -6,7 +6,7 @@ import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 type Props = {
-	params: { mls: string[] };
+	params: Promise<{ mls: string[] }>;
 };
 
 // Enhanced metadata generation with comprehensive SEO

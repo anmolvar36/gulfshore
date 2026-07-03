@@ -20,6 +20,10 @@ const FILTER_KEYS: (keyof Filters)[] = [
 	"postalCode",
 	"page",
 	"features",
+	"hoa",
+	"minAcres",
+	"maxAcres",
+	"status",
 ];
 
 const BASE_SEARCH_PATH = "/Florida-Real-Estate-Search";
@@ -43,6 +47,10 @@ export const EMPTY_FILTERS: Filters = {
 	postalCode: "",
 	page: "1",
 	features: [],
+	hoa: "Any",
+	minAcres: "",
+	maxAcres: "",
+	status: "Active",
 };
 
 const normalizeString = (value: QueryValue): string => {

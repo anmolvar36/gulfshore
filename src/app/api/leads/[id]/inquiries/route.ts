@@ -1,14 +1,12 @@
-import connectDB from "@/lib/dbconfig";
-import Leads from "@/models/leads";
+import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-interface Params {
-	params: { id: string };
-}
-
-export async function POST(req: Request, { params }: Params) {
+export async function POST(
+	req: Request,
+	{ params }: { params: Promise<{ id: string }> }
+) {
 	try {
-		await connectDB();
+		const { id } = await params;
 		const { propertyId, propertyAddress, inquiryType, message } =
 			await req.json();
 
@@ -18,23 +16,31 @@ export async function POST(req: Request, { params }: Params) {
 				{ status: 400 }
 			);
 
-		const lead = await Leads.findById(params.id);
+		const lead = await prisma.lead.findUnique({
+			where: { id },
+		});
 		if (!lead)
 			return NextResponse.json(
 				{ error: "Lead not found" },
 				{ status: 404 }
 			);
 
-		lead.inquiryHistory.push({
-			propertyId,
-			propertyAddress,
-			inquiryType,
-			message,
-			createdAt: new Date(),
+		// Create Inquiry linked to lead
+		await prisma.inquiry.create({
+			data: {
+				leadId: lead.id,
+				type: inquiryType === "Contact" ? "Contact_Form" : inquiryType === "Tour" ? "Tour_Request" : "General",
+				message: message || `Inquiry for ${propertyAddress}`,
+				propertyId: propertyId,
+			},
 		});
-		await lead.save();
 
-		return NextResponse.json(lead);
+		const mappedLead = {
+			...lead,
+			_id: lead.id,
+		};
+
+		return NextResponse.json(mappedLead);
 	} catch (error) {
 		console.error("Error adding inquiry:", error);
 		return NextResponse.json(

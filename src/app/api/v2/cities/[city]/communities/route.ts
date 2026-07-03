@@ -1,5 +1,4 @@
-import connectDB from "@/lib/dbconfig";
-import Community from "@/models/community";
+import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { redisGet, redisSet } from "@/lib/safeRedis";
 
@@ -24,10 +23,19 @@ export async function GET(
 			});
 		}
 
-		await connectDB();
-		const regex = new RegExp(cityName, "i");
-
-		const res = await Community.find({ City: regex }).select("name");
+		const res = await prisma.community.findMany({
+			where: {
+				city: {
+					OR: [
+						{ slug: { equals: cityName } },
+						{ name: { equals: cityName.replaceAll("-", " ") } },
+					],
+				},
+			},
+			select: {
+				name: true,
+			},
+		});
 
 		// 3. Save to Redis (1 day)
 		await redisSet(cacheKey, JSON.stringify(res), 86400);

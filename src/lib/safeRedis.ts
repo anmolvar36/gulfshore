@@ -1,7 +1,8 @@
 // lib/safeRedis.ts
-import redis from "@/lib/redis";
+import redis, { isRedisUp } from "@/lib/redis";
 
 export async function redisGet(key: string) {
+	if (!isRedisUp() || !redis) return null;
 	try {
 		const value = await redis.get(key);
 		return value ? JSON.parse(value) : null;
@@ -16,6 +17,7 @@ export async function redisSet(
 	value: any,
 	ttlSeconds = 3600
 ) {
+	if (!isRedisUp() || !redis) return;
 	try {
 		await redis.set(key, JSON.stringify(value), "EX", ttlSeconds);
 	} catch (err) {

@@ -8,6 +8,8 @@ import capitalizeWords from "@/hooks/capitalize-letter";
 import CardCarousel from "./cardCarousel";
 import { X, BedDouble, Bath, Ruler, CalendarDays, Trees, Landmark } from "lucide-react";
 import { Property } from "@/app/generated/prisma/client";
+import { useDispatch } from "react-redux";
+import { setHoveredMLS } from "@/state/slices/searchSlice";
 
 const isValidField = (value: any) => {
 	return (
@@ -27,17 +29,21 @@ const isValidField = (value: any) => {
 
 /* ─── Main Card (Grid/List view) ─────────────────────────────────────── */
 const PropertyCard = (property: Property) => {
+	const dispatch = useDispatch();
 	return (
 		<a
 			tabIndex={0}
 			className="w-full block h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B89A6A] rounded-2xl"
 			target="_blank"
+			onMouseEnter={() => dispatch(setHoveredMLS(property.MLSNumber))}
+			onMouseLeave={() => dispatch(setHoveredMLS(null))}
 			href={UrlMaker(
 				property.City,
 				property.Community || "",
 				property.FullAddress,
 				property.MLSNumber
 			)}>
+
 			<article className="
 				group relative h-full w-full bg-[#FAFAF8] rounded-2xl overflow-hidden
 				border border-[#E8E4DC]

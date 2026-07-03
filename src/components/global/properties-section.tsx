@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 export default function PropertySection() {
-	const [properties, setProperties] = useState<Property[]>();
+	const [properties, setProperties] = useState<any[]>();
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -44,7 +44,7 @@ export default function PropertySection() {
 						loop: true,
 					}}>
 					<CarouselContent>
-						{properties?.map((property: Property) => (
+						{properties?.map((property: any) => (
 							<CarouselItem className="my-1" key={property.MLSNumber}>
 								<PropertyCard {...property} />
 							</CarouselItem>

@@ -18,7 +18,7 @@ import Script from "next/script";
 import CityLinksSection from "@/components/search/links-section/cityLinksSection";
 
 type Props = {
-	params: { slug: string[] };
+	params: Promise<{ slug?: string[] }>;
 };
 
 export async function generateMetadata({
@@ -84,9 +84,9 @@ export default async function RootLayout({
 	params,
 }: Readonly<{
 	children: React.ReactNode;
-	params: {
-		slug: string[];
-	};
+	params: Promise<{
+		slug?: string[];
+	}>;
 }>) {
 	const slugs = (await params).slug || [];
 	const filtersParams = await ExtractSearchParams(slugs);

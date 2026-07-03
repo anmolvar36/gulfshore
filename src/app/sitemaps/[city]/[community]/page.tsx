@@ -1,6 +1,5 @@
 import capitalizeWords from "@/hooks/capitalize-letter";
-import connectDB from "@/lib/dbconfig";
-import Property from "@/models/property";
+import prisma from "@/lib/prisma";
 import { Metadata } from "next";
 import Link from "next/link";
 import React from "react";
@@ -26,19 +25,24 @@ async function FetchAllProperties(community: string) {
 			.toUpperCase()
 			.replaceAll("-", " ")
 			.replaceAll("And", "&");
-		await connectDB();
-		const res = await Property.aggregate([
-			{ $match: { Development: communityName } },
-			{
-				$project: {
-					Development: 1,
-					City: 1,
-					PropertyAddress: 1,
+		const res = await prisma.property.findMany({
+			where: {
+				Development: {
+					equals: communityName,
 				},
 			},
-		]);
+			select: {
+				Development: true,
+				City: true,
+				FullAddress: true,
+			},
+		});
 
-		return res;
+		return res.map((p) => ({
+			Development: p.Development,
+			City: p.City,
+			PropertyAddress: p.FullAddress,
+		}));
 	} catch (error) {
 		console.error("Error fetching properties:", error);
 		return [];
@@ -68,7 +72,7 @@ export default async function Page({
 			</p>
 			<ul className="list-disc pl-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
 				{properties.map((property, i) => {
-					const dev = capitalizeWords(property.Development)
+					const dev = capitalizeWords(property.Development ?? "")
 						.replaceAll(" ", "-")
 						.replaceAll("&", "And");
 

@@ -1,5 +1,4 @@
-import connectDB from "@/lib/dbconfig";
-import City from "@/models/city";
+import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -8,12 +7,25 @@ export async function GET(
 ) {
 	try {
 		const { city } = await params;
-		const cityName = city.trim().toUpperCase();
-		await connectDB();
-		const res = await City.findOne({
-			City: cityName,
+		const cityName = city.trim().toUpperCase().replaceAll("-", " ");
+		const res = await prisma.city.findFirst({
+			where: {
+				name: {
+					equals: cityName,
+				},
+			},
 		});
-		return NextResponse.json({ success: true, data: res });
+
+		const mappedData = res ? {
+			...res,
+			_id: res.id,
+			City: res.name,
+			Images: res.images || [],
+			infoText: res.description || "",
+			defaultImage: res.defaultImage || "",
+		} : null;
+
+		return NextResponse.json({ success: true, data: mappedData });
 	} catch (error) {
 		return NextResponse.json(
 			{ error: "Internal Server Error" },

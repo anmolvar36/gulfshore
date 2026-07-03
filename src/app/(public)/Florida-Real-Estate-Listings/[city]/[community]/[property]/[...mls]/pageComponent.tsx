@@ -145,31 +145,31 @@ export default function PropertyDetail(property: Property) {
 							/>
 						</Suspense>
 						<div className="flex-col flex gap-2 mt-5 px-2">
-							{!(property.raw as any).HighSchool &&
-							!(property.raw as any).MiddleSchool &&
-							!(property.raw as any).ElementarySchool ? (
+							{!(property.raw as any)?.HighSchool &&
+							!(property.raw as any)?.MiddleSchool &&
+							!(property.raw as any)?.ElementarySchool ? (
 								<></>
 							) : (
 								<h4 className="text-lg lg:text-xl font-medium text-gray-900 my-2">
 									Nearby Schools
 								</h4>
 							)}
-							{(property.raw as any).MiddleSchool && (
+							{(property.raw as any)?.MiddleSchool && (
 								<span>
 									<strong>Middle School</strong> :{" "}
-									{(property.raw as any).MiddleSchool}
+									{(property.raw as any)?.MiddleSchool}
 								</span>
 							)}
-							{(property.raw as any).HighSchool && (
+							{(property.raw as any)?.HighSchool && (
 								<span>
 									<strong>High School </strong>:{" "}
-									{(property.raw as any).HighSchool}
+									{(property.raw as any)?.HighSchool}
 								</span>
 							)}
-							{(property.raw as any).ElementarySchool && (
+							{(property.raw as any)?.ElementarySchool && (
 								<span>
 									<strong>Elementary School</strong> :{" "}
-									{(property.raw as any).ElementarySchool}
+									{(property.raw as any)?.ElementarySchool}
 								</span>
 							)}
 						</div>
@@ -197,7 +197,7 @@ export default function PropertyDetail(property: Property) {
 									className="lg:h-[400px] h-1/2 w-full rounded-lg"
 									src={
 										"https://gulfshoregroup.com" +
-										((property.raw as any).VirtualTourThumbnail ||
+										((property.raw as any)?.VirtualTourThumbnail ||
 											"/default-virtual-tour-thumbnail.jpg")
 									}
 									alt="Virtual Tour"

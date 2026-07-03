@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import mongoose from "mongoose";
-import Blog from "@/models/blog"; // adjust path if needed
-import connectDB from "@/lib/dbconfig";
+import prisma from "@/lib/prisma";
 
 // ✅ GET /api/blogs
 // - ?slug=example-blog → fetch single blog
@@ -9,22 +7,20 @@ import connectDB from "@/lib/dbconfig";
 // - ?published=true → show only published blogs
 export async function GET(request: any) {
 	try {
-		await connectDB();
-
 		const { searchParams } = new URL(request.url);
 		const slug = searchParams.get("slug");
 		const category = searchParams.get("category");
 		const published = searchParams.get("published");
 		const limit = Number(searchParams.get("limit")) || 10;
 
-		let query: Record<string, any> = {};
-
 		if (slug) {
 			// fetch a single blog by slug
-			const blog = await Blog.findOne({
-				slug,
-				published: true,
-			}).lean();
+			const blog = await prisma.blog.findFirst({
+				where: {
+					slug,
+					published: true,
+				},
+			});
 			if (!blog)
 				return NextResponse.json(
 					{ error: "Blog not found" },
@@ -34,14 +30,25 @@ export async function GET(request: any) {
 		}
 
 		// build dynamic query for listing
-		if (category) query.category = category;
-		if (published === "true") query.published = true;
+		const where: any = {};
+		if (category) where.category = category;
+		if (published === "true") where.published = true;
 
-		const blogs = await Blog.find(query)
-			.sort({ publishedAt: -1 })
-			.limit(limit)
-			.select("title slug description coverImage publishedAt author")
-			.lean();
+		const blogs = await prisma.blog.findMany({
+			where,
+			orderBy: {
+				publishedAt: "desc",
+			},
+			take: limit,
+			select: {
+				title: true,
+				slug: true,
+				description: true,
+				coverImage: true,
+				publishedAt: true,
+				author: true,
+			},
+		});
 
 		return NextResponse.json(blogs, { status: 200 });
 	} catch (error) {

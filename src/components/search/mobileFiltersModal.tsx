@@ -49,6 +49,10 @@ export default function MobileFiltersModal({
 	const [city, setCity] = useState("");
 	const [postalCode, setPostalCode] = useState("");
 	const [keywords, setKeywords] = useState<string[]>([]);
+	const [hoa, setHoa] = useState("Any");
+	const [minAcres, setMinAcres] = useState("");
+	const [maxAcres, setMaxAcres] = useState("");
+	const [statusFilter, setStatusFilter] = useState("Active");
 
 	const [mlsNumber, setMlsNumber] = useState("");
 	const [sort, setSort] = useState<SortItem | undefined>(
@@ -56,6 +60,7 @@ export default function MobileFiltersModal({
 	);
 
 	const router = useRouter();
+
 
 	const handleSearch = () => {
 		if (query) {
@@ -159,11 +164,27 @@ export default function MobileFiltersModal({
 				segments.push(`keyword-waterfront`);
 			if (keywords.includes("Gulf Access"))
 				segments.push(`keyword-gulfaccess`);
-			if (keywords.includes("Waterfront"))
+			if (keywords.includes("Pool"))
 				segments.push(`keyword-pool`);
+			if (keywords.includes("Garage"))
+				segments.push(`keyword-garage`);
+			if (keywords.includes("Spa"))
+				segments.push(`keyword-spa`);
 		}
 		if (segments.length) {
 			url += "/" + segments.join("/");
+		}
+
+		// Append new query params
+		const queryParams = new URLSearchParams();
+		if (hoa && hoa !== "Any") queryParams.set("hoa", hoa);
+		if (minAcres) queryParams.set("minAcres", minAcres);
+		if (maxAcres) queryParams.set("maxAcres", maxAcres);
+		if (statusFilter && statusFilter !== "Active") queryParams.set("status", statusFilter);
+		
+		const queryString = queryParams.toString();
+		if (queryString) {
+			url += "?" + queryString;
 		}
 
 		router.replace(url);
@@ -274,10 +295,26 @@ export default function MobileFiltersModal({
 				segments.push(`keyword-waterfront`);
 			if (keywords.includes("Gulf Access"))
 				segments.push(`keyword-gulfaccess`);
-			if (keywords.includes("Waterfront"))
+			if (keywords.includes("Pool"))
 				segments.push(`keyword-pool`);
+			if (keywords.includes("Garage"))
+				segments.push(`keyword-garage`);
+			if (keywords.includes("Spa"))
+				segments.push(`keyword-spa`);
 		}
 		if (segments.length) url += "/" + segments.join("/");
+
+		// Append new query params
+		const queryParams = new URLSearchParams();
+		if (hoa && hoa !== "Any") queryParams.set("hoa", hoa);
+		if (minAcres) queryParams.set("minAcres", minAcres);
+		if (maxAcres) queryParams.set("maxAcres", maxAcres);
+		if (statusFilter && statusFilter !== "Active") queryParams.set("status", statusFilter);
+		
+		const queryString = queryParams.toString();
+		if (queryString) {
+			url += "?" + queryString;
+		}
 		handleSaveSearch(url);
 		router.replace(url);
 	};
@@ -428,7 +465,7 @@ export default function MobileFiltersModal({
 												Features
 											</Label>
 											<div className="grid grid-cols-3 gap-4">
-												{["Gulf Access", "Waterfront", "Pool"].map(
+												{["Gulf Access", "Waterfront", "Pool", "Garage", "Spa"].map(
 													(f, i) => (
 														<div
 															key={i}
@@ -456,6 +493,67 @@ export default function MobileFiltersModal({
 												)}
 											</div>
 										</div>
+
+										{/* HOA */}
+										<div className="flex flex-col space-y-2">
+											<Label className="text-sm font-medium text-gray-900">HOA</Label>
+											<DropdownMenu>
+												<DropdownMenuTrigger className="text-center border rounded-lg justify-between p-2 items-center inline-flex text-sm">
+													{hoa || "Any"} <ChevronDown size={14} />
+												</DropdownMenuTrigger>
+												<DropdownMenuContent>
+													<DropdownMenuRadioGroup value={hoa} onValueChange={setHoa}>
+														{["Any", "Yes", "No"].map((v) => (
+															<DropdownMenuRadioItem key={v} value={v}>{v}</DropdownMenuRadioItem>
+														))}
+													</DropdownMenuRadioGroup>
+												</DropdownMenuContent>
+											</DropdownMenu>
+										</div>
+
+										{/* Acres */}
+										<div className="flex gap-2 w-full">
+											<div className="flex w-full flex-col space-y-2">
+												<Label className="text-sm font-medium text-gray-900">Min Acres</Label>
+												<Input
+													type="number"
+													step="0.1"
+													value={minAcres}
+													onChange={(e) => setMinAcres(e.target.value)}
+													className="text-sm"
+													placeholder="e.g. 0.5"
+												/>
+											</div>
+											<div className="flex w-full flex-col space-y-2">
+												<Label className="text-sm font-medium text-gray-900">Max Acres</Label>
+												<Input
+													type="number"
+													step="0.1"
+													value={maxAcres}
+													onChange={(e) => setMaxAcres(e.target.value)}
+													className="text-sm"
+													placeholder="e.g. 5"
+												/>
+											</div>
+										</div>
+
+										{/* Status */}
+										<div className="flex flex-col space-y-2">
+											<Label className="text-sm font-medium text-gray-900">Listing Status</Label>
+											<DropdownMenu>
+												<DropdownMenuTrigger className="text-center border rounded-lg justify-between p-2 items-center inline-flex text-sm">
+													{statusFilter || "Active"} <ChevronDown size={14} />
+												</DropdownMenuTrigger>
+												<DropdownMenuContent>
+													<DropdownMenuRadioGroup value={statusFilter} onValueChange={setStatusFilter}>
+														{["Active", "Sold", "Pending", "Short Sale", "Foreclosure", "All"].map((v) => (
+															<DropdownMenuRadioItem key={v} value={v}>{v}</DropdownMenuRadioItem>
+														))}
+													</DropdownMenuRadioGroup>
+												</DropdownMenuContent>
+											</DropdownMenu>
+										</div>
+
 
 										<div className="flex flex-col space-y-2">
 											<Label className="text-sm font-medium text-gray-900">

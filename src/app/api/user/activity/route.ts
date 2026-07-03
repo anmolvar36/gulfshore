@@ -1,12 +1,9 @@
-import User from "@/models/user";
-import UserSearchQuery from "@/models/userSearchedQuery";
-import UserViewedProperty from "@/models/userViewedProperties";
+import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import connectDB from "@/lib/dbconfig";
+
 export async function POST(request: Request) {
 	try {
-		await connectDB();
 		const body = await request.json();
 		const { type, data } = body;
 
@@ -18,7 +15,9 @@ export async function POST(request: Request) {
 			});
 		}
 
-		const user = await User.findOne({ clerkId: userId });
+		const user = await prisma.user.findUnique({
+			where: { clerkId: userId },
+		});
 		if (!user) {
 			return NextResponse.json(
 				{ message: "User not found" },
@@ -27,57 +26,78 @@ export async function POST(request: Request) {
 		}
 
 		if (type === "search") {
-			const existingSearch = await UserSearchQuery.findOne({
-				user: user._id,
-				searchQuery: data,
+			const existingSearch = await prisma.userSearchQuery.findFirst({
+				where: {
+					userId: user.id,
+					searchQuery: {
+						equals: data,
+					},
+				},
 			});
 
 			if (existingSearch) {
-				await UserSearchQuery.findByIdAndUpdate(existingSearch._id, {
-					$inc: { searchCount: 1 },
+				await prisma.userSearchQuery.update({
+					where: { id: existingSearch.id },
+					data: {
+						searchCount: { increment: 1 },
+						lastSearched: new Date(),
+					},
 				});
 			} else {
 				// create a new search entry
-				await UserSearchQuery.create({
-					user: user._id,
-					searchQuery: data,
-					searchCount: 1,
+				await prisma.userSearchQuery.create({
+					data: {
+						userId: user.id,
+						searchQuery: data,
+						searchCount: 1,
+						lastSearched: new Date(),
+					},
 				});
 
 				// enforce max 30 searches → delete oldest if exceeded
-				const totalSearches = await UserSearchQuery.countDocuments({
-					user: user._id,
+				const totalSearches = await prisma.userSearchQuery.count({
+					where: { userId: user.id },
 				});
 
 				if (totalSearches > 30) {
-					const oldest = await UserSearchQuery.findOne({
-						user: user._id,
-					})
-						.sort({ createdAt: 1 }) // oldest first
-						.limit(1);
+					const oldest = await prisma.userSearchQuery.findFirst({
+						where: { userId: user.id },
+						orderBy: { createdAt: "asc" },
+					});
 
 					if (oldest) {
-						await UserSearchQuery.findByIdAndDelete(oldest._id);
+						await prisma.userSearchQuery.delete({
+							where: { id: oldest.id },
+						});
 					}
 				}
 			}
 		}
 
 		if (type === "property") {
-			const existingView = await UserViewedProperty.findOne({
-				user: user._id,
-				property: data.id,
+			const existingView = await prisma.userViewedProperty.findFirst({
+				where: {
+					userId: user.id,
+					propertyId: data.id,
+				},
 			});
 
 			if (existingView) {
-				await UserViewedProperty.findByIdAndUpdate(existingView._id, {
-					$inc: { viewCount: 1 },
+				await prisma.userViewedProperty.update({
+					where: { id: existingView.id },
+					data: {
+						viewCount: { increment: 1 },
+						lastViewed: new Date(),
+					},
 				});
 			} else {
-				await UserViewedProperty.create({
-					user: user._id,
-					property: data.id,
-					viewCount: 1,
+				await prisma.userViewedProperty.create({
+					data: {
+						userId: user.id,
+						propertyId: data.id,
+						viewCount: 1,
+						lastViewed: new Date(),
+					},
 				});
 			}
 		}

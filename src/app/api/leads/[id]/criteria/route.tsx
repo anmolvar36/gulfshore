@@ -1,24 +1,39 @@
 import { NextResponse } from "next/server";
-import Lead from "@/models/leads";
-import connectDB from "@/lib/dbconfig";
+import prisma from "@/lib/prisma";
 
 export async function POST(
 	req: Request,
-	{ params }: { params: { id: string } }
+	{ params }: { params: Promise<{ id: string }> }
 ) {
-	await connectDB();
-	const id = (await params).id;
+	const { id } = await params;
 	const criteria = await req.json();
 
-	const lead = await Lead.findById(id);
+	const lead = await prisma.lead.findUnique({ where: { id } });
 	if (!lead)
 		return NextResponse.json(
 			{ message: "Lead not found" },
 			{ status: 404 }
 		);
 
-	lead.propertyCriteria.push(criteria);
-	await lead.save();
+	// Store propertyCriteria inside the tags JSON field
+	const existingTags = (lead.tags as any) || {};
+	const existingCriteria = existingTags?.propertyCriteria || [];
+	const newCriteriaEntry = { ...criteria, _id: `crit_${Date.now()}` };
+	const updatedCriteria = [...existingCriteria, newCriteriaEntry];
 
-	return NextResponse.json(lead);
+	const updated = await prisma.lead.update({
+		where: { id },
+		data: {
+			tags: {
+				...existingTags,
+				propertyCriteria: updatedCriteria,
+			},
+		},
+	});
+
+	return NextResponse.json({
+		...updated,
+		_id: updated.id,
+		propertyCriteria: updatedCriteria,
+	});
 }

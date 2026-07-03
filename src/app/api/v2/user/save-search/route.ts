@@ -1,14 +1,11 @@
-import User from "@/models/user";
-import UserSearchQuery from "@/models/userSearchedQuery";
-import UserViewedProperty from "@/models/userViewedProperties";
+import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import connectDB from "@/lib/dbconfig";
+
 export async function POST(request: Request) {
 	try {
-		await connectDB();
 		const body = await request.json();
-		const { link, data } = body;
+		const { data } = body;
 
 		const { userId } = await auth();
 		if (!userId) {
@@ -18,7 +15,9 @@ export async function POST(request: Request) {
 			});
 		}
 
-		const user = await User.findOne({ clerkId: userId });
+		const user = await prisma.user.findUnique({
+			where: { clerkId: userId },
+		});
 		if (!user) {
 			return NextResponse.json(
 				{ message: "User not found" },
@@ -26,41 +25,48 @@ export async function POST(request: Request) {
 			);
 		}
 
-		const existingSearch = await UserSearchQuery.findOne({
-			user: user._id,
-			searchQuery: data,
+		// check if search already exists
+		const existingSearch = await prisma.userSearchQuery.findFirst({
+			where: {
+				userId: user.id,
+				searchQuery: {
+					equals: data,
+				},
+			},
 		});
 
 		if (existingSearch) {
-			await UserSearchQuery.findByIdAndUpdate(existingSearch._id, {
-				$inc: { searchCount: 1 },
+			return NextResponse.json({
+				success: true,
+				message: "Search already saved",
 			});
-		} else {
-			// create a new search entry
-			await UserSearchQuery.create({
-				user: user._id,
+		}
+
+		// create a new search entry
+		await prisma.userSearchQuery.create({
+			data: {
+				userId: user.id,
 				searchQuery: data,
-				link,
-				savedSearch: true,
 				searchCount: 1,
+				lastSearched: new Date(),
+			},
+		});
+
+		// enforce max 30 searches → delete oldest if exceeded
+		const totalSearches = await prisma.userSearchQuery.count({
+			where: { userId: user.id },
+		});
+
+		if (totalSearches > 30) {
+			const oldest = await prisma.userSearchQuery.findFirst({
+				where: { userId: user.id },
+				orderBy: { createdAt: "asc" },
 			});
 
-			// enforce max 30 searches → delete oldest if exceeded
-			const totalSearches = await UserSearchQuery.countDocuments({
-				user: user._id,
-			});
-
-			if (totalSearches > 30) {
-				const oldest = await UserSearchQuery.findOne({
-					user: user._id,
-					savedSearch: false,
-				})
-					.sort({ createdAt: 1 }) // oldest first
-					.limit(1);
-
-				if (oldest) {
-					await UserSearchQuery.findByIdAndDelete(oldest._id);
-				}
+			if (oldest) {
+				await prisma.userSearchQuery.delete({
+					where: { id: oldest.id },
+				});
 			}
 		}
 

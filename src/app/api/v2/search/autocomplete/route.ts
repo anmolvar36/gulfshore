@@ -13,11 +13,11 @@ export async function GET(req: Request) {
 		const properties = await prisma.property.findMany({
 			where: {
 				OR: [
-					{ City: { contains: q, mode: "insensitive" } },
-					{ Community: { contains: q, mode: "insensitive" } },
+					{ City: { contains: q } },
+					{ Community: { contains: q } },
 					{ PostalCode: { contains: q } },
 					{ MLSNumber: { contains: q } },
-					{ FullAddress: { contains: q, mode: "insensitive" } },
+					{ FullAddress: { contains: q } },
 				],
 			},
 			select: {

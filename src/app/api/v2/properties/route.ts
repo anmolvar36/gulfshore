@@ -37,9 +37,21 @@ export async function GET(req: NextRequest) {
 		const sortOrder = query.get("order") === "asc" ? "asc" : "desc";
 
 		// ---- WHERE CLAUSE ----
-		const where: any = {
-			StandardStatus: query.get("Status") || "Active",
-		};
+		const where: any = {};
+
+		// ---- Listing Status ----
+		const statusVal = query.get("status") || query.get("Status") || "Active";
+		if (statusVal && statusVal !== "All") {
+			if (statusVal === "Sold") {
+				where.StandardStatus = { in: ["Closed", "Sold"] };
+			} else if (statusVal === "Short Sale" || statusVal === "Foreclosure") {
+				// Short sale / foreclosure fall back to Active or check description/raw if they exist in active listings
+				where.StandardStatus = "Active";
+				// Check standard conditions in raw data if available, or just return active
+			} else {
+				where.StandardStatus = statusVal;
+			}
+		}
 
 		// ---- Price ----
 		const minPrice = parseNumber(query.get("minPrice"));
@@ -105,15 +117,52 @@ export async function GET(req: NextRequest) {
 			};
 		}
 
-		if (query.get("NoHOA")) where.HOAMandatoryYN = false;
+		// ---- HOA Mandatory ----
+		const hoaVal = query.get("hoa");
+		if (hoaVal === "Yes") {
+			where.MandatoryHOAYN = true;
+		} else if (hoaVal === "No") {
+			where.MandatoryHOAYN = false;
+		}
+
+		// ---- Acres ----
+		const minAcres = parseNumber(query.get("minAcres"));
+		const maxAcres = parseNumber(query.get("maxAcres"));
+		if (minAcres || maxAcres) {
+			where.LotSizeAcres = {
+				...(minAcres && { gte: minAcres }),
+				...(maxAcres && { lte: maxAcres }),
+			};
+		}
+
 		// ---- Features ----
-		const features = query.getAll("features[]");
+		let features: string[] = [];
+		const featuresCsv = query.get("features");
+		if (featuresCsv) {
+			features = featuresCsv.split(",").map(f => f.trim().toLowerCase());
+		} else {
+			features = query.getAll("features[]").map(f => f.toLowerCase());
+		}
 
 		if (features.includes("waterfront")) where.WaterfrontYN = true;
 		if (features.includes("pool")) where.PoolPrivateYN = true;
+		if (features.includes("gulf access")) where.GulfAccessYN = true;
+		if (features.includes("spa")) where.SpaYN = true;
+		if (features.includes("garage")) where.GarageYN = true;
+		
+		// If any view type features are chosen
+		if (features.some(f => f.includes("view"))) {
+			where.ViewYN = true;
+		}
 
 		// ---- Property Types ----
-		const propTypes = query.getAll("propertyTypes[]");
+		let propTypes: string[] = [];
+		const propTypesCsv = query.get("propertyTypes");
+		if (propTypesCsv) {
+			propTypes = propTypesCsv.split(",").map(t => t.trim());
+		} else {
+			propTypes = query.getAll("propertyTypes[]");
+		}
 
 		if (propTypes.length) {
 			where.OR = [];

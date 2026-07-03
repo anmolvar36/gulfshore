@@ -24,7 +24,13 @@ export interface Filters {
 	postalCode: string;
 	page: string;
 	features: string[];
+	// New filters
+	hoa?: string;
+	minAcres?: string;
+	maxAcres?: string;
+	status?: string;
 }
+
 
 export interface ViewHistoryObj {
 	viewCount: number;
@@ -51,4 +57,6 @@ export interface UiState {
 	filters: Filters;
 	user: string;
 	viewCount: number;
+	hoveredMLS: string | null;
 }
+

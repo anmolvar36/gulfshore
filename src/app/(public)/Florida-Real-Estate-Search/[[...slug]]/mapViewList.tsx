@@ -123,13 +123,60 @@ export default function MapViewList({
 		);
 	}
 
+	const currentStatus = filters.status || "Active";
+
+	const handleStatusChange = (newStatus: string) => {
+		const nextFilters = {
+			...filters,
+			status: newStatus,
+			page: "1"
+		};
+		dispatch(setFilters(nextFilters));
+		dispatch(fetchProperties());
+
+		// Update URL parameters
+		const nextParams = new URLSearchParams(searchParams.toString());
+		if (newStatus === "Active") {
+			nextParams.delete("status");
+		} else {
+			nextParams.set("status", newStatus);
+		}
+		const newUrl = `${path}?${nextParams.toString()}`;
+		window.history.pushState(null, "", newUrl);
+	};
+
 	return (
 		<div>
+			{/* Status Tabs (Active / Sold) */}
+			<div className="w-11/12 mx-auto mb-6 flex border-b border-[#E8E4DC] gap-6 text-sm">
+				<button
+					onClick={() => handleStatusChange("Active")}
+					className={`pb-2.5 font-medium border-b-2 transition-all ${
+						currentStatus === "Active"
+							? "border-[#B89A6A] text-[#1C1712] font-semibold"
+							: "border-transparent text-[#7A7060] hover:text-[#1C1712]"
+					}`}
+				>
+					Active Listings
+				</button>
+				<button
+					onClick={() => handleStatusChange("Sold")}
+					className={`pb-2.5 font-medium border-b-2 transition-all ${
+						currentStatus === "Sold"
+							? "border-[#B89A6A] text-[#1C1712] font-semibold"
+							: "border-transparent text-[#7A7060] hover:text-[#1C1712]"
+					}`}
+				>
+					Sold Properties
+				</button>
+			</div>
+
 			<div className={gridClass}>
 				{list.map((property, i: number) => (
 					<PropertyCard key={i} {...property} />
 				))}
 			</div>
+
 			{Number(totalPages) >= 1 && (
 				<PaginationComponent2
 					currentPage={Number(filters.page) || 1}

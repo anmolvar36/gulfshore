@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, Suspense } from "react"
+import { useState, Suspense, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -92,10 +92,42 @@ const initialAutomations = [
 ]
 
 function AutomationContent() {
-  const [automations, setAutomations] = useState(initialAutomations)
+  const [automations, setAutomations] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [summary, setSummary] = useState<any>({
+    totalAutomations: 0,
+    totalRunning: 0,
+    totalIssues: 0,
+    successRate: "0%",
+  })
   const [runningSync, setRunningSync] = useState<string | null>(null)
   const searchParams = useSearchParams()
   const tab = searchParams.get("tab")
+
+  const fetchAutomations = () => {
+    fetch("/api/admin/automation")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setAutomations(data.list)
+          setSummary({
+            totalAutomations: data.totalAutomations,
+            totalRunning: data.totalRunning,
+            totalIssues: data.totalIssues,
+            successRate: data.successRate,
+          })
+        }
+        setLoading(false)
+      })
+      .catch((err) => {
+        console.error(err)
+        setLoading(false)
+      })
+  }
+
+  useEffect(() => {
+    fetchAutomations()
+  }, [])
 
   const filteredAutomations = automations.filter((auto) => {
     if (tab === "social") return auto.type === "social";
@@ -150,26 +182,53 @@ function AutomationContent() {
     setRunningSync(id)
     toast.info(`Triggering ${name} immediately...`)
     
-    setTimeout(() => {
-      setAutomations((prev) =>
-        prev.map((auto) => {
-          if (auto.id === id) {
-            const addedRecords = Math.floor(Math.random() * 80) + 12
-            const nowStr = new Date().toLocaleString()
-            return {
-              ...auto,
-              lastRun: nowStr,
-              recordsProcessed: auto.recordsProcessed + addedRecords,
-              lastResult: "success",
-              status: "running"
-            }
-          }
-          return auto
-        })
-      )
-      setRunningSync(null)
-      toast.success(`${name} completed successfully!`)
-    }, 1500)
+    fetch("/api/admin/automation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setAutomations((prev) =>
+            prev.map((auto) => {
+              if (auto.id === id) {
+                const addedRecords = Math.floor(Math.random() * 20) + 1
+                return {
+                  ...auto,
+                  lastRun: data.runTimestamp,
+                  recordsProcessed: auto.recordsProcessed + addedRecords,
+                  lastResult: "success",
+                  status: "running"
+                }
+              }
+              return auto
+            })
+          )
+          toast.success(`${name} completed successfully!`)
+        } else {
+          toast.error(`Failed to run ${name}`)
+        }
+        setRunningSync(null)
+      })
+      .catch((err) => {
+        console.error(err)
+        setRunningSync(null)
+      })
+  }
+
+  if (loading) {
+    return (
+      <div className="flex flex-col gap-6 w-full animate-pulse p-6">
+        <div className="h-10 w-1/3 bg-gray-200 rounded-lg"></div>
+        <div className="grid grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-24 bg-gray-200 rounded-lg animate-pulse"></div>
+          ))}
+        </div>
+        <div className="h-96 bg-gray-200 rounded-lg animate-pulse"></div>
+      </div>
+    )
   }
 
   return (
@@ -187,7 +246,7 @@ function AutomationContent() {
             <Settings className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{automations.length}</div>
+            <div className="text-2xl font-bold">{summary.totalAutomations}</div>
             <p className="text-xs text-muted-foreground">Active processes</p>
           </CardContent>
         </Card>
@@ -197,9 +256,7 @@ function AutomationContent() {
             <Play className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {automations.filter((a) => a.status === "running").length}
-            </div>
+            <div className="text-2xl font-bold">{summary.totalRunning}</div>
             <p className="text-xs text-muted-foreground">Currently active</p>
           </CardContent>
         </Card>
@@ -209,9 +266,7 @@ function AutomationContent() {
             <AlertCircle className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {automations.filter((a) => a.status === "error").length}
-            </div>
+            <div className="text-2xl font-bold">{summary.totalIssues}</div>
             <p className="text-xs text-muted-foreground">Need attention</p>
           </CardContent>
         </Card>
@@ -221,7 +276,7 @@ function AutomationContent() {
             <CheckCircle className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">97.9%</div>
+            <div className="text-2xl font-bold">{summary.successRate}</div>
             <p className="text-xs text-muted-foreground">Overall performance</p>
           </CardContent>
         </Card>

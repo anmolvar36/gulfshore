@@ -48,7 +48,7 @@ import { Property } from "@/app/generated/prisma/client";
 export default async function Listing({
 	params,
 }: {
-	params: { mls: string[] };
+	params: Promise<{ mls: string[] }>;
 }) {
 	const id = (await params).mls?.[0];
 	const property: Property = await FetchProperty(id);
@@ -97,7 +97,7 @@ export default async function Listing({
 
 	const city = capitalizeWords(property.City || "");
 	const development = capitalizeWords(
-		property.Community || (property.raw as any).MLSAreaMajor || ""
+		property.Community || (property.raw as any)?.MLSAreaMajor || ""
 	);
 
 	const Meta = await fetchMetadataFromSlug([
@@ -278,7 +278,7 @@ export default async function Listing({
 								<span className="font-medium">
 									Listing Office:
 								</span>{" "}
-								{(property.raw as any).ListOfficeName}
+								{property.ListOfficeName || (property.raw as any)?.ListOfficeName || "N/A"}
 								<br />
 								<span className="font-medium">
 									Showing Office:
@@ -318,7 +318,7 @@ export default async function Listing({
 						<span className="text-primary">
 							{capitalizeWords(
 								property.Community ||
-									(property.raw as any).MLSAreaMajor ||
+									(property.raw as any)?.MLSAreaMajor ||
 									""
 							)}
 							, {capitalizeWords(property.City)} Florida
@@ -409,7 +409,7 @@ export default async function Listing({
 													property.City
 												).replaceAll(" ", "-")}/${capitalizeWords(
 													property.Development ||
-														(property.raw as any).MLSAreaMajor ||
+														(property.raw as any)?.MLSAreaMajor ||
 														""
 												).replaceAll(" ", "-")}`}
 												className="text-gray-500 leading-relaxed ">

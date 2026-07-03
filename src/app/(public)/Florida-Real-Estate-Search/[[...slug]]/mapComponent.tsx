@@ -88,6 +88,58 @@ export default function MapComponent({
 		[ui.filters]
 	);
 
+	const [showFema, setShowFema] = useState(false);
+	const femaOverlayRef = useRef<google.maps.ImageMapType | null>(null);
+
+	const toggleFemaLayer = useCallback(() => {
+		if (!mapRef.current) return;
+		const nextState = !showFema;
+		setShowFema(nextState);
+
+		if (nextState) {
+			// Initialize FEMA tile layer options
+			const femaType = new google.maps.ImageMapType({
+				getTileUrl: (coord, zoom) => {
+					const numTiles = 1 << zoom;
+					const mercatorRange = 256;
+					
+					const lng1 = (coord.x * mercatorRange) / numTiles;
+					const lat1 = coord.y;
+					
+					// Simple mercator projection bounds calculation
+					const tileRange = 1 << zoom;
+					const x = coord.x;
+					const y = coord.y;
+					
+					const west = (x / tileRange) * 360 - 180;
+					const east = ((x + 1) / tileRange) * 360 - 180;
+					
+					const n = Math.PI - (2 * Math.PI * y) / tileRange;
+					const north = (180 / Math.PI) * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
+					
+					const s = Math.PI - (2 * Math.PI * (y + 1)) / tileRange;
+					const south = (180 / Math.PI) * Math.atan(0.5 * (Math.exp(s) - Math.exp(-s)));
+					
+					const bbox = `${west},${south},${east},${north}`;
+					return `https://hazards.fema.gov/gis/nfhl/rest/services/public/NFHL/MapServer/export?bbox=${bbox}&bboxSR=4326&layers=show%3A28&size=256,256&imageSR=4326&format=png32&transparent=true&f=image`;
+				},
+				tileSize: new google.maps.Size(256, 256),
+				opacity: 0.6,
+				name: "FEMA Flood Zone Map",
+			});
+			femaOverlayRef.current = femaType;
+			mapRef.current.overlayMapTypes.insertAt(0, femaType);
+		} else {
+			if (femaOverlayRef.current) {
+				const index = mapRef.current.overlayMapTypes.indexOf(femaOverlayRef.current);
+				if (index > -1) {
+					mapRef.current.overlayMapTypes.removeAt(index);
+				}
+				femaOverlayRef.current = null;
+			}
+		}
+	}, [showFema]);
+
 	const onLoad = useCallback(
 		(map: google.maps.Map) => {
 			mapRef.current = map;
@@ -102,6 +154,18 @@ export default function MapComponent({
 
 	return (
 		<div className="md:max-w-1/2  xl:max-w-1/2 xl:min-w-1/2 lg:max-w-3/5 lg:min-w-3/5 md:min-w-1/2 max-h-[80svh] min-w-[100svw] grow relative rounded-xl">
+			{/* FEMA Layer Control Button */}
+			<button
+				onClick={toggleFemaLayer}
+				className={`absolute top-4 left-4 z-50 px-3 py-1.5 rounded-lg border shadow-sm font-medium text-xs transition-colors duration-200 ${
+					showFema 
+						? "bg-blue-600 text-white border-blue-700 hover:bg-blue-700" 
+						: "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+				}`}
+			>
+				{showFema ? "🌊 FEMA Layer: ON" : "🗺️ Show FEMA Flood Map"}
+			</button>
+
 			{isLoaded && (
 				<GoogleMap
 					onLoad={onLoad}
@@ -139,3 +203,4 @@ export default function MapComponent({
 		</div>
 	);
 }
+

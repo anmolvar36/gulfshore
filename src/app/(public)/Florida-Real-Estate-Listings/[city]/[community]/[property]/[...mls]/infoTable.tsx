@@ -40,7 +40,7 @@ function formatCurrency(input: string | number | null | undefined) {
 			? input
 			: Number(String(input).replace(/[^\d.-]/g, ""));
 	if (Number.isNaN(num)) return String(input);
-	return new Intl.NumberFormat(undefined, {
+	return new Intl.NumberFormat("en-US", {
 		style: "currency",
 		currency: "USD",
 		maximumFractionDigits: 0,
@@ -60,7 +60,7 @@ function formatNumber(input: string | number | null | undefined) {
 			? input
 			: Number(String(input).replace(/[^\d.-]/g, ""));
 	if (Number.isNaN(num)) return String(input);
-	return new Intl.NumberFormat(undefined).format(num);
+	return new Intl.NumberFormat("en-US").format(num);
 }
 
 function formatSqFt(input: string | number | null | undefined) {
@@ -176,19 +176,19 @@ export default function PropertyDetailsTable({
 		? `${formatNumber(property.LotSizeSquareFeet)} sq ft`
 		: null;
 
-	const description = (property.raw as any).PublicRemarks || null;
+	const description = (property.raw as any)?.PublicRemarks || null;
 
 	// Parse features from JSON fields
 	const exteriorList = parseList(
-		(property.raw as any).ExteriorFeatures
+		(property.raw as any)?.ExteriorFeatures
 	);
 	const interiorList = parseList(
-		(property.raw as any).InteriorFeatures
+		(property.raw as any)?.InteriorFeatures
 	);
-	const appliancesList = parseList((property.raw as any).Appliances);
-	const flooringList = parseList((property.raw as any).Flooring);
-	const heatingList = parseList((property.raw as any).Heating);
-	const coolingList = parseList((property.raw as any).Cooling);
+	const appliancesList = parseList((property.raw as any)?.Appliances);
+	const flooringList = parseList((property.raw as any)?.Flooring);
+	const heatingList = parseList((property.raw as any)?.Heating);
+	const coolingList = parseList((property.raw as any)?.Cooling);
 
 	return (
 		<div className="w-full mx-auto space-y-6 md:space-y-8">
@@ -296,30 +296,30 @@ export default function PropertyDetailsTable({
 								formatter={formatCurrency}
 							/>
 
-							{(property.raw as any).NABOR_MandatoryHOAYN ? (
+							{(property.raw as any)?.NABOR_MandatoryHOAYN ? (
 								<>
 									{" "}
 									<InfoRow
 										label="HOA Fee"
-										value={(property.raw as any).NABOR_HOAFee}
+										value={(property.raw as any)?.NABOR_HOAFee}
 										formatter={formatCurrency}
 									/>
 									<InfoRow
 										label="HOA Fee Frequency"
 										value={
-											(property.raw as any).NABOR_HOAFeeFrequency
+											(property.raw as any)?.NABOR_HOAFeeFrequency
 										}
 									/>
 									<InfoRow
 										label="Master HOA Fee"
-										value={(property.raw as any).NABOR_MasterHOAFee}
+										value={(property.raw as any)?.NABOR_MasterHOAFee}
 										formatter={formatCurrency}
 									/>
 									<InfoRow
 										label="Master HOA Fee Frequency"
 										value={
 											(property.raw as any)
-												.NABOR_MasterHOAFeeFrequency
+												?.NABOR_MasterHOAFeeFrequency
 										}
 									/>
 								</>
@@ -329,7 +329,7 @@ export default function PropertyDetailsTable({
 
 							<InfoRow
 								label="Tax Annual Amount"
-								value={(property.raw as any).TaxAnnualAmount}
+								value={(property.raw as any)?.TaxAnnualAmount}
 								formatter={formatCurrency}
 							/>
 							<InfoRow label="Tax Year" value={property.TaxYear} />

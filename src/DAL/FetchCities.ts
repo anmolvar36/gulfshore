@@ -1,17 +1,18 @@
 "use server";
 
-import City from "@/models/city";
-import connectDB from "@/lib/dbconfig";
+import prisma from "@/lib/prisma";
 export default async function FetchCities() {
 	try {
-		await connectDB();
-
-		const res = await City.find({ featured: true })
-			.sort({ index: -1 })
-			.lean();
+		const res = await prisma.city.findMany({
+			where: { isFeatured: true },
+		});
 		const cities = res.map((c) => ({
 			...c,
-			_id: String(c._id),
+			_id: String(c.id),
+			City: c.name,
+			Images: c.images || [],
+			infoText: c.description || "",
+			defaultImage: c.defaultImage || "",
 		}));
 
 		return cities;

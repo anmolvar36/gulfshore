@@ -13,6 +13,7 @@ export default function SettingsPage() {
 	const [notifications, setNotifications] = useState(true);
 	const [emailAlerts, setEmailAlerts] = useState(true);
 	const [darkMode, setDarkMode] = useState(false);
+	const [savingNotif, setSavingNotif] = useState(false);
 
 	const [email, setEmail] = useState("");
 	const [currentPassword, setCurrentPassword] = useState("");
@@ -33,7 +34,36 @@ export default function SettingsPage() {
 		} else {
 			setEmail("admin@gulfshore.com");
 		}
+		// Load saved notification preferences from database
+		fetch("/api/admin/notification-settings")
+			.then((res) => res.json())
+			.then((data) => {
+				if (typeof data.pushEnabled === "boolean") setNotifications(data.pushEnabled);
+				if (typeof data.emailEnabled === "boolean") setEmailAlerts(data.emailEnabled);
+			})
+			.catch(() => {});
 	}, []);
+
+	const saveNotificationSettings = async (push: boolean, email_alerts: boolean) => {
+		setSavingNotif(true);
+		try {
+			const res = await fetch("/api/admin/notification-settings", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ pushEnabled: push, emailEnabled: email_alerts }),
+			});
+			const data = await res.json();
+			if (data.success) {
+				toast.success("Notification preference saved!");
+			} else {
+				toast.error(data.error || "Failed to save.");
+			}
+		} catch {
+			toast.error("Error saving notification setting.");
+		} finally {
+			setSavingNotif(false);
+		}
+	};
 
 	const handleUpdateSecurity = async () => {
 		if (!currentPassword) {
@@ -130,7 +160,14 @@ export default function SettingsPage() {
 								<p className="font-medium">Push Notifications</p>
 								<p className="text-sm text-muted-foreground">Receive in-app notifications</p>
 							</div>
-							<Switch checked={notifications} onCheckedChange={setNotifications} />
+							<Switch
+								checked={notifications}
+								disabled={savingNotif}
+								onCheckedChange={(val) => {
+									setNotifications(val);
+									saveNotificationSettings(val, emailAlerts);
+								}}
+							/>
 						</div>
 						<Separator />
 						<div className="flex items-center justify-between">
@@ -138,7 +175,14 @@ export default function SettingsPage() {
 								<p className="font-medium">Email Alerts</p>
 								<p className="text-sm text-muted-foreground">Get email for new leads and contacts</p>
 							</div>
-							<Switch checked={emailAlerts} onCheckedChange={setEmailAlerts} />
+							<Switch
+								checked={emailAlerts}
+								disabled={savingNotif}
+								onCheckedChange={(val) => {
+									setEmailAlerts(val);
+									saveNotificationSettings(notifications, val);
+								}}
+							/>
 						</div>
 					</CardContent>
 				</Card>

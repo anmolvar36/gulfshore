@@ -1,9 +1,7 @@
 import capitalizeWords from "@/hooks/capitalize-letter";
 import { formatPrice } from "@/hooks/formatPrice";
-import City from "@/models/city";
-import Property from "@/models/property";
+import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
-import connectDB from "@/lib/dbconfig";
 interface SearchParams {
 	city: string;
 	developmentName: string;
@@ -22,7 +20,6 @@ interface SearchParams {
 
 export async function GET(req: NextRequest) {
 	try {
-		await connectDB();
 		const { searchParams } = new URL(req.url);
 
 		const params: SearchParams = {
@@ -54,7 +51,7 @@ export async function GET(req: NextRequest) {
 				) || "";
 		}
 		let total: number = 0;
-		let match: any = {};
+		let where: any = { StandardStatus: "Active" };
 		let content: any = {};
 
 		const cityPart = params.city
@@ -64,24 +61,37 @@ export async function GET(req: NextRequest) {
 		const devPart = params.developmentName ? ` ${community},` : "";
 
 		if (params.city) {
-			match.City = decodeURIComponent(params.city).toUpperCase();
-			content = await City.findOne({
-				City: { $regex: new RegExp(params.city!, "i") },
+			const cityName = decodeURIComponent(params.city).trim();
+			where.City = {
+				equals: cityName,
+				mode: "insensitive",
+			};
+
+			const cityRecord = await prisma.city.findFirst({
+				where: {
+					name: {
+						equals: cityName,
+					},
+				},
 			});
+
+			if (cityRecord) {
+				content = {
+					Images: cityRecord.images || [],
+					infoText: cityRecord.description || "",
+					defaultImage: cityRecord.defaultImage || "",
+				};
+			}
 		}
 		if (params.developmentName) {
-			const Community = decodeURIComponent(
-				params.developmentName
-			).toUpperCase();
-			const regex = new RegExp(`^${Community}$`, "i");
-
-			match.$or = [
-				{ Development: regex },
-				{ DevelopmentName: regex },
+			const devName = decodeURIComponent(params.developmentName).trim();
+			where.OR = [
+				{ Development: { equals: devName, mode: "insensitive" } },
+				{ Community: { equals: devName, mode: "insensitive" } }
 			];
 		}
 
-		total = await Property.countDocuments(match).lean();
+		total = await prisma.property.count({ where });
 
 		const bedBathPart =
 			params.beds || params.baths

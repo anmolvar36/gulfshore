@@ -9,6 +9,7 @@ export interface IContactRequest extends Document {
 	status?: string;
 	ref?: string;
 	refType?: string;
+	createdAt: Date;
 }
 
 const contactRequestSchema = new Schema<IContactRequest>(

@@ -1,4 +1,3 @@
-import connectDB from "@/lib/dbconfig";
 import prisma from "@/lib/prisma";
 
 export async function GET(
@@ -6,7 +5,6 @@ export async function GET(
 	{ params }: { params: Promise<{ id: string }> | any }
 ) {
 	try {
-		await connectDB();
 		const { id } = await params;
 		const notification = await prisma.scheduledNotification.findUnique({
 			where: { id },
@@ -48,7 +46,6 @@ export async function PUT(
 	{ params }: { params: Promise<{ id: string }> | any }
 ) {
 	try {
-		await connectDB();
 		const { id } = await params;
 		const body = await req.json();
 
@@ -97,7 +94,6 @@ export async function DELETE(
 	{ params }: { params: Promise<{ id: string }> | any }
 ) {
 	try {
-		await connectDB();
 		const { id } = await params;
 
 		const notification = await prisma.scheduledNotification.delete({

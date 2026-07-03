@@ -61,6 +61,14 @@ const statusOptions = [
 	},
 ];
 
+const getRefLink = (ref: string) => {
+	if (!ref || ref === "null" || ref === "N/A") return "#";
+	if (ref.startsWith("http://") || ref.startsWith("https://")) return ref;
+	const cleanRef = ref.startsWith("/") ? ref : `/${ref}`;
+	// In local dev, use relative paths so they resolve on localhost, in prod they resolve on main domain
+	return cleanRef;
+};
+
 export default function ContactRequestsPage() {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -282,11 +290,18 @@ export default function ContactRequestsPage() {
 												{request.message || "N/A"}
 											</td>
 											<td className="py-3 px-4 ">
-												{!request.ref || request.ref === "null" || request.ref === "N/A"
-													? ""
-													: request.ref === "/"
-														? "https://gulfshoregroup.com"
-														: `https://gulfshoregroup.com/${request.ref}`}
+												{!request.ref || request.ref === "null" || request.ref === "N/A" ? (
+													""
+												) : (
+													<a 
+														href={getRefLink(request.ref)} 
+														target="_blank" 
+														rel="noreferrer"
+														className="text-blue-600 hover:underline"
+													>
+														{request.ref === "/" ? "Home" : "Property"}
+													</a>
+												)}
 											</td>
 											<td className="py-3 px-4 ">
 												{!request.ref || request.ref === "null" || request.ref === "N/A"
@@ -360,7 +375,7 @@ export default function ContactRequestsPage() {
 										{!selectedRequest.ref || selectedRequest.ref === "null" || selectedRequest.ref === "N/A" ? (
 											<span className="text-gray-400 font-normal">-</span>
 										) : (
-											<a href={selectedRequest.ref === "/" ? "https://gulfshoregroup.com" : `https://gulfshoregroup.com/${selectedRequest.ref}`} target="_blank" rel="noreferrer">
+											<a href={getRefLink(selectedRequest.ref)} target="_blank" rel="noreferrer">
 												{selectedRequest.refType || "Link"}
 											</a>
 										)}

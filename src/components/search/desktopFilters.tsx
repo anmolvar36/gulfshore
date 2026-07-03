@@ -102,6 +102,7 @@ export const Filters = ({
 	const [bedrooms, setBedrooms] = useState("");
 	const [bathrooms, setBathrooms] = useState("");
 	const [city, setCity] = useState("");
+	const [communityInput, setCommunityInput] = useState("");
 	const [postalCode, setPostalCode] = useState("");
 	const [mlsNumber, setMlsNumber] = useState("");
 	const [open, setOpen] = useState(false);
@@ -115,6 +116,7 @@ export const Filters = ({
 		const parsed = parseFiltersFromSearchParams(searchParams);
 		const location = parseLocationFromPathname(pathname);
 		setCity(location.city || "");
+		setCommunityInput(location.developmentName || reduxFilters.developmentName || "");
 		setBedrooms(parsed.beds || "");
 		setBathrooms(parsed.baths || "");
 		setMinPrice(parsed.minPrice || "Minimum");
@@ -158,7 +160,7 @@ export const Filters = ({
 		const nextFilters = {
 			...reduxFilters,
 			city,
-			developmentName: community || "",
+			developmentName: communityInput || community || "",
 			beds: bedrooms,
 			baths: bathrooms,
 			minPrice: min,
@@ -260,7 +262,7 @@ export const Filters = ({
 		const nextFilters = {
 			...reduxFilters,
 			city,
-			developmentName: community || "",
+			developmentName: communityInput || community || "",
 			beds: bedrooms,
 			baths: bathrooms,
 			minPrice: min,
@@ -270,6 +272,10 @@ export const Filters = ({
 			postalCode,
 			propertyTypes: propertyType,
 			features: keywords,
+			hoa,
+			minAcres,
+			maxAcres,
+			status: statusFilter,
 			page: "1",
 		};
 		const nextQuery = buildQueryFromFilters(nextFilters, searchParams);
@@ -331,6 +337,19 @@ export const Filters = ({
 								</DropdownMenuRadioGroup>
 							</DropdownMenuContent>
 						</DropdownMenu>
+					</div>
+					{/* Community / Development Name */}
+					<div className="flex flex-col space-y-2">
+						<Label className="text-sm font-medium text-gray-900">
+							Community
+						</Label>
+						<Input
+							type="text"
+							value={communityInput}
+							onChange={(e) => setCommunityInput(e.target.value)}
+							className="text-sm"
+							placeholder="e.g. Pelican Bay"
+						/>
 					</div>
 					{/* Zipcode */}
 					<div className="flex flex-col space-y-2">
@@ -543,7 +562,20 @@ export const Filters = ({
 							Features
 						</Label>
 						<div className="grid grid-cols-3 gap-4">
-							{["Gulf Access", "Waterfront", "Pool", "Garage", "Spa"].map((f, i) => (
+							{[
+								"Gulf Access",
+								"Waterfront",
+								"Pool",
+								"Garage",
+								"Spa",
+								"Gulf View",
+								"Bay View",
+								"City View",
+								"Lake View",
+								"Canal View",
+								"Garden View",
+								"Golf Course View",
+							].map((f, i) => (
 								<div key={i} className="flex items-center space-x-2">
 									<Checkbox
 										id={`keywords-${i}`}

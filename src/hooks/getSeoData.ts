@@ -1,8 +1,6 @@
-import City from "@/models/city";
 import capitalizeWords from "./capitalize-letter";
 import { SearchParamsResult } from "./extractSearchParams";
-import Property from "@/models/property";
-import connectDB from "@/lib/dbconfig";
+import prisma from "@/lib/prisma";
 import { formatPrice } from "./formatPrice";
 import UrlMaker from "./url-maker";
 
@@ -11,8 +9,6 @@ export default async function GetSeoData({
 }: {
 	params: SearchParamsResult;
 }) {
-	await connectDB();
-
 	const city = params.city
 		? capitalizeWords(params.city.replaceAll(/[^a-zA-Z0-9&]+/g, " "))
 		: "";
@@ -22,41 +18,79 @@ export default async function GetSeoData({
 		  )
 		: "";
 
-	const match: any = { Status: "Active" };
-	let content: any = {};
+	const where: any = { StandardStatus: "Active" };
+	let content: { Images: string[]; infoText: string; defaultImage: string } = {
+		Images: [],
+		infoText: "",
+		defaultImage: "",
+	};
 
 	// --- City info ---
 	if (params.city) {
-		match.City = decodeURIComponent(params.city).toUpperCase();
-		content = await City.findOne({
-			City: { $regex: new RegExp(params.city!, "i") },
-		}).lean();
+		const cityName = decodeURIComponent(params.city).trim();
+		where.City = {
+			equals: cityName,
+		};
+
+		// Fetch the city record from Prisma
+		const cityRecord = await prisma.city.findFirst({
+			where: {
+				name: {
+					equals: cityName,
+				},
+			},
+		});
+
+		if (cityRecord) {
+			content = {
+				Images: (cityRecord.images as any) || [],
+				infoText: cityRecord.description || "",
+				defaultImage: cityRecord.defaultImage || "",
+			};
+		}
 	}
 
 	// --- Community ---
 	if (params.developmentName) {
-		const regex = new RegExp(
-			`^${decodeURIComponent(params.developmentName)}$`,
-			"i"
-		);
-		match.$or = [{ Development: regex }, { DevelopmentName: regex }];
+		const devName = decodeURIComponent(params.developmentName).trim();
+		where.OR = [
+			{ Development: { equals: devName } },
+			{ Community: { equals: devName } },
+		];
 	}
 
 	// --- Total Listings ---
-	const total = await Property.countDocuments(match).lean();
+	const total = await prisma.property.count({ where });
 
 	// --- Similar Listings (8 random or latest active) ---
 	const page = Number(params.page) || 1;
-	let skipNum;
-	skipNum = (page + 1) * 18;
+	let skipNum = (page + 1) * 18;
 	if (skipNum > total) skipNum = 1;
-	const similar = await Property.find(match)
-		.select(
-			"slug City DevelopmentName CurrentPrice FullAddress PropertyAddress Longitude Latitude"
-		)
-		.skip(skipNum)
-		.limit(8)
-		.lean();
+
+	const similarRaw = await prisma.property.findMany({
+		where,
+		select: {
+			id: true,
+			City: true,
+			Community: true,
+			Development: true,
+			FullAddress: true,
+			MLSNumber: true,
+			ListPrice: true,
+			Latitude: true,
+			Longitude: true,
+		},
+		skip: skipNum,
+		take: 8,
+	});
+
+	const similar = similarRaw.map((prop: any) => ({
+		...prop,
+		_id: prop.id,
+		PropertyAddress: prop.FullAddress,
+		CurrentPrice: prop.ListPrice || 0,
+		DevelopmentName: prop.Community || prop.Development || "",
+	}));
 
 	// --- Dynamic Segments ---
 	const cityPart = city ? `${city}, FL` : "Florida";
@@ -125,10 +159,10 @@ export default async function GetSeoData({
 	const keywords = [
 		city,
 		community,
-		...params.propertyTypes,
+		...(params.propertyTypes || []),
 		params.beds && `${params.beds}-bedroom homes`,
 		params.baths && `${params.baths}-bath homes`,
-		...params.features,
+		...(params.features || []),
 		"Florida real estate",
 		"homes for sale",
 		"condos for sale",
@@ -149,13 +183,10 @@ export default async function GetSeoData({
 		position: i + 1,
 		item: {
 			"@type": "RealEstateListing",
-			name: `${prop.FullAddress || prop.PropertyAddress}, ${
-				prop.City
-			}`,
-
+			name: `${prop.PropertyAddress}, ${prop.City}`,
 			address: {
 				"@type": "PostalAddress",
-				streetAddress: prop.FullAddress || prop.PropertyAddress,
+				streetAddress: prop.PropertyAddress,
 				addressLocality: prop.City,
 				addressRegion: "FL",
 				addressCountry: "US",
@@ -169,7 +200,7 @@ export default async function GetSeoData({
 				availability: "http://schema.org/InStock",
 				itemOffered: {
 					"@type": "RealEstateListing",
-					streetAddress: prop.FullAddress || prop.PropertyAddress,
+					streetAddress: prop.PropertyAddress,
 					addressLocality: prop.City,
 					addressRegion: "FL",
 					addressCountry: "US",
@@ -207,6 +238,10 @@ export default async function GetSeoData({
 		},
 	};
 
+	let canonicalUrl = "";
+	if (params.city) canonicalUrl += `/${params.city}`;
+	if (params.developmentName) canonicalUrl += `/${params.developmentName}`;
+
 	return {
 		title,
 		description,
@@ -221,9 +256,11 @@ export default async function GetSeoData({
 				`Discover ${cityPart}${
 					community ? ` – ${community}` : ""
 				} real estate listings. Explore beautiful ${typeSegment}${bedBath}${featuresSegment} with Gulfshore Group.`,
+			defaultImage: content?.defaultImage || "",
 		},
 		city,
 		community,
 		similar,
+		canonicalUrl,
 	};
 }

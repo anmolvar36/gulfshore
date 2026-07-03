@@ -29,6 +29,7 @@ import {
 	SignUpButton,
 	UserButton,
 	useUser,
+	SignOutButton,
 } from "@clerk/nextjs";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Skeleton } from "../ui/skeleton";
@@ -277,6 +278,11 @@ export const DrawerMenu = ({
 								className="relative px-4 py-3 rounded-xl hover:bg-linear-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200 font-medium">
 								<span>Saved Searches</span>
 							</NavigationMenuLink>
+							<SignOutButton>
+								<button className="w-full text-left relative px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200 font-semibold cursor-pointer">
+									Sign Out
+								</button>
+							</SignOutButton>
 						</SignedIn>
 					</div>
 				</NavigationMenu>

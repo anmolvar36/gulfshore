@@ -45,4 +45,6 @@ next-env.d.ts
 *.sql
 *.zip
 /scratch/
+/v2/
+
 

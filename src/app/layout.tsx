@@ -17,6 +17,8 @@ const poppins = Poppins({
 	display: "swap",
 });
 
+import UtmTracker from "../components/global/utmTracker";
+
 export const metadata: Metadata = {
 	title: "Naples Florida Real Estate Office - GULFSHORE GROUP",
 	description:
@@ -101,6 +103,7 @@ export default function RootLayout({
 						}}
 					/>
 					<StoreProvider>
+						<UtmTracker />
 						{children}
 					</StoreProvider>
 

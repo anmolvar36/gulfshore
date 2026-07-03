@@ -15,6 +15,7 @@ function MarkerItem({
 	const ui = useSelector(selectUi);
 	const Latitude = parseFloat(item.Latitude);
 	const Longitude = parseFloat(item.Longitude);
+	const isHighlighted = ui.details?.MLSNumber === item.MLSNumber || ui.hoveredMLS === item.MLSNumber;
 	return (
 		<div>
 			<MarkerF
@@ -23,7 +24,7 @@ function MarkerItem({
 				}}
 				icon={{
 					url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
-					  <svg xmlns="http://www.w3.org/2000/svg" width="120" height="60" viewBox="0 0 120 60">
+					  <svg xmlns="http://www.w3.org/2000/svg" width="${isHighlighted ? "130" : "120"}" height="${isHighlighted ? "70" : "60"}" viewBox="0 0 120 60">
 						  <defs>
 							<filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
 							  <feGaussianBlur stdDeviation="2" result="blur" />
@@ -33,21 +34,21 @@ function MarkerItem({
 							</filter>
 						  </defs>
 						  <rect x="0" y="0" width="100" height="40" rx="8" ry="8" fill="${
-								ui.details?.MLSNumber === item.MLSNumber
-									? "#c01237"
-									: "#1a1a1a"
+								isHighlighted
+									? "#B89A6A" // Premium Gold highlight on hover/click
+									: "#1a1a1a" // Sleek black default
 							}" stroke="white" stroke-width="1.5" />
 						  <polygon points="45,40 50,50 55,40" fill="${
-								ui.details?.MLSNumber === item.MLSNumber
-									? "#c01237"
+								isHighlighted
+									? "#B89A6A"
 									: "#1a1a1a"
 							}" stroke="white" stroke-width="1.5" />
-						  <text x="50" y="25" font-family="Inter, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" fill="white">${formatPrice(
+						  <text x="50" y="25" font-family="Inter, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="white">${formatPrice(
 								item.ListPrice
 							)}</text>
 					  </svg>
 					`)}`,
-					scaledSize: new google.maps.Size(60, 30),
+					scaledSize: isHighlighted ? new google.maps.Size(70, 35) : new google.maps.Size(60, 30),
 					anchor: new google.maps.Point(30, 30),
 				}}
 				key={item.MLSNumber}
@@ -58,6 +59,7 @@ function MarkerItem({
 			/>
 		</div>
 	);
+
 }
 
 export default MarkerItem;

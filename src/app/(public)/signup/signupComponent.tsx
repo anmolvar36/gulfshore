@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
 	Card,
 	CardContent,
@@ -12,11 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Home, Eye, EyeOff, MapPin, Map, Search } from "lucide-react";
-import { GoogleOneTap, useSignUp } from "@clerk/nextjs";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
-import { ClerkAPIError, OAuthStrategy } from "@clerk/types";
-import { isClerkAPIResponseError } from "@clerk/nextjs/errors";
 import {
 	Select,
 	SelectTrigger,
@@ -29,12 +25,11 @@ import axios from "axios";
 export default function SignUpForm() {
 	const query = useSearchParams();
 	const redirectUrl = query.get("redirect_url") || "/";
-	const { isLoaded, signUp, setActive } = useSignUp();
+	
+	const [isLoginMode, setIsLoginMode] = useState(false);
 	const [showPassword, setShowPassword] = useState(false);
-	const [verifying, setVerifying] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState("");
-	const [errors, setErrors] = React.useState<ClerkAPIError[]>();
 
 	const [formData, setFormData] = useState({
 		firstName: "",
@@ -44,11 +39,20 @@ export default function SignUpForm() {
 		password: "",
 		agreeToTerms: true,
 	});
-	const [code, setCode] = React.useState("");
 	const [countryCode, setCountryCode] = useState("+1");
 	const [phoneNumber, setPhoneNumber] = useState("");
 	const [isPhoneValid, setIsPhoneValid] = useState(false);
 	const router = useRouter();
+
+	useEffect(() => {
+		const mode = query.get("mode");
+		if (mode === "signin") {
+			setIsLoginMode(true);
+		} else {
+			setIsLoginMode(false);
+		}
+	}, [query]);
+
 	const handleInputChange = (e: any) => {
 		const { name, value, type, checked } = e.target;
 		setFormData({
@@ -119,6 +123,40 @@ export default function SignUpForm() {
 		setError("");
 		setIsLoading(true);
 
+		if (!formData.email) {
+			setError("Email is required.");
+			setIsLoading(false);
+			return;
+		}
+
+		if (!formData.password) {
+			setError("Password is required.");
+			setIsLoading(false);
+			return;
+		}
+
+		if (isLoginMode) {
+			// SIGN IN FLOW
+			try {
+				const response = await axios.post("/api/v2/user/signin", {
+					email: formData.email,
+					password: formData.password,
+				});
+
+				if (response.data.success) {
+					window.location.href = redirectUrl;
+				} else {
+					setError(response.data.error || "Invalid email or password.");
+				}
+			} catch (err: any) {
+				setError(err.response?.data?.error || "Error signing in. Please try again.");
+			} finally {
+				setIsLoading(false);
+			}
+			return;
+		}
+
+		// SIGN UP FLOW
 		if (formData.password.length < 8) {
 			setError("Password must be at least 8 characters long.");
 			setIsLoading(false);
@@ -130,126 +168,39 @@ export default function SignUpForm() {
 			setIsLoading(false);
 			return;
 		}
+
 		if (!formData.agreeToTerms) {
 			setError("You must agree to the terms and conditions.");
 			setIsLoading(false);
 			return;
 		}
 
-		if (!isLoaded) return;
-
 		try {
-			try {
-				await axios.post("/api/v2/user/signup-lead", formData);
-			} catch (error) {}
-			await signUp?.create({
-				emailAddress: formData.email,
-				password: formData.password,
+			const res = await axios.post("/api/v2/user/signup-lead", {
 				firstName: formData.firstName,
 				lastName: formData.lastName,
+				email: formData.email,
+				phone: `${countryCode}${phoneNumber.replace(/\D/g, "")}`,
+				password: formData.password,
+				agreeToTerms: formData.agreeToTerms
 			});
-			await signUp?.prepareEmailAddressVerification({
-				strategy: "email_code",
-			});
-			setVerifying(true);
-			setIsLoading(false);
-		} catch (err: any) {
-			//	console.error("Sign up error:", err);
-			if (isClerkAPIResponseError(err)) {
-				setErrors(err.errors);
+
+			if (res.data.success) {
+				window.location.href = redirectUrl;
 			} else {
-				setError(err.message);
+				setError(res.data.error || "Failed to create account.");
 			}
+		} catch (err: any) {
+			setError(err.response?.data?.error || "Error signing up. Please try again.");
 		} finally {
 			setIsLoading(false);
 		}
 	};
-
-	// Handle the submission of the verification form
-	const handleVerify = async (e: React.FormEvent) => {
-		e.preventDefault();
-
-		if (!isLoaded) return;
-		setIsLoading(true);
-		setError("");
-		try {
-			// Use the code the user provided to attempt verification
-			const completeSignUp =
-				await signUp?.attemptEmailAddressVerification({
-					code,
-				});
-
-			// If verification was completed, set the session to active
-			// and redirect the user
-			if (completeSignUp?.status === "complete") {
-				await setActive({ session: completeSignUp.createdSessionId });
-
-				router.push(redirectUrl);
-			} else {
-				// If the status is not complete, check why. User may need to
-				// complete further steps.
-				console.error(JSON.stringify(completeSignUp, null, 2));
-			}
-		} catch (err: any) {
-			// See https://clerk.com/docs/custom-flows/error-handling
-			// for more info on error handling
-			console.log("Error:", err);
-			if (isClerkAPIResponseError(err)) {
-				setErrors(err.errors);
-			} else {
-				setError(err || "An error occurred during verification.");
-			}
-		} finally {
-			setIsLoading(false);
-		}
-	};
-
-	if (verifying) {
-		return (
-			<div className="min-h-screen bg-gray-50 flex justify-center">
-				<div className="w-full max-w-md p-6 h-min mt-20 bg-white rounded-lg shadow-md">
-					<h1 className="my-4 font-bold text-2xl">
-						Verify your email
-					</h1>
-					<form onSubmit={handleVerify}>
-						<Label className="py-2" id="code">
-							Enter your verification code
-						</Label>
-						<Input
-							className="mb-6 mt-2"
-							value={code}
-							id="code"
-							name="code"
-							placeholder="Verification Code"
-							onChange={(e) => setCode(e.target.value)}
-						/>
-						{errors ? (
-							<ul className="text-red-500 text-sm mb-4">
-								{errors.map((el, index) => (
-									<li key={index}>{el.longMessage}</li>
-								))}
-							</ul>
-						) : (
-							error && (
-								<p className="text-red-500 text-sm mb-4">{error}</p>
-							)
-						)}
-						<Button
-							disabled={isLoading}
-							className="w-full"
-							type="submit">
-							{isLoading ? "Verifying..." : "Verify Email"}
-						</Button>
-					</form>
-				</div>
-			</div>
-		);
-	}
 
 	return (
-		<div className="min-h-screen bg-gray-50 ">
+		<div className="min-h-screen bg-gray-50">
 			{/* Background Pattern */}
-			<div className="absolute inset-0 opacity-5">
+			<div className="absolute inset-0 opacity-5 pointer-events-none">
 				<div className="absolute top-20 left-20 w-32 h-32 text-[#d90429]">
 					<Home size={128} />
 				</div>
@@ -263,160 +214,176 @@ export default function SignUpForm() {
 					<Search size={80} />
 				</div>
 			</div>
+
 			<div className="flex items-center relative justify-center z-10 pt-10 p-4">
 				<div className="w-full max-w-md">
 					<Card className="shadow-lg py-4 px-3">
 						<CardHeader className="pb-4 mt-3">
-							<CardTitle>Create Account</CardTitle>
+							<CardTitle>{isLoginMode ? "Sign In" : "Create Account"}</CardTitle>
 							<CardDescription>
-								Join and find your dream Florida home
+								{isLoginMode 
+									? "Enter your email and password to access your account" 
+									: "Join and find your dream Florida home"
+								}
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-4">
-							<div className="grid grid-cols-2 gap-4">
-								<div>
-									<Label htmlFor="firstName">First Name</Label>
-									<Input
-										name="firstName"
-										placeholder="First Name"
-										value={formData.firstName}
-										onChange={handleInputChange}
-										required
-									/>
-								</div>
-								<div>
-									<Label htmlFor="lastName">Last Name</Label>
-									<Input
-										name="lastName"
-										placeholder="Last Name"
-										value={formData.lastName}
-										onChange={handleInputChange}
-										required
-									/>
-								</div>
-							</div>
-							<div>
-								<Label htmlFor="email">Email</Label>
-								<Input
-									type="email"
-									name="email"
-									value={formData.email}
-									onChange={handleInputChange}
-									placeholder="example@example.com"
-									required
-								/>
-							</div>
-							<div>
-								<Label htmlFor="phone">Phone</Label>
-								<div className="flex gap-2 max-h-10">
-									<Select
-										value={countryCode}
-										onValueChange={(e) => handleCountryChange(e)}>
-										<SelectTrigger>
-											<SelectValue placeholder="Country Code" />
-										</SelectTrigger>
-										<SelectContent className="border max-h-50  rounded px-2">
-											{countryCodes.map((c) => (
-												<SelectItem key={c.code} value={c.code}>
-													{c.flag} {c.code}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-									<Input
-										type="tel"
-										value={phoneNumber}
-										onChange={handlePhoneChange}
-										placeholder="Phone number"
-									/>
-								</div>
-								{phoneNumber && !isPhoneValid && (
-									<p className="text-red-500 text-sm">
-										Invalid phone number
-									</p>
+							<form onSubmit={handleSubmit} className="space-y-4">
+								
+								{!isLoginMode && (
+									<div className="grid grid-cols-2 gap-4">
+										<div>
+											<Label htmlFor="firstName">First Name</Label>
+											<Input
+												name="firstName"
+												placeholder="First Name"
+												value={formData.firstName}
+												onChange={handleInputChange}
+												required
+											/>
+										</div>
+										<div>
+											<Label htmlFor="lastName">Last Name</Label>
+											<Input
+												name="lastName"
+												placeholder="Last Name"
+												value={formData.lastName}
+												onChange={handleInputChange}
+												required
+											/>
+										</div>
+									</div>
 								)}
-							</div>
-							<div>
-								<Label htmlFor="password">Password</Label>
-								<div className="relative">
+
+								<div>
+									<Label htmlFor="email">Email</Label>
 									<Input
-										type={showPassword ? "text" : "password"}
-										name="password"
-										value={formData.password}
+										type="email"
+										name="email"
+										value={formData.email}
 										onChange={handleInputChange}
-										placeholder="password"
+										placeholder="example@example.com"
 										required
 									/>
+								</div>
+
+								{!isLoginMode && (
+									<div>
+										<Label htmlFor="phone">Phone</Label>
+										<div className="flex gap-2 max-h-10">
+											<Select
+												value={countryCode}
+												onValueChange={(e) => handleCountryChange(e)}>
+												<SelectTrigger>
+													<SelectValue placeholder="Country Code" />
+												</SelectTrigger>
+												<SelectContent className="border max-h-50 rounded px-2 bg-white">
+													{countryCodes.map((c) => (
+														<SelectItem key={c.code} value={c.code}>
+															{c.flag} {c.code}
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
+											<Input
+												type="tel"
+												value={phoneNumber}
+												onChange={handlePhoneChange}
+												placeholder="Phone number"
+												required
+											/>
+										</div>
+										{phoneNumber && !isPhoneValid && (
+											<p className="text-red-500 text-sm mt-1">
+												Invalid phone number
+											</p>
+										)}
+									</div>
+								)}
+
+								<div>
+									<Label htmlFor="password">Password</Label>
+									<div className="relative">
+										<Input
+											type={showPassword ? "text" : "password"}
+											name="password"
+											value={formData.password}
+											onChange={handleInputChange}
+											placeholder="password"
+											required
+										/>
+										<button
+											type="button"
+											onClick={() => setShowPassword(!showPassword)}
+											className="absolute right-3 top-3 text-gray-500 hover:text-gray-700">
+											{showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
+										</button>
+									</div>
+								</div>
+
+								{!isLoginMode && (
+									<div className="flex items-center gap-2">
+										<input
+											type="checkbox"
+											name="agreeToTerms"
+											checked={formData.agreeToTerms}
+											onChange={handleInputChange}
+											required
+											className="rounded border-gray-300 text-[#d90429] focus:ring-[#d90429]"
+										/>
+										<Label
+											className="text-gray-500 font-normal leading-normal py-2 text-xs cursor-pointer"
+											htmlFor="agreeToTerms">
+											I agree to receive notifications about latest
+											listings, updates and recommendations via SMS and
+											email.
+										</Label>
+									</div>
+								)}
+
+								{error && (
+									<div className="bg-red-50 border border-red-200 text-red-600 rounded-lg p-3 text-sm">
+										{error}
+									</div>
+								)}
+
+								<Button
+									disabled={isLoading}
+									type="submit"
+									className="w-full h-11 bg-[#d90429] hover:bg-[#bf0022] text-white font-semibold transition-all">
+									{isLoading 
+										? (isLoginMode ? "Signing In..." : "Creating Account...") 
+										: (isLoginMode ? "Sign In" : "Create Account")
+									}
+								</Button>
+							</form>
+
+							<div className="text-center text-sm text-gray-600 space-y-3 pt-2">
+								<span>
+									{isLoginMode ? "Don't have an account?" : "Already have an account?"}{" "}
 									<button
 										type="button"
-										onClick={() => setShowPassword(!showPassword)}
-										className="absolute right-2 top-2">
-										{showPassword ? (
-											<Eye size={16} />
-										) : (
-											<EyeOff size={16} />
-										)}
+										onClick={() => {
+											setError("");
+											setIsLoginMode(!isLoginMode);
+										}}
+										className="text-[#d90429] font-semibold underline ml-1 hover:text-[#bf0022]">
+										{isLoginMode ? "Create Account" : "Sign In"}
 									</button>
-								</div>
+								</span>
 							</div>
-							<div className="flex items-center gap-2">
-								<input
-									type="checkbox"
-									name="agreeToTerms"
-									checked={formData.agreeToTerms}
-									onChange={handleInputChange}
-									required
-								/>
-								<Label
-									className="text-gray-500 font-normal leading-normal py-2"
-									htmlFor="agreeToTerms">
-									I agree to receive notifications about latest
-									listings, updates and recommendations via SMS and
-									email.
-								</Label>
-							</div>
-							<div id="clerk-captcha" />
-							{errors ? (
-								<ul className="text-red-500 text-sm mb-4">
-									{errors.map((el, index) => (
-										<li className="text-red-500 text-sm" key={index}>
-											{el.longMessage}
-										</li>
-									))}
-								</ul>
-							) : (
-								error && (
-									<p className="text-red-500 text-sm mb-4">{error}</p>
-								)
-							)}
-							<Button
-								disabled={isLoading}
-								onClick={handleSubmit}
-								className="w-full">
-								{isLoading ? "Loading..." : "Create Account"}
-							</Button>
 
-							<span className="flex items-center text-sm justify-center gap-2 text-gray-600">
-								Or Already have a account
-							</span>
+							<hr className="border-gray-200" />
 
-							<Link
-								href="https://accounts.gulfshoregroup.com/sign-in"
-								className="flex items-center justify-center gap-2 text-red-600 font-semibold underline">
-								Sign In
-							</Link>
-							<hr />
-
-							<div className="flex items-center justify-between underline gap-2 text-sm text-gray-600">
-								<Link href={"/terns"}>Terms</Link>
-
-								<Link href={"/policy"}>Privacy Policy</Link>
+							<div className="flex items-center justify-between underline gap-2 text-xs text-gray-500">
+								<a href="/terms">Terms</a>
+								<a href="/policy">Privacy Policy</a>
 							</div>
 						</CardContent>
 					</Card>
 				</div>
 			</div>
-			<div className="text-center mt-8 text-sm text-gray-500">
+			<div className="text-center mt-8 text-xs text-gray-500 pb-10">
 				<p>© GulfshoreGroup.com | All rights reserved.</p>
 			</div>
 		</div>

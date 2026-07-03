@@ -43,7 +43,7 @@ export async function GET(
 
 export async function PUT(
 	req: NextRequest,
-	{ params }: { params: { city: string } }
+	{ params }: { params: Promise<{ city: string }> }
 ) {
 	try {
 

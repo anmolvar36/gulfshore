@@ -1,10 +1,8 @@
-import connectDB from "@/lib/dbconfig";
-import Leads from "@/models/leads";
+import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export async function PATCH(req: Request) {
 	try {
-		await connectDB();
 		const { id, status } = await req.json();
 
 		if (!id || !status)
@@ -13,18 +11,22 @@ export async function PATCH(req: Request) {
 				{ status: 400 }
 			);
 
-		const lead = await Leads.findById(id);
+		const lead = await prisma.lead.findUnique({ where: { id } });
 		if (!lead)
 			return NextResponse.json(
 				{ error: "Lead not found" },
 				{ status: 404 }
 			);
 
-		lead.status = status;
-		lead.lastContactedAt = new Date();
-		await lead.save();
+		const updated = await prisma.lead.update({
+			where: { id },
+			data: {
+				status,
+				lastContactedAt: new Date(),
+			},
+		});
 
-		return NextResponse.json(lead);
+		return NextResponse.json({ ...updated, _id: updated.id });
 	} catch (error) {
 		console.error("Error updating status:", error);
 		return NextResponse.json(

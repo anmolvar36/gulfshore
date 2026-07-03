@@ -1,4 +1,3 @@
-import connectDB from "@/lib/dbconfig";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
@@ -9,7 +8,6 @@ export async function GET(
 	try {
 		const { city } = await params;
 		const cityName = city.trim();
-		await connectDB();
 		const res = await prisma.community.findMany({
 			where: {
 				city: {

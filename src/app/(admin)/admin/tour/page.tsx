@@ -37,14 +37,27 @@ import {
 	MessageSquare,
 } from "lucide-react";
 
+interface TourRequest {
+	id: string;
+	propertyName: string;
+	propertyAddress: string;
+	tourDate: string;
+	tourTime: string;
+	status: string;
+	userName: string;
+	userPhone: string;
+	userEmail: string;
+	message: string;
+}
+
 export default function TourRequestsPage() {
-	const [selectedRequest, setSelectedRequest] = useState(null);
+	const [selectedRequest, setSelectedRequest] = useState<TourRequest | null>(null);
 	const [isViewingDetails, setIsViewingDetails] = useState(false);
 
 	// Mock data - in a real app, you would fetch this from your API
-	const tourRequests = [];
+	const tourRequests: TourRequest[] = [];
 
-	const viewRequestDetails = (request) => {
+	const viewRequestDetails = (request: TourRequest) => {
 		setSelectedRequest(request);
 		setIsViewingDetails(true);
 	};
@@ -54,7 +67,7 @@ export default function TourRequestsPage() {
 		setSelectedRequest(null);
 	};
 
-	const getStatusBadge = (status) => {
+	const getStatusBadge = (status: string) => {
 		switch (status) {
 			case "pending":
 				return <Badge variant="outline">Pending</Badge>;

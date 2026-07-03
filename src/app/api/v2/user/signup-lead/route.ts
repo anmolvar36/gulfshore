@@ -1,43 +1,106 @@
 import { NextResponse } from "next/server";
-import Lead from "@/models/leads";
-import connectDB from "@/lib/dbconfig";
+import prisma from "@/lib/prisma";
+import { hashPassword } from "@/lib/auth-crypto";
+import { cookies } from "next/headers";
 
 export async function POST(req: Request) {
 	try {
-		await connectDB();
 		const body = await req.json();
-		const { firstName, lastName, email, phone } = body;
+		const { firstName, lastName, email, phone, password } = body;
 
-		if (!email)
+		if (!email) {
 			return NextResponse.json(
 				{ success: false, error: "Email is required" },
 				{ status: 400 }
 			);
+		}
 
-		const lead = await Lead.findOneAndUpdate(
-			{ email },
-			{
-				$setOnInsert: {
-					firstName,
-					lastName,
-					email,
-					phone,
-					source: "Signup",
-					status: "New",
-					createdAt: new Date(),
-				},
-				$set: {
-					lastContactedAt: new Date(),
-				},
+		if (!password || password.length < 8) {
+			return NextResponse.json(
+				{ success: false, error: "Password must be at least 8 characters long" },
+				{ status: 400 }
+			);
+		}
+
+		const normalizedEmail = email.toLowerCase().trim();
+
+		// 1. Check if user already exists
+		const existingUser = await prisma.user.findFirst({
+			where: { email: normalizedEmail },
+		});
+
+		if (existingUser) {
+			return NextResponse.json(
+				{ success: false, error: "An account with this email already exists." },
+				{ status: 400 }
+			);
+		}
+
+		// 2. Hash the password
+		const pwdHash = hashPassword(password);
+
+		// 3. Generate a unique clerkId (simulating Clerk userId format)
+		const clerkId = `user_${Math.random().toString(36).substr(2, 9)}${Date.now().toString(36)}`;
+
+		// 4. Create User record
+		const user = await prisma.user.create({
+			data: {
+				clerkId,
+				email: normalizedEmail,
+				firstName: firstName || "",
+				lastName: lastName || "",
+				name: `${firstName || ""} ${lastName || ""}`.trim(),
+				metadata: { passwordHash: pwdHash },
 			},
-			{ new: true, upsert: true, setDefaultsOnInsert: true }
-		);
+		});
 
-		return NextResponse.json({ success: true, lead });
+		// 5. Create or update Lead record
+		const lead = await prisma.lead.upsert({
+			where: { email: normalizedEmail },
+			update: {
+				userId: clerkId,
+				firstName: firstName || "",
+				lastName: lastName || "",
+				phone: phone || null,
+				lastContactedAt: new Date(),
+			},
+			create: {
+				userId: clerkId,
+				firstName: firstName || "",
+				lastName: lastName || "",
+				email: normalizedEmail,
+				phone: phone || null,
+				source: "Signup",
+				status: "New",
+				lastContactedAt: new Date(),
+			},
+		});
+
+		// 6. Set session cookies
+		const cookieStore = await cookies();
+		cookieStore.set("mock_signed_in", "true", { path: "/", maxAge: 31536000 });
+		cookieStore.set("mock_user_email", normalizedEmail, { path: "/", maxAge: 31536000 });
+		cookieStore.set("mock_user_id", clerkId, { path: "/", maxAge: 31536000 });
+
+		const mappedLead = {
+			...lead,
+			_id: lead.id,
+		};
+
+		return NextResponse.json({
+			success: true,
+			lead: mappedLead,
+			user: {
+				id: user.id,
+				clerkId: user.clerkId,
+				email: user.email,
+			},
+		});
 	} catch (err: any) {
+		console.error("Signup API error:", err);
 		return NextResponse.json(
-			{ success: false, error: err.message },
-			{ status: 200 }
+			{ success: false, error: err.message || "Error creating user account" },
+			{ status: 500 }
 		);
 	}
 }

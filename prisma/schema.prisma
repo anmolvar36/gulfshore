@@ -340,7 +340,6 @@ model Property {
   @@index([PostalCode])
   @@index([ListingId])
   @@index([MLSNumber])
-  @@index([View])
   @@index([ViewYN])
   @@index([PoolPrivateYN])
   @@index([GulfAccessYN])
@@ -598,6 +597,17 @@ model ScheduledNotification {
   updatedAt        DateTime  @updatedAt
 
   @@map("schedulednotification")
+}
+
+model CampaignClick {
+  id        String   @id @default(cuid())
+  source    String   // e.g. Facebook, Instagram, LinkedIn
+  path      String?  // path visited
+  createdAt DateTime @default(now())
+
+  @@index([source])
+  @@index([createdAt])
+  @@map("campaignclick")
 }
 
 

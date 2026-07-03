@@ -1,5 +1,4 @@
-import connectDB from "@/lib/dbconfig";
-import Community from "@/models/community";
+import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -8,13 +7,20 @@ export async function GET(req: NextRequest) {
 
 		const limit = Number(queryParams.get("limit")) || 20;
 
-		await connectDB();
+		const res = await prisma.community.findMany({
+			take: limit,
+			orderBy: {
+				name: "asc",
+			},
+		});
 
-		const res = await Community.find()
-			.sort({ index: -1 })
-			.limit(limit);
+		const mappedData = res.map((c) => ({
+			...c,
+			_id: c.id,
+			Community: c.name,
+		}));
 
-		return NextResponse.json({ success: true, data: res });
+		return NextResponse.json({ success: true, data: mappedData });
 	} catch (error) {
 		return NextResponse.json(
 			{ error: "Internal Server Error" },

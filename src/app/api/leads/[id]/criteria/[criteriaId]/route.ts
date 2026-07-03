@@ -1,25 +1,38 @@
 import { NextResponse } from "next/server";
-import Lead from "@/models/leads";
-import connectDB from "@/lib/dbconfig";
+import prisma from "@/lib/prisma";
 
 export async function DELETE(
 	req: Request,
-	{ params }: { params: { id: string; criteriaId: string } }
+	{ params }: { params: Promise<{ id: string; criteriaId: string }> }
 ) {
-	await connectDB();
 	const { id, criteriaId } = await params;
 
-	const lead = await Lead.findById(id);
+	const lead = await prisma.lead.findUnique({ where: { id } });
 	if (!lead)
 		return NextResponse.json(
 			{ message: "Lead not found" },
 			{ status: 404 }
 		);
 
-	lead.propertyCriteria = lead.propertyCriteria.filter(
-		(criteria: any) => criteria._id.toString() !== criteriaId
+	const existingTags = (lead.tags as any) || {};
+	const existingCriteria: any[] = existingTags?.propertyCriteria || [];
+	const updatedCriteria = existingCriteria.filter(
+		(c: any) => c._id !== criteriaId
 	);
-	await lead.save();
 
-	return NextResponse.json(lead);
+	const updated = await prisma.lead.update({
+		where: { id },
+		data: {
+			tags: {
+				...existingTags,
+				propertyCriteria: updatedCriteria,
+			},
+		},
+	});
+
+	return NextResponse.json({
+		...updated,
+		_id: updated.id,
+		propertyCriteria: updatedCriteria,
+	});
 }

@@ -2,7 +2,7 @@
 import SortComponent from "./sort";
 import { Filters } from "./desktopFilters";
 import { Button } from "../ui/button";
-import { ChevronDown, List, MapIcon } from "lucide-react";
+import { ChevronDown, List, MapIcon, Home, Building2, Layers, Waves, Anchor } from "lucide-react";
 
 import {
 	DropdownMenu,
@@ -35,6 +35,19 @@ const PRICE_OPTIONS = [
 	"2000000",
 	"3000000",
 	"5000000",
+];
+
+// Quick category chips — LoopNet style but Gulfshore branded
+const QUICK_CATEGORIES = [
+	{ label: "Homes", value: "Homes", icon: Home },
+	{ label: "Condos", value: "Condos", icon: Building2 },
+	{ label: "Lots", value: "Residential-Lots", icon: Layers },
+];
+
+// Special feature filter chips — toggled in the features[] array
+const FEATURE_CHIPS = [
+	{ label: "Waterfront", key: "Waterfront", icon: Waves },
+	{ label: "Gulf Access", key: "Gulf Access", icon: Anchor },
 ];
 
 export default function StickySearchBar() {
@@ -83,6 +96,24 @@ export default function StickySearchBar() {
 		});
 	};
 
+	const onFeatureToggle = (key: string) => {
+		const currentFeatures: string[] = filters.features || [];
+		const isActive = currentFeatures.includes(key);
+		const nextFeatures = isActive
+			? currentFeatures.filter((f) => f !== key)
+			: [...currentFeatures, key];
+		const nextFilters = {
+			...filters,
+			features: nextFeatures,
+			page: "1",
+		};
+		const nextParams = buildQueryFromFilters(nextFilters, params);
+		dispatch(setFilters(nextFilters));
+		router.replace(`${path}?${nextParams.toString()}`, { scroll: false });
+		dispatch(fetchProperties());
+		document.getElementById("container")?.scrollTo({ top: 0, behavior: "smooth" });
+	};
+
 	const quickPriceLabel =
 		filters.minPrice || filters.maxPrice
 			? `${filters.minPrice ? formatPrice(Number(filters.minPrice)) : "Any"} - ${
@@ -91,88 +122,132 @@ export default function StickySearchBar() {
 			: "Price";
 
 	return (
-		<div className="sticky px-3 md:px-4 border-b border-gray-200 gap-2 h-min py-2 flex flex-col md:flex-row justify-center items-center top-0 inset-0 z-50 bg-white/95 backdrop-blur-sm">
-			<div className="w-full md:w-auto flex items-center justify-between gap-2">
-				<SearchBox classname="w-full md:min-w-[320px] lg:min-w-[400px] flex justify-between p-1 rounded-md bg-white items-center gap-1 border" />
-			</div>
-
-			<div className="w-full md:w-auto overflow-x-auto">
-				<div className="flex gap-2 items-center min-w-max pb-1 md:pb-0">
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button
-							className="rounded-md shadow-none border-gray-200 md:h-10"
-							variant="outline">
-							{quickPriceLabel}
-							<ChevronDown size={14} />
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent className="w-72 p-3">
-						<div className="grid grid-cols-2 gap-2">
-							{PRICE_OPTIONS.map((min) => {
-								const max = min ? "" : "";
-								return (
-									<Button
-										key={`min-${min || "any"}`}
-										variant="ghost"
-										size="sm"
-										onClick={() => onQuickPriceChange(min, max)}
-										className="justify-start">
-										{min ? `From ${formatPrice(Number(min))}` : "Any price"}
-									</Button>
-								);
-							})}
-						</div>
-					</DropdownMenuContent>
-				</DropdownMenu>
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button
-							className="rounded-md shadow-none border-gray-200 md:h-10"
-							variant="outline">
-							Property Type
-							<ChevronDown size={14} />
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent>
-						{propertyTypeOptions.map((type) => (
-							<DropdownMenuCheckboxItem
-								key={type.value}
-								checked={filters.propertyTypes.includes(type.value)}
-								onCheckedChange={(checked) =>
-									onQuickPropertyTypeToggle(type.value, Boolean(checked))
-								}>
-								{type.label}
-							</DropdownMenuCheckboxItem>
-						))}
-					</DropdownMenuContent>
-				</DropdownMenu>
-				<Filters />
-				<SortComponent />
+		<div className="sticky px-3 md:px-4 border-b border-gray-200 gap-1.5 h-min py-2 flex flex-col top-0 inset-0 z-50 bg-white/95 backdrop-blur-sm">
+			{/* Row 1: Search box + Map/List toggle */}
+			<div className="flex items-center gap-2 w-full">
+				<SearchBox classname="flex-1 md:min-w-[320px] lg:min-w-[400px] flex justify-between p-1 rounded-md bg-white items-center gap-1 border" />
 				<a
-					className="hidden md:block"
+					className="hidden md:block ml-auto"
 					href={`${path}?${(() => {
 						const next = new URLSearchParams(params.toString());
 						next.set("view", view === "map" ? "list" : "map");
 						return next.toString();
 					})()}`}>
 					<Button
-						className="rounded-md shadow-none border-gray-200 md:h-10"
+						className="rounded-md shadow-none border-gray-200 md:h-10 whitespace-nowrap"
 						variant="outline">
 						{view === "map" ? (
-							<>
-								<List /> List View
-							</>
+							<><List className="h-4 w-4" /> List View</>
 						) : (
-							<>
-								<MapIcon /> Map View
-							</>
+							<><MapIcon className="h-4 w-4" /> Map View</>
 						)}
 					</Button>
 				</a>
-				<SaveSearchButton />
 			</div>
+
+			{/* Row 2: Quick chips + filters */}
+			<div className="w-full overflow-x-auto">
+				<div className="flex gap-1.5 items-center min-w-max pb-0.5">
+
+					{/* Property Type Icon Chips */}
+					{QUICK_CATEGORIES.map(({ label, value, icon: Icon }) => {
+						const active = filters.propertyTypes.includes(value);
+						return (
+							<button
+								key={value}
+								onClick={() => onQuickPropertyTypeToggle(value, !active)}
+								className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium transition-colors whitespace-nowrap
+									${active
+										? "bg-primary text-white border-primary"
+										: "bg-white text-gray-700 border-gray-200 hover:border-primary hover:text-primary"
+									}`}>
+								<Icon className="h-3.5 w-3.5" />
+								{label}
+							</button>
+						);
+					})}
+
+					{/* Feature chips: Waterfront, Gulf Access */}
+					{FEATURE_CHIPS.map(({ label, key, icon: Icon }) => {
+						const active = (filters.features || []).includes(key);
+						return (
+							<button
+								key={key}
+								onClick={() => onFeatureToggle(key)}
+								className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium transition-colors whitespace-nowrap
+									${active
+										? "bg-primary text-white border-primary"
+										: "bg-white text-gray-700 border-gray-200 hover:border-primary hover:text-primary"
+									}`}>
+								<Icon className="h-3.5 w-3.5" />
+								{label}
+							</button>
+						);
+					})}
+
+					{/* Divider */}
+					<div className="w-px h-5 bg-gray-200 mx-1" />
+
+					{/* Price Dropdown */}
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button
+								className="rounded-md shadow-none border-gray-200 h-9"
+								variant="outline">
+								{quickPriceLabel}
+								<ChevronDown size={14} />
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent className="w-72 p-3">
+							<div className="grid grid-cols-2 gap-2">
+								{PRICE_OPTIONS.map((min) => {
+									const max = min ? "" : "";
+									return (
+										<Button
+											key={`min-${min || "any"}`}
+											variant="ghost"
+											size="sm"
+											onClick={() => onQuickPriceChange(min, max)}
+											className="justify-start">
+											{min ? `From ${formatPrice(Number(min))}` : "Any price"}
+										</Button>
+									);
+								})}
+							</div>
+						</DropdownMenuContent>
+					</DropdownMenu>
+
+					{/* Property Type Dropdown */}
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button
+								className="rounded-md shadow-none border-gray-200 h-9"
+								variant="outline">
+								Property Type
+								<ChevronDown size={14} />
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent>
+							{propertyTypeOptions.map((type) => (
+								<DropdownMenuCheckboxItem
+									key={type.value}
+									checked={filters.propertyTypes.includes(type.value)}
+									onCheckedChange={(checked) =>
+										onQuickPropertyTypeToggle(type.value, Boolean(checked))
+									}>
+									{type.label}
+								</DropdownMenuCheckboxItem>
+							))}
+						</DropdownMenuContent>
+					</DropdownMenu>
+
+					<Filters />
+					<SortComponent />
+					<SaveSearchButton />
+				</div>
 			</div>
 		</div>
 	);
 }
+
+

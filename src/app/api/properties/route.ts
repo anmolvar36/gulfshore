@@ -12,21 +12,23 @@ export async function GET(req: NextRequest) {
 		const cookieStore = await cookies();
 		const userId = cookieStore.get("user_id")?.value || null;
 
-		// Status: default Active for public. Pass ?Status=All to show everything (admin)
-		const statusParam = query.get("status") || query.get("Status");
-		const where: any = statusParam && statusParam !== "Active"
-			? {} // no status filter — show all
-			: { StandardStatus: "Active" };
+		// Status: default Active for public.
+		const statusParam = query.get("status") || query.get("Status") || "Active";
+		const where: any = {};
+		if (statusParam !== "All") {
+			where.StandardStatus = statusParam;
+		}
+
 
 		// Price Range Filter
 		const minPrice = query.get("minPrice") ? Number(query.get("minPrice")) : null;
 		const maxPrice = query.get("maxPrice") ? Number(query.get("maxPrice")) : null;
 		if (minPrice !== null || maxPrice !== null) {
-			where.ListPrice = {
-				...(minPrice !== null && { gte: minPrice }),
-				...(maxPrice !== null && { lte: maxPrice }),
-			};
+			where.ListPrice = {};
+			if (minPrice !== null) where.ListPrice.gte = minPrice;
+			if (maxPrice !== null) where.ListPrice.lte = maxPrice;
 		}
+
 
 		// Location Filters
 		if (query.get("city")) {
@@ -69,10 +71,9 @@ export async function GET(req: NextRequest) {
 		const minAcres = query.get("minAcres") ? parseFloat(query.get("minAcres")!) : null;
 		const maxAcres = query.get("maxAcres") ? parseFloat(query.get("maxAcres")!) : null;
 		if (minAcres !== null || maxAcres !== null) {
-			where.LotSizeAcres = {
-				...(minAcres !== null && { gte: minAcres }),
-				...(maxAcres !== null && { lte: maxAcres }),
-			};
+			where.LotSizeAcres = {};
+			if (minAcres !== null) where.LotSizeAcres.gte = minAcres;
+			if (maxAcres !== null) where.LotSizeAcres.lte = maxAcres;
 		}
 
 		// Bedroom/Bathroom filters
@@ -85,11 +86,11 @@ export async function GET(req: NextRequest) {
 		const builtYearMin = query.get("builtYearMin") ? parseInt(query.get("builtYearMin")!) : null;
 		const builtYearMax = query.get("builtYearMax") ? parseInt(query.get("builtYearMax")!) : null;
 		if (builtYearMin !== null || builtYearMax !== null) {
-			where.YearBuilt = {
-				...(builtYearMin !== null && { gte: builtYearMin }),
-				...(builtYearMax !== null && { lte: builtYearMax }),
-			};
+			where.YearBuilt = {};
+			if (builtYearMin !== null) where.YearBuilt.gte = builtYearMin;
+			if (builtYearMax !== null) where.YearBuilt.lte = builtYearMax;
 		}
+
 
 		// Bounding Box Location Filter
 		if (
@@ -108,23 +109,10 @@ export async function GET(req: NextRequest) {
 			];
 		}
 
-		// Beds & Baths Filter
-		if (query.get("beds")) {
-			where.BedroomsTotal = { gte: Number(query.get("beds")) };
-		}
-		if (query.get("baths")) {
-			where.BathroomsFull = { gte: Number(query.get("baths")) };
-		}
+		// Beds & Baths Filter - Already handled above
 
-		// Year Built Filter
-		const builtYearMin = query.get("builtYearMin") ? Number(query.get("builtYearMin")) : null;
-		const builtYearMax = query.get("builtYearMax") ? Number(query.get("builtYearMax")) : null;
-		if (builtYearMin !== null || builtYearMax !== null) {
-			where.YearBuilt = {
-				...(builtYearMin !== null && { gte: builtYearMin }),
-				...(builtYearMax !== null && { lte: builtYearMax }),
-			};
-		}
+		// Year Built Filter - Already handled above
+
 
 		// Property Types Filter
 		const types = query.getAll("propertyTypes[]");

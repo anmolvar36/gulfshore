@@ -1,9 +1,8 @@
 "use server";
 import React, { Suspense } from "react";
 import AreaInfoComponent from "../../areaInfoComponent";
-import PropertySection from "@/components/property/propertysection/propertySlider";
 import capitalizeWords from "@/hooks/capitalize-letter";
-
+import CommunityListingsTabs from "./communityListingsTabs";
 import type { Metadata } from "next";
 
 export async function generateMetadata({
@@ -93,112 +92,13 @@ async function ExploreCommunity({
 				community={formattedCommunity}
 			/>
 			<Suspense>
-				<div className="flex flex-col gap-10">
-					<PropertySection
-						props={
-							<div className="items-start mt-4 justify-start flex flex-col">
-								<h2 className="lg:text-2xl text-xl text-start font-medium lg:font-medium">
-									Latest Listings in{" "}
-									{capitalizeWords(formattedCommunity)}{" "}
-									{capitalizeWords(formattedCity)}, Florida
-									<span className="text-primary font-bold"></span>
-								</h2>
-								<p className="py-2 text-start text-xs md:text-sm lg:font-medium font-semibold lg:text-base text-gray-700">
-									Explore Latest Listings in{" "}
-									<span className="text-primary font-semibold">
-										{capitalizeWords(formattedCommunity)}{" "}
-										{capitalizeWords(formattedCity)}, Florida
-									</span>
-									.
-								</p>
-							</div>
-						}
-						queryParams={{
-							city,
-							developmentName: community,
-							order: "asc",
-							sort: "CreatedDate",
-						}}
+				<div className="container mx-auto px-4 py-8">
+					<CommunityListingsTabs
+						city={city}
+						community={community}
+						formattedCity={formattedCity}
+						formattedCommunity={formattedCommunity}
 					/>
-					<PropertySection
-						props={
-							<div className="items-start mt-4 justify-start flex flex-col">
-								<h2 className="lg:text-2xl text-xl text-start font-medium lg:font-medium">
-									Homes For Sale in{" "}
-									<span className="text-primary font-bold">
-										{capitalizeWords(formattedCommunity)}{" "}
-										{capitalizeWords(formattedCity)}, Florida
-									</span>
-								</h2>
-								<p className="py-2 text-start text-xs md:text-sm lg:font-medium font-semibold lg:text-base text-gray-700">
-									Explore Homes for sale in{" "}
-									<span className="text-primary font-semibold">
-										{capitalizeWords(formattedCommunity)}{" "}
-										{capitalizeWords(formattedCity)}, Florida
-									</span>
-									.
-								</p>
-							</div>
-						}
-						queryParams={{
-							city,
-							developmentName: community,
-							propertyTypes: ["Homes"],
-						}}
-					/>
-					<PropertySection
-						props={
-							<div className="items-start mt-4 justify-start flex flex-col">
-								<h2 className="lg:text-2xl text-xl text-start font-medium lg:font-medium">
-									Waterfront Homes & Real Estate For Sale in{" "}
-									<span className="text-primary font-bold">
-										{capitalizeWords(formattedCommunity)}{" "}
-										{capitalizeWords(formattedCity)}, Florida
-									</span>
-								</h2>
-								<p className="py-2 text-start text-xs md:text-sm lg:font-medium font-semibold lg:text-base text-gray-700">
-									Explore Waterfront Homes & Real Estate for sale in{" "}
-									<span className="text-primary font-semibold">
-										{capitalizeWords(formattedCommunity)}{" "}
-										{capitalizeWords(formattedCity)}, Florida
-									</span>
-									.
-								</p>
-							</div>
-						}
-						queryParams={{
-							city,
-							developmentName: community,
-							features: ["waterfront"],
-						}}
-					/>{" "}
-					<PropertySection
-						props={
-							<div className="items-start mt-4 justify-start flex flex-col">
-								<h2 className="lg:text-2xl text-xl text-start font-medium lg:font-medium">
-									Homes & Real Estate For Sale in{" "}
-									<span className="text-primary font-bold">
-										{capitalizeWords(formattedCommunity)}{" "}
-										{capitalizeWords(formattedCity)}, Florida{" "}
-									</span>
-									Under 1M
-								</h2>
-								<p className="py-2 text-start text-xs md:text-sm lg:font-medium font-semibold lg:text-base text-gray-700">
-									Explore Waterfront Homes & Real Estate for sale in{" "}
-									<span className="text-primary font-semibold">
-										{capitalizeWords(formattedCommunity)}{" "}
-										{capitalizeWords(formattedCity)}, Florida{" "}
-									</span>
-									Under 1M.
-								</p>
-							</div>
-						}
-						queryParams={{
-							city,
-							developmentName: community,
-							maxPrice: "1000000",
-						}}
-					/>{" "}
 				</div>
 			</Suspense>
 		</div>

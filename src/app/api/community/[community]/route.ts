@@ -43,7 +43,7 @@ export async function GET(
 
 export async function PUT(
 	req: NextRequest,
-	{ params }: { params: { community: string } }
+	{ params }: { params: Promise<{ community: string }> }
 ) {
 	try {
 

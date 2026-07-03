@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
 import { TrendingUp, TrendingDown, MousePointer, Users, Mail, MessageSquare, Phone, Facebook, Instagram, Linkedin, Share2 } from "lucide-react"
-import { useState, Suspense } from "react"
+import { useState, Suspense, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 
 // Mock performance data
@@ -134,18 +134,28 @@ const typeData = [
 function PerformanceContent() {
   const [timeFilter, setTimeFilter] = useState("7d")
   const [channelFilter, setChannelFilter] = useState("all")
+  const [loading, setLoading] = useState(true)
+  const [metrics, setMetrics] = useState<any>(null)
 
   const searchParams = useSearchParams()
   const tab = searchParams.get("tab")
   const isSocial = tab === "social"
 
-  const activeData = isSocial ? socialPerformanceData : performanceData
-  const activeChannelData = isSocial ? socialChannelData : channelData
-
-  const totalClicks = activeData.reduce((sum, item) => sum + item.clicks, 0)
-  const totalReceivers = activeData.reduce((sum, item) => sum + item.totalReceivers, 0)
-  const avgClickRate = activeData.reduce((sum, item) => sum + item.clickRate, 0) / activeData.length
-  const avgOpenRate = activeData.reduce((sum, item) => sum + item.openRate, 0) / activeData.length
+  useEffect(() => {
+    setLoading(true)
+    fetch("/api/admin/performance")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setMetrics(data)
+        }
+        setLoading(false)
+      })
+      .catch((err) => {
+        console.error(err)
+        setLoading(false)
+      })
+  }, [])
 
   const getChannelIcon = (channel: string) => {
     switch (channel) {
@@ -184,6 +194,34 @@ function PerformanceContent() {
         return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300"
     }
   }
+
+  if (loading) {
+    return (
+      <div className="flex flex-col gap-6 w-full animate-pulse p-6">
+        <div className="h-10 w-1/3 bg-gray-200 rounded-lg"></div>
+        <div className="grid grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-24 bg-gray-200 rounded-lg animate-pulse"></div>
+          ))}
+        </div>
+        <div className="grid grid-cols-2 gap-6">
+          <div className="h-72 bg-gray-200 rounded-lg animate-pulse"></div>
+          <div className="h-72 bg-gray-200 rounded-lg animate-pulse"></div>
+        </div>
+      </div>
+    )
+  }
+
+  // Extract metrics based on selected tab
+  const data = isSocial ? metrics?.social : metrics?.notifications
+
+  const totalClicks = data?.totalClicks || 0
+  const totalReceivers = isSocial ? (data?.reach || 0) : (data?.totalReceivers || 0)
+  const avgClickRate = Number(data?.clickRate || 0)
+  const avgOpenRate = isSocial ? Number(data?.avgEngagement?.replace('%', '') || 0) : Number(data?.openRate || 0)
+  const activeChannelData = data?.channelData || []
+  const chartData = data?.chartData || []
+  const activeData = data?.list || []
 
   return (
     <div className="space-y-6">
@@ -334,7 +372,7 @@ function PerformanceContent() {
                   dataKey="value"
                   label={({ name, value }) => `${name}: ${value}%`}
                 >
-                  {activeChannelData.map((entry, index) => (
+                  {activeChannelData.map((entry: any, index: number) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
@@ -350,7 +388,7 @@ function PerformanceContent() {
         <CardHeader>
           <CardTitle>Detailed Performance</CardTitle>
           <CardDescription>
-            {isSocial ? "Individual social media post metrics" : "Individual notification performance metrics"}
+            {isSocial ? "Individual social media post clicks logged" : "Individual notification performance metrics"}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -360,8 +398,8 @@ function PerformanceContent() {
                 <TableHead>Title</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Channel</TableHead>
-                <TableHead>{isSocial ? "Posted At" : "Sent At"}</TableHead>
-                <TableHead className="text-right">{isSocial ? "Reach" : "Receivers"}</TableHead>
+                <TableHead>{isSocial ? "Last Clicked" : "Sent At"}</TableHead>
+                <TableHead className="text-right">{isSocial ? "Estimated Reach" : "Receivers"}</TableHead>
                 <TableHead className="text-right">Clicks</TableHead>
                 <TableHead className="text-right">Click Rate</TableHead>
                 <TableHead className="text-right">{isSocial ? "Engagement" : "Open Rate"}</TableHead>
@@ -369,7 +407,7 @@ function PerformanceContent() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {activeData.map((item) => (
+              {activeData.map((item: any) => (
                 <TableRow key={item.id}>
                   <TableCell className="font-medium">{item.title}</TableCell>
                   <TableCell>
