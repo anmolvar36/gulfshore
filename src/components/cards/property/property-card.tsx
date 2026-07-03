@@ -6,7 +6,7 @@ import UrlMaker from "@/hooks/url-maker";
 import { formatPrice } from "@/hooks/formatPrice";
 import capitalizeWords from "@/hooks/capitalize-letter";
 import CardCarousel from "./cardCarousel";
-import { X, BedDouble, Bath, Ruler, CalendarDays, Trees, Landmark } from "lucide-react";
+import { X, BedDouble, Bath, Ruler, CalendarDays, Trees, Landmark, Eye } from "lucide-react";
 import { Property } from "@/app/generated/prisma/client";
 import { useDispatch } from "react-redux";
 import { setHoveredMLS } from "@/state/slices/searchSlice";
@@ -257,7 +257,22 @@ export const PropertyCard2 = ({
 					<div className="h-px bg-[#E8E4DC] mb-2.5" />
 
 					{/* Stats */}
-					<PropertyCardInfoLabels property={property} />
+					<PropertyCardInfoLabels2 property={property} />
+
+					{/* Street View Link */}
+					{property.Latitude && property.Longitude && (
+						<div className="mt-2.5">
+							<a
+								href={`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${property.Latitude},${property.Longitude}`}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-gray-100 hover:bg-gray-200 text-[#5A5248] text-[11px] font-medium transition-colors border border-gray-200/60"
+								onClick={(e) => e.stopPropagation()}
+							>
+								<Eye size={12} className="text-[#B89A6A]" /> Street & Real View
+							</a>
+						</div>
+					)}
 
 					{/* Footer row */}
 					<div className="flex items-end justify-between mt-auto pt-3">

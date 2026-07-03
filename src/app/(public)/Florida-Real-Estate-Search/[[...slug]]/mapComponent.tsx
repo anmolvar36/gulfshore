@@ -22,6 +22,20 @@ const mapContainerStyle = {
 	height: "100vh",
 } as const;
 
+const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
+	"NAPLES": { lat: 26.142, lng: -81.7948 },
+	"BONITA SPRINGS": { lat: 26.3398, lng: -81.7787 },
+	"ESTERO": { lat: 26.4381, lng: -81.8068 },
+	"AVE MARIA": { lat: 26.3359, lng: -81.4384 },
+	"MARCO ISLAND": { lat: 25.9363, lng: -81.7157 },
+	"FORT MYERS": { lat: 26.6406, lng: -81.8723 },
+	"BABCOCK RANCH": { lat: 26.8028, lng: -81.7306 },
+	"LEHIGH ACRES": { lat: 26.6180, lng: -81.6437 },
+	"IMMOKALEE": { lat: 26.4194, lng: -81.4219 },
+	"SANIBEL": { lat: 26.4433, lng: -82.0244 },
+	"CAPE CORAL": { lat: 26.5629, lng: -81.9495 },
+};
+
 export default function MapComponent({
 	filterParams,
 }: {
@@ -34,6 +48,33 @@ export default function MapComponent({
 	const dispatch = useAppDispatch();
 	const properties = useSelector(selectAllProperties);
 	const ui = useSelector(selectUi);
+
+	// Concurrent properties prefetch on mount
+	React.useEffect(() => {
+		dispatch(
+			setFilters({
+				...ui.filters,
+				...filterParams,
+			})
+		);
+		dispatch(fetchProperties());
+	}, [dispatch, filterParams]);
+
+	// Auto-center map on city search changes or property load
+	React.useEffect(() => {
+		const searchCity = filterParams?.city?.toUpperCase() || "";
+		if (searchCity && CITY_CENTERS[searchCity]) {
+			setCenter(CITY_CENTERS[searchCity]);
+		} else if (properties.length > 0) {
+			const firstWithCoords = properties.find((p: any) => p.Latitude && p.Longitude);
+			if (firstWithCoords) {
+				setCenter({
+					lat: Number(firstWithCoords.Latitude),
+					lng: Number(firstWithCoords.Longitude),
+				});
+			}
+		}
+	}, [filterParams?.city, properties]);
 
 	const { isLoaded } = useJsApiLoader({
 		id: "google-map-script",
@@ -97,43 +138,42 @@ export default function MapComponent({
 		setShowFema(nextState);
 
 		if (nextState) {
-			// Initialize FEMA tile layer options
+			// Initialize FEMA tile layer options using EPSG:3857 (Web Mercator) coordinates
 			const femaType = new google.maps.ImageMapType({
 				getTileUrl: (coord, zoom) => {
-					const numTiles = 1 << zoom;
-					const mercatorRange = 256;
+					const initialResolution = 2 * Math.PI * 6378137 / 256;
+					const originShift = 2 * Math.PI * 6378137 / 2;
 					
-					const lng1 = (coord.x * mercatorRange) / numTiles;
-					const lat1 = coord.y;
+					const zoomResolution = initialResolution / (1 << zoom);
+					const tileWidth = 256 * zoomResolution;
 					
-					// Simple mercator projection bounds calculation
-					const tileRange = 1 << zoom;
-					const x = coord.x;
-					const y = coord.y;
+					const minX = coord.x * tileWidth - originShift;
+					const maxX = (coord.x + 1) * tileWidth - originShift;
 					
-					const west = (x / tileRange) * 360 - 180;
-					const east = ((x + 1) / tileRange) * 360 - 180;
+					const minY = originShift - (coord.y + 1) * tileWidth;
+					const maxY = originShift - coord.y * tileWidth;
 					
-					const n = Math.PI - (2 * Math.PI * y) / tileRange;
-					const north = (180 / Math.PI) * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
-					
-					const s = Math.PI - (2 * Math.PI * (y + 1)) / tileRange;
-					const south = (180 / Math.PI) * Math.atan(0.5 * (Math.exp(s) - Math.exp(-s)));
-					
-					const bbox = `${west},${south},${east},${north}`;
-					return `https://hazards.fema.gov/gis/nfhl/rest/services/public/NFHL/MapServer/export?bbox=${bbox}&bboxSR=4326&layers=show%3A28&size=256,256&imageSR=4326&format=png32&transparent=true&f=image`;
+					const bbox = `${minX},${minY},${maxX},${maxY}`;
+					return `https://hazards.fema.gov/gis/nfhl/rest/services/public/NFHL/MapServer/export?bbox=${bbox}&bboxSR=3857&layers=show%3A28&size=256,256&imageSR=3857&format=png32&transparent=true&f=image`;
 				},
 				tileSize: new google.maps.Size(256, 256),
-				opacity: 0.6,
+				opacity: 0.5,
 				name: "FEMA Flood Zone Map",
 			});
 			femaOverlayRef.current = femaType;
 			mapRef.current.overlayMapTypes.insertAt(0, femaType);
 		} else {
 			if (femaOverlayRef.current) {
-				const index = mapRef.current.overlayMapTypes.indexOf(femaOverlayRef.current);
-				if (index > -1) {
-					mapRef.current.overlayMapTypes.removeAt(index);
+				const overlayTypes = mapRef.current.overlayMapTypes;
+				let foundIndex = -1;
+				for (let i = 0; i < overlayTypes.getLength(); i++) {
+					if (overlayTypes.getAt(i) === femaOverlayRef.current) {
+						foundIndex = i;
+						break;
+					}
+				}
+				if (foundIndex > -1) {
+					overlayTypes.removeAt(foundIndex);
 				}
 				femaOverlayRef.current = null;
 			}
