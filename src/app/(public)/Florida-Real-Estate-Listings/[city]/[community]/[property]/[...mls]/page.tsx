@@ -4,6 +4,7 @@ import SliderComponent from "@/components/global/slider";
 import ListingLabels from "@/components/property/listingLabels";
 import ReadMore from "@/components/property/readmore";
 import SocialShare from "@/components/property/share-card";
+import PropertySection from "@/components/property/propertysection/propertySlider";
 import { WishListButton } from "@/components/property/wishlistButton";
 import {
 	Breadcrumb,
@@ -318,7 +319,7 @@ export default async function Listing({
 			<Suspense>
 				<PropertyDetail {...property} />
 			</Suspense>
-			{/* <PropertySection
+			<PropertySection
 				props={
 					<h2 className="py-4 px-2 font-semibold mt-10 lg:mt-12 text-lg lg:text-xl">
 						Similar Properties in{" "}
@@ -334,17 +335,16 @@ export default async function Listing({
 				}
 				queryParams={{
 					city: property.City,
-					...(isValidField(property.OwnershipDesc)
-						? {
-								propertyType:
-									property.OwnershipDesc === "Single Family"
-										? "Homes"
-										: "Condos",
-						  }
-						: { propertyType: "Residential-Lots" }),
-
-					development: property.Development,
-					developmentName: property.DevelopmentName,
+					propertyType: (() => {
+						const subType = property.PropertySubType || "";
+						const type = property.PropertyType || "";
+						if (subType === "Single Family Residence") return "Homes";
+						if (subType.includes("Rise") || subType === "Townhouse" || type.includes("Condominium")) return "Condos";
+						if (type === "Land" || type.includes("Lot")) return "Residential-Lots";
+						return "Homes";
+					})(),
+					development: property.Development || "",
+					developmentName: property.Community || property.Development || "",
 					sort: "CurrentPrice",
 					limit: "5",
 					order: "desc",
@@ -365,16 +365,16 @@ export default async function Listing({
 					order: "desc",
 					limit: "5",
 					city: property.City,
-					...(isValidField(property.OwnershipDesc)
-						? {
-								propertyType:
-									property.OwnershipDesc === "Single Family"
-										? "Homes"
-										: "Condos",
-						  }
-						: { propertyType: "Residential-Lots" }),
+					propertyType: (() => {
+						const subType = property.PropertySubType || "";
+						const type = property.PropertyType || "";
+						if (subType === "Single Family Residence") return "Homes";
+						if (subType.includes("Rise") || subType === "Townhouse" || type.includes("Condominium")) return "Condos";
+						if (type === "Land" || type.includes("Lot")) return "Residential-Lots";
+						return "Homes";
+					})(),
 				}}
-			/> */}
+			/>
 			<section className="mt-14 md:mt-16 lg:mt-20">
 				<div className="mx-auto w-11/12">
 					<div className="rounded-2xl overflow-hidden ">
