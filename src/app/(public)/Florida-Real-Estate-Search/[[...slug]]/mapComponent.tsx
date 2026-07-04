@@ -20,7 +20,7 @@ import { PropertyCard2 } from "@/components/cards/property/property-card";
 
 const mapContainerStyle = {
 	width: "100%",
-	height: "100vh",
+	height: "100%",
 } as const;
 
 const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
@@ -234,7 +234,7 @@ export default function MapComponent({
 	}, []);
 
 	return (
-		<div className="md:max-w-1/2  xl:max-w-1/2 xl:min-w-1/2 lg:max-w-3/5 lg:min-w-3/5 md:min-w-1/2 max-h-[80svh] min-w-[100svw] grow relative rounded-xl">
+		<div className="h-full md:max-w-1/2 xl:max-w-1/2 xl:min-w-1/2 lg:max-w-3/5 lg:min-w-3/5 md:min-w-1/2 min-w-[100svw] grow relative rounded-xl">
 			{/* Unified Map controls dropdown card */}
 			<div className="absolute top-4 left-4 z-50" ref={dropdownRef}>
 				<button
