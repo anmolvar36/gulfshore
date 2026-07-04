@@ -4,6 +4,7 @@ import ListingLabels from "@/components/property/listingLabels";
 import SocialShare from "@/components/property/share-card";
 import { WishListButton } from "@/components/property/wishlistButton";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { Landmark } from "lucide-react";
 import {
 	Carousel,
 	CarouselContent,
@@ -82,7 +83,12 @@ export default function CardCarousel({
 					</Carousel>
 				) : (
 					<AspectRatio ratio={16 / 9}>
-						<Skeleton className="object-cover h-full w-full" />
+						<div className="w-full h-full bg-gradient-to-br from-[#F5F2EB] to-[#EBE6DC] flex flex-col items-center justify-center gap-2 border border-[#E8E4DC] rounded-t-2xl">
+							<Landmark size={36} className="text-[#B89A6A] stroke-[1.25]" />
+							<span className="text-[10px] tracking-[0.15em] uppercase font-semibold text-[#8C8270]">
+								No Image Available
+							</span>
+						</div>
 					</AspectRatio>
 				)}
 
