@@ -16,6 +16,7 @@ import {
 } from "@/state/slices/searchSlice";
 import debounce from "@/hooks/useDebounce";
 import { SearchParamsResult } from "@/hooks/extractSearchParams";
+import { EMPTY_FILTERS } from "@/lib/search-filters";
 import { PropertyCard2 } from "@/components/cards/property/property-card";
 
 const mapContainerStyle = {
@@ -85,7 +86,7 @@ export default function MapComponent({
 	React.useEffect(() => {
 		dispatch(
 			setFilters({
-				...ui.filters,
+				...EMPTY_FILTERS,
 				...filterParams,
 			})
 		);

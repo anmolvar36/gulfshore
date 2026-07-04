@@ -12,6 +12,7 @@ import {
 	fetchProperties,
 	setFilters,
 } from "@/state/slices/searchSlice";
+import { EMPTY_FILTERS } from "@/lib/search-filters";
 import { AppDispatch, RootState } from "@/state/store";
 import { List, MapIcon, SearchX } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -45,7 +46,7 @@ export default function MapViewList({
 		if (view !== "map") {
 			dispatch(
 				setFilters({
-					...filters,
+					...EMPTY_FILTERS,
 					...filter,
 				})
 			);
@@ -174,7 +175,7 @@ export default function MapViewList({
 
 			<div className={gridClass}>
 				{list.map((property, i: number) => (
-					<PropertyCard key={i} {...property} />
+					<PropertyCard key={i} {...(property as any)} />
 				))}
 			</div>
 
