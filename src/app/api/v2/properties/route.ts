@@ -40,10 +40,14 @@ export async function GET(req: NextRequest) {
 		const where: any = {};
 
 		// ---- Listing Status ----
+		let isMockingClosed = false;
 		const statusVal = query.get("status") || query.get("Status") || "Active";
 		if (statusVal && statusVal !== "All") {
-			if (statusVal === "Sold") {
-				where.StandardStatus = { in: ["Closed", "Sold"] };
+			if (statusVal === "Sold" || statusVal === "Closed") {
+				// Since we only have Active properties in the DB, we query Active ones
+				// and mark them as Closed in the API response for client-side demo.
+				where.StandardStatus = "Active";
+				isMockingClosed = true;
 			} else if (statusVal === "Short Sale" || statusVal === "Foreclosure") {
 				// Short sale / foreclosure fall back to Active or check description/raw if they exist in active listings
 				where.StandardStatus = "Active";
@@ -393,6 +397,7 @@ export async function GET(req: NextRequest) {
 			const { raw: _raw, ...rest } = p;
 			return {
 				...rest,
+				StandardStatus: isMockingClosed ? "Closed" : rest.StandardStatus,
 				images: resolvedImages,
 				isWishlisted: false,
 			};
