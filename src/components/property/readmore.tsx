@@ -34,6 +34,13 @@ const ReadMore: React.FC<ReadMoreProps> = ({
 		setIsExpanded(!isExpanded);
 	};
 
+	const getTruncatedText = (text: string, max: number) => {
+		if (text.length <= max) return text;
+		const sliced = text.slice(0, max);
+		const lastSpace = sliced.lastIndexOf(" ");
+		return lastSpace > 0 ? sliced.slice(0, lastSpace) : sliced;
+	};
+
 	return (
 		<div className={className}>
 			<p
@@ -47,7 +54,7 @@ const ReadMore: React.FC<ReadMoreProps> = ({
 				<span
 					style={{ display: isExpanded ? "none" : "inline" }}
 					suppressHydrationWarning>
-					{children.slice(0, maxLength)}...
+					{getTruncatedText(children, maxLength)}...
 				</span>
 			</p>
 
