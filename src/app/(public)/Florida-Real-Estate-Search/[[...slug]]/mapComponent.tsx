@@ -50,10 +50,23 @@ export default function MapComponent({
 	const [streetViewActive, setStreetViewActive] = useState(false);
 	const [dropdownOpen, setDropdownOpen] = useState(false);
 	const dropdownRef = useRef<HTMLDivElement>(null);
+	const hasCenteredRef = useRef(false);
 
 	const dispatch = useAppDispatch();
 	const properties = useSelector(selectAllProperties);
 	const ui = useSelector(selectUi);
+
+	// Sync refs for stable debounce function
+	const filtersRef = useRef(ui.filters);
+	React.useEffect(() => {
+		filtersRef.current = ui.filters;
+	}, [ui.filters]);
+
+	const filterParamsRef = useRef(filterParams);
+	React.useEffect(() => {
+		filterParamsRef.current = filterParams;
+		hasCenteredRef.current = false; // Reset centering flag when search query / city parameters change
+	}, [filterParams]);
 
 	// Close dropdown when clicking outside
 	React.useEffect(() => {
@@ -79,11 +92,14 @@ export default function MapComponent({
 		dispatch(fetchProperties());
 	}, [dispatch, filterParams]);
 
-	// Auto-center map on city search changes or property load
+	// Auto-center map EXACTLY ONCE on city search change or initial property load
 	React.useEffect(() => {
+		if (hasCenteredRef.current) return;
+
 		const searchCity = filterParams?.city?.toUpperCase() || "";
 		if (searchCity && CITY_CENTERS[searchCity]) {
 			setCenter(CITY_CENTERS[searchCity]);
+			hasCenteredRef.current = true;
 		} else if (properties.length > 0) {
 			const firstWithCoords = properties.find((p: any) => p.Latitude && p.Longitude);
 			if (firstWithCoords) {
@@ -91,6 +107,7 @@ export default function MapComponent({
 					lat: Number(firstWithCoords.Latitude),
 					lng: Number(firstWithCoords.Longitude),
 				});
+				hasCenteredRef.current = true;
 			}
 		}
 	}, [filterParams?.city, properties]);
@@ -115,6 +132,7 @@ export default function MapComponent({
 		}
 	};
 
+	// Stable debounced refreshData callback (never recreated on filter/state updates)
 	const refreshData = useCallback(
 		debounce(() => {
 			if (!mapRef.current) return;
@@ -126,12 +144,15 @@ export default function MapComponent({
 				south: b.getSouthWest().lat(),
 				west: b.getSouthWest().lng(),
 			};
-			if (filterParams && ui.listView === false) {
+			const currentFilters = filtersRef.current;
+			const currentParams = filterParamsRef.current;
+
+			if (currentParams && ui.listView === false) {
 				const fetchdata = async () => {
 					dispatch(
 						setFilters({
-							...ui.filters,
-							...filterParams,
+							...currentFilters,
+							...currentParams,
 							...bounds,
 						})
 					);
@@ -145,7 +166,7 @@ export default function MapComponent({
 				dispatch(fetchProperties());
 			}
 		}, 650),
-		[ui.filters]
+		[dispatch]
 	);
 
 	const [showFema, setShowFema] = useState(false);
