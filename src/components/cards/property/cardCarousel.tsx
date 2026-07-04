@@ -56,6 +56,7 @@ export default function CardCarousel({
 											height={Math.round((426 * 9) / 16)}
 											loading={index === 0 ? "eager" : "lazy"}
 											priority={index === 0}
+											unoptimized
 											className="object-cover group-hover:scale-105 transition duration-700 ease-in-out"
 										/>
 									</AspectRatio>

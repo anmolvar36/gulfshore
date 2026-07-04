@@ -57,6 +57,11 @@ export async function syncSearchToDb(
 	filters: Filters,
 	resultCount?: number
 ) {
+	// Client-side guard to prevent redundant 401 logs for guest users
+	if (typeof document !== "undefined" && !document.cookie.includes("__session")) {
+		return null;
+	}
+
 	try {
 		await saveSearchHistory(
 			mapFiltersToLeadSearch(filters),
@@ -72,6 +77,11 @@ export async function syncSearchToDb(
 
 /** Track viewed property for signed-in users only. */
 export async function syncRecentViewsToDB(propertyId: string) {
+	// Client-side guard to prevent redundant 401 logs for guest users
+	if (typeof document !== "undefined" && !document.cookie.includes("__session")) {
+		return null;
+	}
+
 	try {
 		await trackPropertyView(propertyId);
 	} catch (error) {
