@@ -227,7 +227,7 @@ const SearchBox = () => {
 			);
 		} else if (suggestion.type === "community") {
 			router.push(
-				`/search/${capitalizeWords(suggestion.city!)
+				`/Florida-Real-Estate-Search/${capitalizeWords(suggestion.city!)
 					.replaceAll(/\s+/g, "-")
 					.replaceAll(" ", "-")}/${capitalizeWords(
 					suggestion.community || suggestion.text

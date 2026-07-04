@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 interface ReadMoreProps {
-	children: string;
+	children: any;
 	maxLength?: number;
 	readMoreText?: string;
 	readLessText?: string;
@@ -22,7 +22,14 @@ const ReadMore: React.FC<ReadMoreProps> = ({
 }) => {
 	const [isExpanded, setIsExpanded] = useState(false);
 	const router = useRouter();
-	const shouldTruncate = children.length > maxLength;
+
+	const textContent = Array.isArray(children)
+		? children.join("")
+		: typeof children === "string"
+		? children
+		: "";
+
+	const shouldTruncate = textContent.length > maxLength;
 
 	const toggleExpanded = () => {
 		if (link && typeof link === "string" && link.trim()) {
@@ -49,12 +56,13 @@ const ReadMore: React.FC<ReadMoreProps> = ({
 				<span
 					style={{ display: isExpanded ? "inline" : "none" }}
 					suppressHydrationWarning>
-					{children}
+					{textContent}
 				</span>
 				<span
 					style={{ display: isExpanded ? "none" : "inline" }}
 					suppressHydrationWarning>
-					{getTruncatedText(children, maxLength)}...
+					{getTruncatedText(textContent, maxLength)}
+					{shouldTruncate && "..."}
 				</span>
 			</p>
 
@@ -70,7 +78,7 @@ const ReadMore: React.FC<ReadMoreProps> = ({
 				) : (
 					<button
 						onClick={toggleExpanded}
-						className="mt-2 text-blue-600 hover:underline focus:outline-none"
+						className="mt-2 text-blue-600 hover:underline focus:outline-none cursor-pointer"
 						aria-label={
 							isExpanded ? "Collapse content" : "Expand content"
 						}>

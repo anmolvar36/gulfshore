@@ -57,6 +57,22 @@ export default async function GetSeoData({
 			{ Development: { equals: devName } },
 			{ Community: { equals: devName } },
 		];
+
+		const communityRecord = await prisma.community.findFirst({
+			where: {
+				name: {
+					equals: devName,
+				},
+			},
+		});
+
+		if (communityRecord && communityRecord.description) {
+			content = {
+				Images: (communityRecord.images as any) || [],
+				infoText: communityRecord.description || "",
+				defaultImage: communityRecord.defaultImage || "",
+			};
+		}
 	}
 
 	// --- Total Listings ---

@@ -213,10 +213,10 @@ export default function PropertyDetail(property: Property) {
 				)}
 			</div>
 			<div className="fixed bottom-0 right-0 left-0 md:left-auto md:right-5 md:bottom-5 text-center z-50 md:w-[360px]">
-				<Card className="md:rounded-lg rounded-none w-full mx-0">
-					<CardContent className="p-1 flex">
+				<Card className="md:rounded-lg rounded-none w-full mx-0 py-0 shadow-md">
+					<CardContent className="p-2 flex gap-2">
 						<Dialog>
-							<DialogTrigger className="px-4 py-2 w-full inline-flex items-center bg-primary justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 mr-1 text-white">
+							<DialogTrigger className="px-4 py-2 flex-1 inline-flex items-center bg-primary justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-white cursor-pointer">
 								<span className=" flex font-medium text-sm flex-row flex-nowrap gap-2 justify-center lg:font-bold  items-center text-center">
 									<MessageCircle />
 									Get In Touch
@@ -255,7 +255,7 @@ export default function PropertyDetail(property: Property) {
 						</Dialog>
 
 						<Button
-							className="border-2 w-full text-primary border-(--primary-color)"
+							className="border-2 flex-1 text-primary border-(--primary-color) cursor-pointer"
 							variant={"outline"}
 							onClick={handleScheduleTour}>
 							{" "}

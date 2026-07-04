@@ -89,6 +89,22 @@ export async function GET(req: NextRequest) {
 				{ Development: { equals: devName, mode: "insensitive" } },
 				{ Community: { equals: devName, mode: "insensitive" } }
 			];
+
+			const communityRecord = await prisma.community.findFirst({
+				where: {
+					name: {
+						equals: devName,
+					},
+				},
+			});
+
+			if (communityRecord && communityRecord.description) {
+				content = {
+					Images: communityRecord.images || [],
+					infoText: communityRecord.description || "",
+					defaultImage: communityRecord.defaultImage || "",
+				};
+			}
 		}
 
 		total = await prisma.property.count({ where });
