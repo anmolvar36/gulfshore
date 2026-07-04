@@ -54,12 +54,20 @@ export async function POST(req: Request) {
 			},
 		});
 
+		let parsedDate = new Date();
+		if (date) {
+			const d = new Date(date);
+			if (!isNaN(d.getTime())) {
+				parsedDate = d;
+			}
+		}
+
 		// 3. Create ScheduleTour in SQL
 		const sqlTour = await prisma.scheduleTour.create({
 			data: {
 				email,
 				name: resolvedName,
-				date: date ? new Date(date) : new Date(),
+				date: parsedDate,
 				phone,
 				message: message || "",
 				status: "Pending",

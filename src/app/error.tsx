@@ -132,7 +132,7 @@ export default function ErrorPage() {
 				<p className="text-center text-slate-500 mt-8 text-sm">
 					Need help? Contact our support team at{" "}
 					<a
-						href="mail:mailbox@gulfshoregroup.com"
+						href="mailto:mailbox@gulfshoregroup.com"
 						className="font-medium transition-colors"
 						style={{ color: "#d10032" }}>
 						mailbox@gulfshoregroup.com

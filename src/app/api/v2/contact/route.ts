@@ -13,6 +13,13 @@ export async function POST(req: Request) {
 			propertyAddress,
 			MLSNumber,
 		} = body;
+ 
+		if (!email || typeof email !== "string" || !email.includes("@")) {
+			return NextResponse.json(
+				{ success: false, error: "Valid email address is required" },
+				{ status: 400 }
+			);
+		}
 
 		const lead = await prisma.lead.upsert({
 			where: { email },

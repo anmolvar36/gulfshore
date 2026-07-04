@@ -47,8 +47,10 @@ export default function MortgageCalculator({
 	const totalPayments = loanTermYears * 12;
 	const monthlyPrincipalInterest =
 		loanAmount > 0
-			? (loanAmount * monthlyInterestRate) /
-			  (1 - Math.pow(1 + monthlyInterestRate, -totalPayments))
+			? monthlyInterestRate > 0
+				? (loanAmount * monthlyInterestRate) /
+				  (1 - Math.pow(1 + monthlyInterestRate, -totalPayments))
+				: loanAmount / totalPayments
 			: 0;
 	const totalMonthlyPayment = monthlyPrincipalInterest;
 

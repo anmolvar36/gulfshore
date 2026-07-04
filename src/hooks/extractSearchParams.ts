@@ -101,15 +101,16 @@ export default async function ExtractSearchParams(
 						.trim()
 						.toUpperCase()
 				);
+				const UpperCityList = CityList.map((c) => c.toUpperCase());
 				if (formattedSlugs.length > 1) {
-					if (CityList.includes(formattedSlugs[0])) {
+					if (UpperCityList.includes(formattedSlugs[0])) {
 						matchedCity = formattedSlugs[0] || null;
 						matchedCommunity = formattedSlugs[1] || null;
-					} else if (CityList.includes(formattedSlugs[1])) {
+					} else if (UpperCityList.includes(formattedSlugs[1])) {
 						matchedCity = formattedSlugs[1] || null;
 					}
 				} else {
-					if (CityList.includes(formattedSlugs[0])) {
+					if (UpperCityList.includes(formattedSlugs[0])) {
 						matchedCity = formattedSlugs[0] || null;
 					}
 				}

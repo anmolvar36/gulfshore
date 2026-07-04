@@ -10,7 +10,7 @@ import {
 } from "../ui/carousel";
 import Image from "next/image";
 import Autoplay from "embla-carousel-autoplay";
-import { Maximize2, X, ArrowLeft, ArrowRight } from "lucide-react";
+import { Maximize2, X, ArrowLeft, ArrowRight, Landmark } from "lucide-react";
 import { Button } from "../ui/button";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 
@@ -56,7 +56,16 @@ const SliderComponent = ({
 		});
 	}, [api]);
 
-	if (!imageArray.length) return <div className="h-96"></div>;
+	if (!imageArray.length) {
+		return (
+			<div className="w-full h-96 bg-gradient-to-br from-[#F5F2EB] to-[#EBE6DC] flex flex-col items-center justify-center gap-2 border border-[#E8E4DC] rounded-xl my-4">
+				<Landmark size={48} className="text-[#B89A6A] stroke-[1.25]" />
+				<span className="text-xs tracking-[0.15em] uppercase font-semibold text-[#8C8270]">
+					No Image Available
+				</span>
+			</div>
+		);
+	}
 	return (
 		<div className="flex flex-col lg:flex-row items-center gap-4 lg:gap-5">
 			{/* Main Carousel */}

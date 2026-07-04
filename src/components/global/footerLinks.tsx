@@ -113,7 +113,7 @@ const FooterLinks = () => {
 								prefetch={false}
 								target="_blank"
 								href="https://www.facebook.com/share/1Kc3pRfpPr/"
-								className="inlineunderline font-lightext-blue-500">
+								className="hover:underline font-light text-blue-500">
 								Facebook
 							</Link>
 						</li>
@@ -123,7 +123,7 @@ const FooterLinks = () => {
 								prefetch={false}
 								target="_blank"
 								href="https://www.instagram.com/gulfshoregroup_florida/"
-								className="inlineunderline font-lightext-blue-500">
+								className="hover:underline font-light text-blue-500">
 								Instagram
 							</Link>
 						</li>
