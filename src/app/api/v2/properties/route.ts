@@ -33,7 +33,12 @@ export async function GET(req: NextRequest) {
 		const skip = (page - 1) * limit;
 
 		// ---- Sorting ----
-		const sortField = query.get("sort") || "ListPrice";
+		let sortField = query.get("sort") || "ListPrice";
+		if (sortField === "CurrentPrice") {
+			sortField = "ListPrice";
+		} else if (sortField === "CreatedDate") {
+			sortField = "OnMarketTimestamp";
+		}
 		const sortOrder = query.get("order") === "asc" ? "asc" : "desc";
 
 		// ---- WHERE CLAUSE ----

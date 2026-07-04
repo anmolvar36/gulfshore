@@ -212,7 +212,7 @@ export default function PropertyDetail(property: Property) {
 					</div>
 				)}
 			</div>
-			<div className="fixed bottom-0 right-0 left-0 md:left-auto md:right-5 md:bottom-5  text-center z-50">
+			<div className="fixed bottom-0 right-0 left-0 md:left-auto md:right-5 md:bottom-5 text-center z-50 md:w-[360px]">
 				<Card className="md:rounded-lg rounded-none w-full mx-0">
 					<CardContent className="p-1 flex">
 						<Dialog>
