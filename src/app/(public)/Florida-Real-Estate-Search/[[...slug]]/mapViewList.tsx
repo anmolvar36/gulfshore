@@ -40,6 +40,7 @@ export default function MapViewList({
 	const searchParams = useSearchParams();
 
 	const dispatch = useDispatch<AppDispatch>();
+	const filterString = JSON.stringify(filter);
 	React.useEffect(() => {
 		if (view !== "map") {
 			dispatch(
@@ -50,7 +51,7 @@ export default function MapViewList({
 			);
 			dispatch(fetchProperties());
 		}
-	}, [dispatch, view]);
+	}, [dispatch, view, filterString]);
 
 	const gridClass =
 		view === "map"

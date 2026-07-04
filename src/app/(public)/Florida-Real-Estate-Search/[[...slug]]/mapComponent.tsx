@@ -3,6 +3,7 @@ import React, { useRef, useCallback, useState } from "react";
 import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
 import MarkerItem from "@/components/map/marker";
 import { useSelector } from "react-redux";
+import { Layers, ChevronDown } from "lucide-react";
 import { useAppDispatch } from "@/state/store";
 import {
 	fetchProperties,
@@ -45,9 +46,27 @@ export default function MapComponent({
 		lat: 26.142,
 		lng: -81.7948,
 	});
+	const [mapTypeId, setMapTypeId] = useState<"roadmap" | "hybrid">("roadmap");
+	const [streetViewActive, setStreetViewActive] = useState(false);
+	const [dropdownOpen, setDropdownOpen] = useState(false);
+	const dropdownRef = useRef<HTMLDivElement>(null);
+
 	const dispatch = useAppDispatch();
 	const properties = useSelector(selectAllProperties);
 	const ui = useSelector(selectUi);
+
+	// Close dropdown when clicking outside
+	React.useEffect(() => {
+		function handleClickOutside(event: MouseEvent) {
+			if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+				setDropdownOpen(false);
+			}
+		}
+		document.addEventListener("mousedown", handleClickOutside);
+		return () => {
+			document.removeEventListener("mousedown", handleClickOutside);
+		};
+	}, []);
 
 	// Concurrent properties prefetch on mount
 	React.useEffect(() => {
@@ -180,10 +199,32 @@ export default function MapComponent({
 		}
 	}, [showFema]);
 
+	const toggleStreetView = useCallback(() => {
+		if (!mapRef.current) return;
+		const panorama = mapRef.current.getStreetView();
+		const nextState = !streetViewActive;
+		setStreetViewActive(nextState);
+
+		if (nextState) {
+			const centerCoord = mapRef.current.getCenter();
+			if (centerCoord) {
+				panorama.setPosition(centerCoord);
+				panorama.setVisible(true);
+			}
+		} else {
+			panorama.setVisible(false);
+		}
+	}, [streetViewActive]);
+
 	const onLoad = useCallback(
 		(map: google.maps.Map) => {
 			mapRef.current = map;
 			map.addListener("idle", refreshData);
+
+			const panorama = map.getStreetView();
+			panorama.addListener("visible_changed", () => {
+				setStreetViewActive(panorama.getVisible());
+			});
 		},
 		[refreshData]
 	);
@@ -194,17 +235,65 @@ export default function MapComponent({
 
 	return (
 		<div className="md:max-w-1/2  xl:max-w-1/2 xl:min-w-1/2 lg:max-w-3/5 lg:min-w-3/5 md:min-w-1/2 max-h-[80svh] min-w-[100svw] grow relative rounded-xl">
-			{/* FEMA Layer Control Button */}
-			<button
-				onClick={toggleFemaLayer}
-				className={`absolute top-4 left-4 z-50 px-3 py-1.5 rounded-lg border shadow-sm font-medium text-xs transition-colors duration-200 ${
-					showFema 
-						? "bg-blue-600 text-white border-blue-700 hover:bg-blue-700" 
-						: "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
-				}`}
-			>
-				{showFema ? "🌊 FEMA Layer: ON" : "🗺️ Show FEMA Flood Map"}
-			</button>
+			{/* Unified Map controls dropdown card */}
+			<div className="absolute top-4 left-4 z-50" ref={dropdownRef}>
+				<button
+					onClick={() => setDropdownOpen(!dropdownOpen)}
+					className="flex items-center gap-1.5 px-3 py-2 bg-white text-gray-800 border border-gray-200 rounded-lg shadow-md font-medium text-xs hover:bg-gray-50 transition-colors cursor-pointer"
+				>
+					<Layers size={13} className="text-[#B89A6A]" />
+					<span>Map Options</span>
+					<ChevronDown size={11} className="text-gray-400" />
+				</button>
+				
+				{dropdownOpen && (
+					<div className="absolute left-0 mt-1.5 w-48 bg-white border border-gray-200 rounded-xl shadow-xl p-3 z-50 flex flex-col gap-2.5">
+						<div className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Map Style</div>
+						<label className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer select-none">
+							<input
+								type="radio"
+								name="mapStyle"
+								checked={mapTypeId === "roadmap"}
+								onChange={() => setMapTypeId("roadmap")}
+								className="text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1"
+							/>
+							Standard Map
+						</label>
+						<label className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer select-none">
+							<input
+								type="radio"
+								name="mapStyle"
+								checked={mapTypeId === "hybrid"}
+								onChange={() => setMapTypeId("hybrid")}
+								className="text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1"
+							/>
+							Satellite View
+						</label>
+						
+						<div className="h-px bg-gray-100 my-0.5" />
+						
+						<div className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Overlays</div>
+						<label className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer select-none">
+							<input
+								type="checkbox"
+								checked={showFema}
+								onChange={toggleFemaLayer}
+								className="rounded text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1 cursor-pointer"
+							/>
+							FEMA Flood Map
+						</label>
+						<label className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer select-none">
+							<input
+								type="checkbox"
+								checked={streetViewActive}
+								onChange={toggleStreetView}
+								className="rounded text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1 cursor-pointer"
+							/>
+							Street View Mode
+						</label>
+					</div>
+				)}
+			</div>
 
 			{isLoaded && (
 				<GoogleMap
@@ -212,8 +301,14 @@ export default function MapComponent({
 					onUnmount={onUnmount}
 					center={center}
 					zoom={10}
+					mapTypeId={mapTypeId}
 					mapContainerStyle={mapContainerStyle}
-					options={{ clickableIcons: false }}>
+					options={{
+						clickableIcons: false,
+						mapTypeControl: false,
+						streetViewControl: false,
+						fullscreenControl: false,
+					}}>
 					{[
 						properties.map((item) => (
 							<MarkerItem
