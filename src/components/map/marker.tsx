@@ -8,9 +8,11 @@ import { useSelector } from "react-redux";
 function MarkerItem({
 	item,
 	handleMarkerClick,
+	clusterer,
 }: {
 	item: Property;
 	handleMarkerClick: any;
+	clusterer?: any;
 }) {
 	const ui = useSelector(selectUi);
 	const Latitude = parseFloat(item.Latitude);
@@ -19,6 +21,7 @@ function MarkerItem({
 	return (
 		<div>
 			<MarkerF
+				clusterer={clusterer}
 				onClick={() => {
 					handleMarkerClick(item);
 				}}

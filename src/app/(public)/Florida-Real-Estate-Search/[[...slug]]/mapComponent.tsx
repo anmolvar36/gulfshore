@@ -1,6 +1,6 @@
 "use client";
 import React, { useRef, useCallback, useState } from "react";
-import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
+import { GoogleMap, useJsApiLoader, MarkerClustererF } from "@react-google-maps/api";
 import MarkerItem from "@/components/map/marker";
 import { useSelector } from "react-redux";
 import { Layers, ChevronDown } from "lucide-react";
@@ -49,6 +49,7 @@ export default function MapComponent({
 	});
 	const [mapTypeId, setMapTypeId] = useState<"roadmap" | "hybrid">("roadmap");
 	const [streetViewActive, setStreetViewActive] = useState(false);
+	const [showDrone, setShowDrone] = useState(false);
 	const [dropdownOpen, setDropdownOpen] = useState(false);
 	const dropdownRef = useRef<HTMLDivElement>(null);
 	const hasCenteredRef = useRef(false);
@@ -198,7 +199,7 @@ export default function MapComponent({
 					return `https://hazards.fema.gov/gis/nfhl/rest/services/public/NFHL/MapServer/export?bbox=${bbox}&bboxSR=3857&layers=show%3A28&size=256,256&imageSR=3857&format=png32&transparent=true&f=image`;
 				},
 				tileSize: new google.maps.Size(256, 256),
-				opacity: 0.5,
+				opacity: 0.35,
 				name: "FEMA Flood Zone Map",
 			});
 			femaOverlayRef.current = femaType;
@@ -238,6 +239,20 @@ export default function MapComponent({
 		}
 	}, [streetViewActive]);
 
+	const toggleDroneView = useCallback(() => {
+		if (!ui.details) {
+			alert("Please select a property marker on the map first to view its Drone / Real View photos.");
+			return;
+		}
+		const hasVirtualTour = ui.details.VirtualTourURLBranded || ui.details.VirtualTourURLUnbranded;
+		if (hasVirtualTour) {
+			setShowDrone(!showDrone);
+			setDropdownOpen(false);
+		} else {
+			alert("Drone / Real View photos are not available for this property.");
+		}
+	}, [ui.details, showDrone]);
+
 	const onLoad = useCallback(
 		(map: google.maps.Map) => {
 			mapRef.current = map;
@@ -275,8 +290,8 @@ export default function MapComponent({
 							<input
 								type="radio"
 								name="mapStyle"
-								checked={mapTypeId === "roadmap"}
-								onChange={() => setMapTypeId("roadmap")}
+								checked={mapTypeId === "roadmap" && !showDrone}
+								onChange={() => { setMapTypeId("roadmap"); setShowDrone(false); }}
 								className="text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1"
 							/>
 							Standard Map
@@ -285,8 +300,8 @@ export default function MapComponent({
 							<input
 								type="radio"
 								name="mapStyle"
-								checked={mapTypeId === "hybrid"}
-								onChange={() => setMapTypeId("hybrid")}
+								checked={mapTypeId === "hybrid" && !showDrone}
+								onChange={() => { setMapTypeId("hybrid"); setShowDrone(false); }}
 								className="text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1"
 							/>
 							Satellite View
@@ -313,11 +328,26 @@ export default function MapComponent({
 							/>
 							Street View Mode
 						</label>
+						
+						<label className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer select-none mt-1">
+							<button 
+								className="w-full text-left font-semibold text-primary hover:underline"
+								onClick={toggleDroneView}
+							>
+								{showDrone ? "Return to Map" : "Real View / Drone Photos"}
+							</button>
+						</label>
 					</div>
 				)}
 			</div>
 
-			{isLoaded && (
+			{showDrone && ui.details ? (
+				<iframe 
+					src={ui.details.VirtualTourURLBranded || ui.details.VirtualTourURLUnbranded} 
+					className="w-full h-full border-0 rounded-xl"
+					title="Drone / Real View"
+				/>
+			) : isLoaded && (
 				<GoogleMap
 					onLoad={onLoad}
 					onUnmount={onUnmount}
@@ -330,26 +360,32 @@ export default function MapComponent({
 						mapTypeControl: false,
 						streetViewControl: false,
 						fullscreenControl: false,
-					}}>
-					{[
-						properties.map((item) => (
-							<MarkerItem
-								key={item.MLSNumber}
-								item={item}
-								handleMarkerClick={handlemarkerClick}
-							/>
-						)),
-						ui.details && !properties.includes(ui.details) && (
-							<MarkerItem
-								key={ui.details.MLSNumber}
-								item={ui.details}
-								handleMarkerClick={handlemarkerClick}
-							/>
-						),
-					]}
+					>
+					<MarkerClustererF>
+						{(clusterer) => (
+							<>
+								{properties.map((item) => (
+									<MarkerItem
+										key={item.MLSNumber}
+										item={item}
+										handleMarkerClick={handlemarkerClick}
+										clusterer={clusterer}
+									/>
+								))}
+								{ui.details && !properties.includes(ui.details) && (
+									<MarkerItem
+										key={ui.details.MLSNumber}
+										item={ui.details}
+										handleMarkerClick={handlemarkerClick}
+										clusterer={clusterer}
+									/>
+								)}
+							</>
+						)}
+					</MarkerClustererF>
 				</GoogleMap>
 			)}
-			{ui.details && (
+			{ui.details && !showDrone && (
 				<div className=" absolute md:bottom-1 bottom-0 left-1 right-1 z-50">
 					<PropertyCard2
 						property={ui.details}
