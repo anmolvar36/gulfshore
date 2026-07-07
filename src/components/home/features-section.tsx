@@ -8,7 +8,6 @@ import {
 	Map,
 	Search,
 } from "lucide-react";
-import MobileFiltersModal from "../search/mobileFiltersModal";
 import { Filters } from "../search/desktopFilters";
 
 const FeaturesSection = () => {
@@ -50,8 +49,7 @@ const FeaturesSection = () => {
 													Loading filters…
 												</span>
 											}>
-											<MobileFiltersModal />
-											<Filters />
+											<Filters classname="!inline-flex" />
 										</Suspense>
 									</span>
 								</div>

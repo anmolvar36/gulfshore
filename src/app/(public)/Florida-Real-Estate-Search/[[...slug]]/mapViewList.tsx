@@ -14,7 +14,7 @@ import {
 } from "@/state/slices/searchSlice";
 import { EMPTY_FILTERS } from "@/lib/search-filters";
 import { AppDispatch, RootState } from "@/state/store";
-import { List, MapIcon, SearchX } from "lucide-react";
+import { SearchX } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
 import React, { Suspense } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -191,27 +191,6 @@ export default function MapViewList({
 				</div>
 			</section>
 
-			<a
-				className="fixed bottom-2 z-10 right-3 md:hidden"
-				href={`${path}?${(() => {
-					const next = new URLSearchParams(searchParams.toString());
-					next.set("view", view === "map" ? "list" : "map");
-					return next.toString();
-				})()}`}>
-				<Button
-					className="rounded-lg shadow-none border-gray-900 bg-black text-white md:h-10"
-					variant="outline">
-					{view === "map" ? (
-						<>
-							<List /> List View
-						</>
-					) : (
-						<>
-							<MapIcon /> Map View
-						</>
-					)}
-				</Button>
-			</a>
 		</div>
 	);
 }
