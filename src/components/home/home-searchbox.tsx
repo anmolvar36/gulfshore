@@ -334,7 +334,7 @@ const SearchBox = ({
 						onKeyDown={handleKeyDown}
 						onFocus={handleFocus}
 						onBlur={handleBlur}
-						placeholder="Enter an address, neighborhood, city, or ZIP code"
+						placeholder="Search by city, address, or ZIP code"
 						className="w-full h-full px-4 text-[15px] md:text-lg font-medium text-gray-800 placeholder:text-gray-400 bg-transparent border-none outline-none leading-none"
 						autoComplete="off"
 						spellCheck="false"
@@ -345,8 +345,9 @@ const SearchBox = ({
 				{query && (
 					<button
 						onClick={clearSearch}
-						className="mr-2 md:mr-3 p-2 rounded-full hover:bg-gray-100 transition"
-						type="button">
+						className="mr-2 md:mr-3 p-2.5 rounded-full hover:bg-gray-100 transition"
+						type="button"
+						aria-label="Clear search">
 						<X className="w-5 h-5 text-gray-500" />
 					</button>
 				)}
@@ -355,9 +356,10 @@ const SearchBox = ({
 				<button
 					onClick={handleSearchButtonClick}
 					type="button"
-					className="h-14 md:h-16 px-6 md:px-8 bg-red-700 hover:bg-red-800 text-white font-semibold transition-all duration-200 flex items-center justify-center">
-					<Search className="w-5 h-5 md:hidden" />
-					<span className="hidden md:block text-base">
+					aria-label="Search properties"
+					className="h-14 md:h-16 px-6 md:px-8 bg-red-700 hover:bg-red-800 text-white font-semibold transition-all duration-200 flex items-center justify-center gap-2">
+					<Search className="w-5 h-5" />
+					<span className="text-base">
 						Search
 					</span>
 				</button>
@@ -396,7 +398,7 @@ const SearchBox = ({
 											onClick={() =>
 												handleSuggestionClick(suggestion)
 											}
-											className={`w-full flex items-center gap-4 px-5 py-4 text-left transition-all duration-150 ${
+											className={`w-full flex items-center gap-4 px-5 py-5 text-left transition-all duration-150 ${
 												index === selectedIndex
 													? "bg-blue-50"
 													: "hover:bg-gray-50"
@@ -421,7 +423,7 @@ const SearchBox = ({
 	
 											{/* Text */}
 											<div className="flex-1 min-w-0">
-												<p className="text-sm md:text-base font-medium text-gray-800 truncate">
+												<p className="text-base font-medium text-gray-800 truncate">
 													{suggestion.text === "NOT APPLICABLE" ||
 													suggestion.text === "N/A" ||
 													suggestion.text === "OTHERS"

@@ -18,6 +18,7 @@ export async function GET(req: NextRequest) {
 			return NextResponse.json(JSON.parse(cached));
 		}
 
+		// Southwest Florida cities only
 		const allowedNames = [
 			"NAPLES", "Naples",
 			"BONITA SPRINGS", "Bonita Springs",
@@ -25,52 +26,53 @@ export async function GET(req: NextRequest) {
 			"AVE MARIA", "Ave Maria",
 			"MARCO ISLAND", "Marco Island",
 			"FORT MYERS", "Fort Myers",
-			"BABCOCK RANCH", "Babcock Ranch",
+			"FORT MYERS BEACH", "Fort Myers Beach",
+			"CAPE CORAL", "Cape Coral",
+			"SANIBEL", "Sanibel",
+			"CAPTIVA", "Captiva",
 			"LEHIGH ACRES", "Lehigh Acres",
+			"BABCOCK RANCH", "Babcock Ranch",
 			"IMMOKALEE", "Immokalee",
+			"GOLDEN GATE", "Golden Gate",
+			"GOODLAND", "Goodland",
+			"EVERGLADES CITY", "Everglades City",
+			"NORTH FORT MYERS", "North Fort Myers",
+			"ALVA", "Alva",
+			"MIROMAR LAKES", "Miromar Lakes",
 			"PINE ISLAND", "Pine Island",
 			"PINELAND", "Pineland",
-			"SANIBEL", "Sanibel",
-			"CAPE CORAL", "Cape Coral"
 		];
 
-		let data;
+		let whereClause: any = {
+			name: {
+				in: allowedNames,
+			},
+		};
+
 		if (type) {
-			data = await prisma.city.findMany({
-				where: {
-					isFeatured: true,
-					name: {
-						in: allowedNames,
-					},
-				},
-				include: {
-					_count: { select: { communities: true } }, // show community count per city
-				  },
-				orderBy: {
-					name: "desc",
-				},
-				take: limit,
-			});
-		} else {
-			data = await prisma.city.findMany({
-				where: {
-					name: {
-						in: allowedNames,
-					},
-				},
-				include: {
-					_count: { select: { communities: true } }, // show community count per city
-				  },
-				orderBy: {
-					name: "desc",
-				},
-				take: limit,
-			});
+			whereClause.isFeatured = true;
 		}
+
+		let data = await prisma.city.findMany({
+			where: whereClause,
+			include: {
+				_count: { select: { communities: true } }, // show community count per city
+			},
+			orderBy: {
+				name: "desc",
+			},
+			take: limit,
+		});
+
+		// Filter out cities with zero active listings (communities count as proxy)
+		data = data.filter((city: any) => {
+			const count = city._count?.communities ?? city._count?.properties ?? 0;
+			return count > 0;
+		});
 
 		const response = { success: true, data };
 
-		// ----- SAVE TO CACHE (5 minutes) -----
+		// ----- SAVE TO CACHE (24 hours) -----
 		await redisSet(cacheKey, JSON.stringify(response), 86400);
 
 		return NextResponse.json(response);

@@ -91,11 +91,12 @@ const Navbar = () => {
 	return (
 		<header className={headerClass}>
 			<NavigationMenu
-				className={`p-4 container justify-between max-w-full lg:px-12 flex items-center min-h-[70px] ${navBgClass}`}>
+				className={`p-4 container justify-between max-w-full lg:px-12 flex items-center min-h-[72px] ${navBgClass}`}>
 				<div className="flex justify-between w-full items-center">
 					<Link
 						href="/"
-						className={`text-xs md:text-xl md:font-bold font-semibold tracking-tight hover:scale-105 transition-transform duration-200 ${logoTextClass}`}>
+						className={`text-sm md:text-xl md:font-bold font-semibold tracking-tight hover:scale-105 transition-transform duration-200 ${logoTextClass}`}
+						aria-label="Gulfshore Group Home">
 						<div className="flex flex-row item-center justify-center gap-2">
 							<Image
 								src={"/logored.svg"}
@@ -117,17 +118,17 @@ const Navbar = () => {
 
 					<div className="hidden lg:block">
 						<NavigationMenuList
-							className={`space-x-2 text-black ${navLinksClass}`}>
+							className={`space-x-3 text-black ${navLinksClass}`}>
 							{[
 								{ path: "/", label: "Home" },
 								{
 									path: "/Florida-Real-Estate-Search",
-									label: "Search",
+									label: "Search Properties",
 								},
 							].map(({ path: navPath, label }) => (
 								<NavigationMenuItem key={navPath}>
 									<NavigationMenuLink
-										className="relative px-4 py-2 rounded-xl font-medium text-black hover:bg-white/10 transition-all duration-200 hover:scale-105"
+										className="relative px-5 py-3 rounded-xl font-medium text-black hover:bg-gray-100 transition-all duration-200"
 										href={navPath}>
 										{label}
 										{path === navPath && (
@@ -138,7 +139,8 @@ const Navbar = () => {
 							))}
 							<NavigationMenuItem key={"call"}>
 								<NavigationMenuLink
-									className={`relative inline-flex text-center items-center gap-2 px-4 py-2 rounded-xl font-medium hover:bg-white/10 transition-all duration-200 ${"hover:scale-105"}`}
+									className="relative inline-flex text-center items-center gap-2 px-5 py-3 rounded-xl font-medium hover:bg-gray-100 transition-all duration-200"
+									aria-label="Call us at 239-992-9119"
 									href={"tel:+1 239-992-9119"}>
 									<Phone size={20} />
 									+1 (239) 992-9119
@@ -146,7 +148,8 @@ const Navbar = () => {
 							</NavigationMenuItem>
 							<NavigationMenuItem key={"mail"}>
 								<NavigationMenuLink
-									className={`relative inline-flex text-center items-center gap-2 px-4 py-2 rounded-xl font-medium hover:bg-white/10 transition-all duration-200 ${"hover:scale-105"}`}
+									className="relative inline-flex text-center items-center gap-2 px-5 py-3 rounded-xl font-medium hover:bg-gray-100 transition-all duration-200"
+									aria-label="Email us"
 									href={"mailto:mailbox@gulfshoregroup.com"}>
 									<Mail size={20} />
 									E-mail Us
@@ -183,16 +186,20 @@ const Navbar = () => {
 							<NavigationMenuList>
 								<NavigationMenuItem key={"call"}>
 									<NavigationMenuLink
-										className={`relative text-sm inline-flex underline	 text-center items-center gap-1 p-2 rounded-xl font-medium hover:bg-white/10 transition-all duration-200 ${"hover:scale-105"}`}
-										href={"tel:+1 239-992-9119"}>
-										<Phone size={20} />
+										className="relative inline-flex text-center items-center gap-2 p-3 rounded-xl font-medium hover:bg-gray-100 transition-all duration-200"
+										href={"tel:+1 239-992-9119"}
+										aria-label="Call us">
+										<Phone size={22} />
+										<span className="text-sm font-medium">Call</span>
 									</NavigationMenuLink>
 								</NavigationMenuItem>
 								<NavigationMenuItem key={"mail"}>
 									<NavigationMenuLink
-										className={`relative text-sm inline-flex underline	 text-center items-center gap-1 p-2 rounded-xl font-medium hover:bg-white/10 transition-all duration-200 ${"hover:scale-105"}`}
-										href={"mailto:mailbox@gulfshoregroup.com"}>
-										<Mail size={20} />
+										className="relative inline-flex text-center items-center gap-2 p-3 rounded-xl font-medium hover:bg-gray-100 transition-all duration-200"
+										href={"mailto:mailbox@gulfshoregroup.com"}
+										aria-label="Email us">
+										<Mail size={22} />
+										<span className="text-sm font-medium">Email</span>
 									</NavigationMenuLink>
 								</NavigationMenuItem>
 							</NavigationMenuList>
@@ -218,12 +225,12 @@ export const DrawerMenu = ({
 	return (
 		<Sheet>
 			<SheetTrigger
-				className="rounded-xl p-2 hover:bg-white/10 transition-colors duration-200"
+				className="rounded-xl p-3 hover:bg-gray-100 transition-colors duration-200"
 				style={{
 					backdropFilter: "blur(10px)",
 				}}
-				aria-label="menu">
-				<LucideMenu className={`w-6 h-6  ${menuIconClass}`} />
+				aria-label="Open navigation menu">
+				<LucideMenu className={`w-7 h-7 ${menuIconClass}`} />
 			</SheetTrigger>
 			<SheetContent className="w-[300px] bg-white/95 backdrop-blur-xl border-l border-gray-200/50">
 				<SheetClose />
@@ -231,21 +238,20 @@ export const DrawerMenu = ({
 					Gulfshore Group
 				</SheetTitle>
 				<NavigationMenu>
-					<div className="flex flex-col pt-6 space-y-2">
+					<div className="flex flex-col pt-6 space-y-1">
 						{[
 							{ path: "/", label: "Home" },
-
 							{
 								path: "/Florida-Real-Estate-Search",
-								label: "Search",
+								label: "Search Properties",
 							},
-							{ path: "/contact", label: "Contact" },
-							{ path: "/about", label: "About" },
+							{ path: "/contact", label: "Contact Us" },
+							{ path: "/about", label: "About Us" },
 						].map(({ path: navPath, label }) => (
 							<NavigationMenuLink
 								key={navPath}
 								href={navPath}
-								className=" relative px-4 py-3 rounded-xl hover:bg-linear-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200 font-medium">
+								className="relative px-4 py-4 rounded-xl hover:bg-linear-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200 font-medium text-base">
 								<span className="relative z-10">{label}</span>
 								{path === navPath && (
 									<div className="absolute inset-0 bg-linear-to-r from-blue-100 to-purple-100 rounded-xl" />
@@ -255,7 +261,7 @@ export const DrawerMenu = ({
 						<SignedOut>
 							<NavigationMenuLink
 								href="/admin/dashboard"
-								className="relative px-4 py-3 rounded-xl text-[#B89A6A] hover:bg-[#B89A6A]/10 transition-all duration-200 font-bold">
+								className="relative px-4 py-4 rounded-xl text-[#B89A6A] hover:bg-[#B89A6A]/10 transition-all duration-200 font-bold text-base">
 								<span>Admin Panel</span>
 							</NavigationMenuLink>
 						</SignedOut>
@@ -264,22 +270,22 @@ export const DrawerMenu = ({
 							{user?.publicMetadata?.role === "admin" && (
 								<NavigationMenuLink
 									href="/admin/dashboard"
-									className="relative px-4 py-3 rounded-xl text-blue-600 hover:bg-blue-50 transition-all duration-200 font-bold">
+									className="relative px-4 py-4 rounded-xl text-blue-600 hover:bg-blue-50 transition-all duration-200 font-bold text-base">
 									<span>Admin Dashboard</span>
 								</NavigationMenuLink>
 							)}
 							<NavigationMenuLink
 								href="https://gulfshoregroup.com/favorites"
-								className="relative px-4 py-3 rounded-xl hover:bg-linear-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200 font-medium">
+								className="relative px-4 py-4 rounded-xl hover:bg-linear-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200 font-medium text-base">
 								<span>Saved Properties</span>
 							</NavigationMenuLink>
 							<NavigationMenuLink
 								href="https://gulfshoregroup.com/user/saved-searches"
-								className="relative px-4 py-3 rounded-xl hover:bg-linear-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200 font-medium">
+								className="relative px-4 py-4 rounded-xl hover:bg-linear-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200 font-medium text-base">
 								<span>Saved Searches</span>
 							</NavigationMenuLink>
 							<SignOutButton>
-								<button className="w-full text-left relative px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200 font-semibold cursor-pointer">
+								<button className="w-full text-left relative px-4 py-4 rounded-xl text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200 font-semibold cursor-pointer text-base">
 									Sign Out
 								</button>
 							</SignOutButton>

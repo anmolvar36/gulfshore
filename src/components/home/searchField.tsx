@@ -339,7 +339,7 @@ const SearchBox = ({
 						onKeyDown={handleKeyDown}
 						onFocus={handleFocus}
 						onBlur={handleBlur}
-						placeholder={compact ? "Search city, zip, or address..." : "Enter an address, neighborhood, city, or ZIP code"}
+						placeholder={compact ? "Search city, zip, or address..." : "Search by city, address, or ZIP code"}
 						className={`w-full h-full px-3 font-medium text-gray-800 placeholder:text-gray-400 bg-transparent border-none outline-none 
 							${compact ? "text-sm" : "text-[15px] md:text-lg"}`}
 						autoComplete="off"
@@ -351,8 +351,9 @@ const SearchBox = ({
 				{query && (
 					<button
 						onClick={clearSearch}
-						className={`p-1.5 rounded-full hover:bg-gray-100 transition ${compact ? "mr-1" : "mr-2 md:mr-3"}`}
-						type="button">
+						className={`p-2 rounded-full hover:bg-gray-100 transition ${compact ? "mr-1" : "mr-2 md:mr-3"}`}
+						type="button"
+						aria-label="Clear search">
 						<X className={compact ? "w-4 h-4 text-gray-400" : "w-5 h-5 text-gray-500"} />
 					</button>
 				)}
@@ -361,14 +362,15 @@ const SearchBox = ({
 				<button
 					onClick={handleSearchButtonClick}
 					type="button"
-					className={`bg-red-700 hover:bg-red-800 text-white font-semibold transition-all duration-200 flex items-center justify-center
+					aria-label="Search properties"
+					className={`bg-red-700 hover:bg-red-800 text-white font-semibold transition-all duration-200 flex items-center justify-center gap-1.5
 						${compact 
 							? "h-full px-4" 
 							: "h-full px-6 md:px-8"
 						}`}>
 					<Search className="w-4 h-4" />
 					{!compact && (
-						<span className="hidden md:block text-base ml-2">
+						<span className="text-base">
 							Search
 						</span>
 					)}
@@ -408,7 +410,7 @@ const SearchBox = ({
 											onClick={() =>
 												handleSuggestionClick(suggestion)
 											}
-											className={`w-full flex items-center gap-4 px-5 py-4 text-left transition-all duration-150 ${
+											className={`w-full flex items-center gap-4 px-5 py-5 text-left transition-all duration-150 ${
 												index === selectedIndex
 													? "bg-blue-50"
 													: "hover:bg-gray-50"
@@ -433,7 +435,7 @@ const SearchBox = ({
 	
 											{/* Text */}
 											<div className="flex-1 min-w-0">
-												<p className="text-sm md:text-base font-medium text-gray-800 truncate">
+												<p className="text-base font-medium text-gray-800 truncate">
 													{suggestion.text === "NOT APPLICABLE" ||
 													suggestion.text === "N/A" ||
 													suggestion.text === "OTHERS"
