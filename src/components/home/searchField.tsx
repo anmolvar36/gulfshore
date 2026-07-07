@@ -9,7 +9,7 @@ import React, {
 import { Search, X, MapPin, Clock, TrendingUp } from "lucide-react";
 import { Button } from "../ui/button";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import capitalizeWords from "@/hooks/capitalize-letter";
 import UrlMaker from "@/hooks/url-maker";
 
@@ -22,7 +22,9 @@ interface Suggestion {
 		| "mls"
 		| "zipcode"
 		| "recent"
-		| "popular";
+		| "popular"
+		| "subdivision"
+		| "school";
 	city?: string;
 	community?: string;
 	MLSNumber?: string;
@@ -36,6 +38,8 @@ const SearchBox = ({
 	compact?: boolean;
 }) => {
 	const router = useRouter();
+	const pathname = usePathname();
+	const searchParams = useSearchParams();
 	const [query, setQuery] = useState("");
 	const [selectedSuggestion, setSelectedSuggestions] =
 		useState<Suggestion | null>();
@@ -49,6 +53,70 @@ const SearchBox = ({
 	const inputRef = useRef<HTMLInputElement>(null);
 	const suggestionsRef = useRef<HTMLDivElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		let activeQuery = "";
+		if (searchParams) {
+			activeQuery =
+				searchParams.get("q") ||
+				searchParams.get("subdivision") ||
+				searchParams.get("school") ||
+				searchParams.get("mls") ||
+				searchParams.get("address") ||
+				searchParams.get("keyword") ||
+				"";
+		}
+		if (!activeQuery && pathname) {
+			if (pathname.startsWith("/search/")) {
+				activeQuery = decodeURIComponent(
+					pathname.replace("/search/", "")
+				)
+					.replaceAll("-", " ")
+					.trim();
+			} else if (pathname.startsWith("/Florida-Real-Estate-Search")) {
+				const parts = pathname
+					.replace("/Florida-Real-Estate-Search", "")
+					.split("/")
+					.map((p) => decodeURIComponent(p).trim())
+					.filter(
+						(p) =>
+							p &&
+							!p.startsWith("page-") &&
+							!p.startsWith("sort=") &&
+							!p.includes("-beds") &&
+							!p.includes("-baths") &&
+							!p.includes("-minPrice") &&
+							!p.includes("-maxPrice") &&
+							!p.includes("-minBuiltYear") &&
+							!p.includes("-maxBuiltYear") &&
+							!p.startsWith("propertyTypes=")
+					);
+
+				if (parts.length > 0) {
+					const postalPart = parts.find((p) =>
+						p.startsWith("postalCode-")
+					);
+					if (postalPart) {
+						activeQuery = postalPart.replace("postalCode-", "");
+					} else {
+						activeQuery = parts[parts.length - 1].replaceAll(
+							"-",
+							" "
+						);
+					}
+				}
+			}
+		}
+
+		if (activeQuery) {
+			setQuery(activeQuery);
+		} else if (
+			pathname === "/Florida-Real-Estate-Search" &&
+			(!searchParams || !searchParams.toString())
+		) {
+			setQuery("");
+		}
+	}, [pathname, searchParams]);
 
 	const popularSearches: Suggestion[] = [
 		{
@@ -250,6 +318,20 @@ const SearchBox = ({
 					suggestion.MLSNumber || ""
 				)
 			);
+		} else if (suggestion.type === "subdivision") {
+			router.push(
+				`/Florida-Real-Estate-Search?subdivision=${encodeURIComponent(
+					suggestion.text
+				)}`
+			);
+		} else if (suggestion.type === "school") {
+			router.push(
+				`/Florida-Real-Estate-Search?school=${encodeURIComponent(
+					suggestion.text
+				)}`
+			);
+		} else if (suggestion.type === "mls") {
+			router.push(`/search/${encodeURIComponent(suggestion.text)}`);
 		} else if (suggestion.type === "zipcode") {
 			router.push(
 				`/Florida-Real-Estate-Search/postalCode-${suggestion.text}`
@@ -264,7 +346,17 @@ const SearchBox = ({
 		setSuggestions([]);
 		setIsOpen(false);
 		setSelectedIndex(-1);
-		inputRef.current?.focus();
+		if (
+			pathname &&
+			(pathname.startsWith("/Florida-Real-Estate-Search") ||
+				pathname.startsWith("/search")) &&
+			(pathname !== "/Florida-Real-Estate-Search" ||
+				(searchParams && searchParams.toString() !== ""))
+		) {
+			router.push("/Florida-Real-Estate-Search");
+		} else {
+			inputRef.current?.focus();
+		}
 	};
 
 	const handleFocus = () => {
@@ -309,6 +401,14 @@ const SearchBox = ({
 				return "City";
 			case "community":
 				return "Community";
+			case "subdivision":
+				return "Subdivision";
+			case "school":
+				return "School";
+			case "mls":
+				return "MLS ID";
+			case "zipcode":
+				return "ZIP Code";
 			default:
 				return "";
 		}
