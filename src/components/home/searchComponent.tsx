@@ -1,9 +1,6 @@
 "use client";
 import React from "react";
 import { ChevronDown, MapPin, Search } from "lucide-react";
-import { Button } from "../ui/button";
-import { Filters } from "../search/desktopFilters";
-import MobileFiltersModal from "../search/mobileFiltersModal";
 import { useRouter } from "next/navigation";
 import SearchBox from "./searchField";
 

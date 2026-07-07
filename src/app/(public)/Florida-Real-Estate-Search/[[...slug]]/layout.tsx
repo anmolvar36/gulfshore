@@ -3,10 +3,8 @@ import type { Metadata } from "next";
 import Footer from "@/components/global/footer";
 import ReadMore from "@/components/property/readmore";
 import StickySearchBar from "@/components/search/stickySearchBar";
-import fetchMetadataFromSlug from "@/DAL/FetchMetaData";
+import SearchLayoutClient from "../search-layout-client";
 import Image from "next/image";
-import Map from "../map";
-import OwnerCard from "@/components/cards/property/ownerCard";
 import ExtractSearchParams from "@/hooks/extractSearchParams";
 import LazyCommunitySection from "@/components/city/lazyCommunitySection";
 import { Suspense } from "react";
@@ -98,10 +96,7 @@ export default async function RootLayout({
 		<>
 			<StickySearchBar />
 			<div className="overflow-hidden h-[calc(100vh-160px)] md:h-[calc(100vh-134px)]">
-				<div className="flex w-full h-full">
-					<Map filterParams={filtersParams} />
-
-					<div className="max-w-max relative bg-white mx-auto overflow-hidden flex flex-col">
+				<SearchLayoutClient filterParams={filtersParams}>
 						<div
 							id="container"
 							className="h-full flex-col flex overflow-y-auto gap-2">
@@ -245,8 +240,7 @@ export default async function RootLayout({
 								<Footer />
 							</div>
 						</div>
-					</div>
-				</div>
+				</SearchLayoutClient>
 			</div>
 		</>
 	);
