@@ -15,19 +15,25 @@ export async function GET(req: Request) {
 				OR: [
 					{ City: { contains: q } },
 					{ Community: { contains: q } },
+					{ SubdivisionName: { contains: q } },
 					{ PostalCode: { contains: q } },
 					{ MLSNumber: { contains: q } },
+					{ ListingId: { contains: q } },
 					{ FullAddress: { contains: q } },
+					{ Description: { contains: q } },
 				],
 			},
 			select: {
 				City: true,
 				Community: true,
+				SubdivisionName: true,
 				PostalCode: true,
 				MLSNumber: true,
+				ListingId: true,
 				FullAddress: true,
+				raw: true,
 			},
-			take: 10, // fetch a bit more, trim later
+			take: 30, // fetch a bit more, trim later
 		});
 
 		const suggestionsMap = new Map<string, any>();
@@ -58,6 +64,42 @@ export async function GET(req: Request) {
 				});
 			}
 
+			// SUBDIVISION
+			if (
+				p.SubdivisionName &&
+				p.SubdivisionName.toLowerCase().includes(q.toLowerCase()) &&
+				!suggestionsMap.has(`subdivision-${p.SubdivisionName}`)
+			) {
+				suggestionsMap.set(`subdivision-${p.SubdivisionName}`, {
+					text: p.SubdivisionName,
+					type: "subdivision",
+					city: p.City ?? undefined,
+					community: p.Community ?? undefined,
+				});
+			}
+
+			// SCHOOL
+			const rawObj = p.raw as any;
+			const schools = [
+				rawObj?.HighSchool,
+				rawObj?.MiddleSchool,
+				rawObj?.ElementarySchool,
+				rawObj?.SchoolDistrict,
+			].filter(Boolean);
+			for (const sc of schools) {
+				if (
+					typeof sc === "string" &&
+					sc.toLowerCase().includes(q.toLowerCase()) &&
+					!suggestionsMap.has(`school-${sc}`)
+				) {
+					suggestionsMap.set(`school-${sc}`, {
+						text: sc,
+						type: "school",
+						city: p.City ?? undefined,
+					});
+				}
+			}
+
 			// ZIPCODE
 			if (
 				p.PostalCode &&
@@ -70,16 +112,17 @@ export async function GET(req: Request) {
 				});
 			}
 
-			// MLS
+			// MLS / LISTING ID
+			const mlsVal = p.MLSNumber || p.ListingId;
 			if (
-				p.MLSNumber &&
-				p.MLSNumber.includes(q) &&
-				!suggestionsMap.has(`mls-${p.MLSNumber}`)
+				mlsVal &&
+				mlsVal.toLowerCase().includes(q.toLowerCase()) &&
+				!suggestionsMap.has(`mls-${mlsVal}`)
 			) {
-				suggestionsMap.set(`mls-${p.MLSNumber}`, {
-					text: p.MLSNumber,
+				suggestionsMap.set(`mls-${mlsVal}`, {
+					text: mlsVal,
 					type: "mls",
-					MLSNumber: p.MLSNumber,
+					MLSNumber: mlsVal,
 				});
 			}
 
@@ -97,12 +140,12 @@ export async function GET(req: Request) {
 				});
 			}
 
-			if (suggestionsMap.size >= 5) break;
+			if (suggestionsMap.size >= 8) break;
 		}
 
 		const suggestions = Array.from(suggestionsMap.values()).slice(
 			0,
-			5
+			8
 		);
 
 		return NextResponse.json({ suggestions });

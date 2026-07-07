@@ -134,7 +134,7 @@ export default function StickySearchBar() {
 						return next.toString();
 					})()}`}>
 					<Button
-						className="rounded-md shadow-none border-gray-200 md:h-10 whitespace-nowrap"
+						className="rounded-md shadow-none border-gray-200 md:h-10 whitespace-nowrap text-gray-700 hover:text-primary hover:border-primary hover:bg-white"
 						variant="outline">
 						{view === "map" ? (
 							<><List className="h-4 w-4" /> List View</>
@@ -192,7 +192,7 @@ export default function StickySearchBar() {
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<Button
-								className="rounded-md shadow-none border-gray-200 h-9"
+								className="rounded-md shadow-none border-gray-200 h-9 text-gray-700 hover:text-primary hover:border-primary hover:bg-white data-[state=open]:border-primary data-[state=open]:text-primary data-[state=open]:bg-white"
 								variant="outline">
 								{quickPriceLabel}
 								<ChevronDown size={14} />
@@ -221,7 +221,7 @@ export default function StickySearchBar() {
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<Button
-								className="rounded-md shadow-none border-gray-200 h-9"
+								className="rounded-md shadow-none border-gray-200 h-9 text-gray-700 hover:text-primary hover:border-primary hover:bg-white data-[state=open]:border-primary data-[state=open]:text-primary data-[state=open]:bg-white"
 								variant="outline">
 								Property Type
 								<ChevronDown size={14} />

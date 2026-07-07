@@ -94,6 +94,22 @@ export default async function SearchListingPage({
 		);
 	}
 
+	// 5b. Check if it matches a Subdivision Name in the DB
+	const subdivisionMatch = await prisma.property.findFirst({
+		where: {
+			SubdivisionName: {
+				contains: rawSlug,
+			},
+		},
+		select: {
+			SubdivisionName: true,
+		},
+	});
+
+	if (subdivisionMatch && subdivisionMatch.SubdivisionName) {
+		redirect(`/Florida-Real-Estate-Search?subdivision=${encodeURIComponent(subdivisionMatch.SubdivisionName)}`);
+	}
+
 	// 6. Default fallback: redirect to the search map page with general search keyword
 	redirect(`/Florida-Real-Estate-Search?q=${encodeURIComponent(rawSlug)}`);
 }

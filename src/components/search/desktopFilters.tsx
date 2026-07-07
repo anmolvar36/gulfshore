@@ -103,6 +103,10 @@ export const Filters = ({
 	const [bathrooms, setBathrooms] = useState("");
 	const [city, setCity] = useState("");
 	const [communityInput, setCommunityInput] = useState("");
+	const [subdivision, setSubdivision] = useState("");
+	const [school, setSchool] = useState("");
+	const [address, setAddress] = useState("");
+	const [generalQuery, setGeneralQuery] = useState("");
 	const [postalCode, setPostalCode] = useState("");
 	const [mlsNumber, setMlsNumber] = useState("");
 	const [open, setOpen] = useState(false);
@@ -117,6 +121,10 @@ export const Filters = ({
 		const location = parseLocationFromPathname(pathname);
 		setCity(location.city || "");
 		setCommunityInput(location.developmentName || reduxFilters.developmentName || "");
+		setSubdivision(parsed.subdivision || "");
+		setSchool(parsed.school || "");
+		setAddress(parsed.address || "");
+		setGeneralQuery(parsed.q || searchParams.get("search") || "");
 		setBedrooms(parsed.beds || "");
 		setBathrooms(parsed.baths || "");
 		setMinPrice(parsed.minPrice || "Minimum");
@@ -161,6 +169,10 @@ export const Filters = ({
 			...reduxFilters,
 			city,
 			developmentName: communityInput || community || "",
+			subdivision,
+			school,
+			address,
+			q: generalQuery,
 			beds: bedrooms,
 			baths: bathrooms,
 			minPrice: min,
@@ -263,6 +275,10 @@ export const Filters = ({
 			...reduxFilters,
 			city,
 			developmentName: communityInput || community || "",
+			subdivision,
+			school,
+			address,
+			q: generalQuery,
 			beds: bedrooms,
 			baths: bathrooms,
 			minPrice: min,
@@ -299,7 +315,7 @@ export const Filters = ({
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger
 				className={
-					"px-4 py-2 border h-9 md:h-12 border-gray-200 w-full rounded-md hidden md:inline-flex justify-center text-center items-center gap-1" +
+					"px-4 py-2 border h-9 md:h-12 border-gray-200 w-full rounded-md hidden md:inline-flex justify-center text-center items-center gap-1 text-gray-700 hover:text-primary hover:border-primary hover:bg-white data-[state=open]:border-primary data-[state=open]:text-primary data-[state=open]:bg-white transition-colors" +
 					` ${classname}`
 				}>
 				<Settings2 size={16} /> <span>Filters</span>
@@ -526,6 +542,45 @@ export const Filters = ({
 							onChange={(e) => setMlsNumber(e.target.value)}
 							className="text-sm"
 							placeholder="MLS Number"
+						/>
+					</div>
+					<div className="flex flex-col space-y-2">
+						<Label className="text-sm font-medium text-gray-900">
+							Subdivision
+						</Label>
+						<Input
+							type="text"
+							value={subdivision}
+							onChange={(e) => setSubdivision(e.target.value)}
+							className="text-sm"
+							placeholder="e.g. Pelican Bay"
+						/>
+					</div>
+					<div className="flex flex-col space-y-2">
+						<Label className="text-sm font-medium text-gray-900">
+							School
+						</Label>
+						<Input
+							type="text"
+							value={school}
+							onChange={(e) => setSchool(e.target.value)}
+							className="text-sm"
+							placeholder="e.g. Barron Collier High"
+						/>
+					</div>
+					<div className="flex flex-col space-y-2">
+						<Label className="text-sm font-medium text-gray-900">
+							Address / Keyword
+						</Label>
+						<Input
+							type="text"
+							value={address || generalQuery}
+							onChange={(e) => {
+								setAddress(e.target.value);
+								setGeneralQuery(e.target.value);
+							}}
+							className="text-sm"
+							placeholder="Street Address or Keyword"
 						/>
 					</div>
 					{/* Property Type */}
