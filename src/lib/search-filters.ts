@@ -24,6 +24,11 @@ const FILTER_KEYS: (keyof Filters)[] = [
 	"minAcres",
 	"maxAcres",
 	"status",
+	"q",
+	"subdivision",
+	"school",
+	"mls",
+	"address",
 ];
 
 const BASE_SEARCH_PATH = "/Florida-Real-Estate-Search";
@@ -51,6 +56,11 @@ export const EMPTY_FILTERS: Filters = {
 	minAcres: "",
 	maxAcres: "",
 	status: "Active",
+	q: "",
+	subdivision: "",
+	school: "",
+	mls: "",
+	address: "",
 };
 
 const normalizeString = (value: QueryValue): string => {

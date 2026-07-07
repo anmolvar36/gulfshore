@@ -29,6 +29,11 @@ export interface Filters {
 	minAcres?: string;
 	maxAcres?: string;
 	status?: string;
+	q?: string;
+	subdivision?: string;
+	school?: string;
+	mls?: string;
+	address?: string;
 }
 
 

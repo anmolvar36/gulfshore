@@ -103,8 +103,55 @@ export async function GET(req: NextRequest) {
 			where.PostalCode = query.get("postalCode")!;
 		}
 
-		if (query.get("MLSNumber")) {
-			where.MLSNumber = query.get("MLSNumber")!;
+		const mlsVal = query.get("MLSNumber") || query.get("mls");
+		if (mlsVal) {
+			where.AND = where.AND || [];
+			where.AND.push({
+				OR: [
+					{ MLSNumber: mlsVal },
+					{ ListingId: mlsVal },
+				],
+			});
+		}
+
+		if (query.get("subdivision")) {
+			where.SubdivisionName = {
+				contains: query.get("subdivision")!,
+			};
+		}
+
+		if (query.get("school")) {
+			where.AND = where.AND || [];
+			where.AND.push({
+				OR: [
+					{ Description: { contains: query.get("school")! } },
+					{ SubdivisionName: { contains: query.get("school")! } },
+					{ Community: { contains: query.get("school")! } },
+				],
+			});
+		}
+
+		if (query.get("address")) {
+			where.FullAddress = {
+				contains: query.get("address")!,
+			};
+		}
+
+		const qVal = query.get("q") || query.get("search");
+		if (qVal) {
+			where.AND = where.AND || [];
+			where.AND.push({
+				OR: [
+					{ City: { contains: qVal } },
+					{ Community: { contains: qVal } },
+					{ SubdivisionName: { contains: qVal } },
+					{ PostalCode: { contains: qVal } },
+					{ MLSNumber: { contains: qVal } },
+					{ ListingId: { contains: qVal } },
+					{ FullAddress: { contains: qVal } },
+					{ Description: { contains: qVal } },
+				],
+			});
 		}
 
 		// ---- Beds & Baths ----
@@ -172,18 +219,18 @@ export async function GET(req: NextRequest) {
 		}
 
 		if (propTypes.length) {
-			where.OR = [];
+			const propTypeOR: any[] = [];
 
 			// Homes → Single Family + Townhouse
 			if (propTypes.includes("Homes")) {
-				where.OR.push({
+				propTypeOR.push({
 					PropertySubType: "Single Family Residence",
 				});
 			}
 
 			// Condos → Low / Mid / High Rise / Townhouse
 			if (propTypes.includes("Condos")) {
-				where.OR.push({
+				propTypeOR.push({
 					PropertySubType: {
 						in: [
 							"Low Rise (1-3)",
@@ -197,13 +244,18 @@ export async function GET(req: NextRequest) {
 
 			// Residential Lots
 			if (propTypes.includes("Residential-Lots")) {
-				where.OR.push({
+				propTypeOR.push({
 					AND: [
 						{
 							PropertyType: "Land",
 						},
 					],
 				});
+			}
+
+			if (propTypeOR.length > 0) {
+				where.AND = where.AND || [];
+				where.AND.push({ OR: propTypeOR });
 			}
 		}
 
@@ -214,10 +266,11 @@ export async function GET(req: NextRequest) {
 		const west = parseNumber(query.get("west"));
 
 		if (north && south && east && west) {
-			where.AND = [
+			where.AND = where.AND || [];
+			where.AND.push(
 				{ Latitude: { gte: south, lte: north } },
-				{ Longitude: { gte: west, lte: east } },
-			];
+				{ Longitude: { gte: west, lte: east } }
+			);
 		}
 
 		// ---- Queries ----
