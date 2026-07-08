@@ -48,8 +48,7 @@ export default function SearchLayoutClient({
 				})()}`}
 			>
 				<Button
-					className="rounded-lg shadow-lg border-gray-900 bg-black text-white md:h-10 px-4 py-2 flex items-center gap-1.5"
-					variant="outline"
+					className="rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.3)] border border-gray-800 bg-gray-900 text-white hover:bg-black hover:text-white md:h-10 px-5 py-2.5 flex items-center gap-2 font-medium"
 				>
 					{isMapView ? (
 						<>
