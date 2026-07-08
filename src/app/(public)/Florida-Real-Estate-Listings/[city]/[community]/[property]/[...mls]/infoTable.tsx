@@ -176,7 +176,7 @@ export default function PropertyDetailsTable({
 		? `${formatNumber(property.LotSizeSquareFeet)} sq ft`
 		: null;
 
-	const description = (property.raw as any)?.PublicRemarks || null;
+	const description = (property as any)?.Description || (property.raw as any)?.PublicRemarks || null;
 
 	// Parse features from JSON fields
 	const exteriorList = parseList(

@@ -45,9 +45,20 @@ export default function WalkScore({
 		}
 	}, [latitude, longitude, address]);
 
-	if (loading) return <p>.</p>;
+	if (loading) return <div className="animate-pulse h-20 bg-gray-100 rounded-md w-full my-4"></div>;
 
-	if (!walkScoreData) return <p></p>;
+	if (!walkScoreData || walkScoreData.walkscore === undefined) {
+		return (
+			<div className="lg:px-4 lg:mt-0 mt-5">
+				<h4 className="text-lg lg:text-xl font-medium text-gray-900 mb-4">
+					Walk Scores
+				</h4>
+				<div className="p-4 bg-gray-50 rounded-md border text-sm text-gray-500">
+					Walk score data is currently unavailable for this property.
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="lg:px-4 lg:mt-0 mt-5">
@@ -114,7 +125,7 @@ export default function WalkScore({
 									/100
 								</span>
 
-								<span>Walk Score</span>
+								<span>Transit Score</span>
 								<span className="text-gray-600 font-thin text-sm">
 									{walkScoreData.transit.description}
 								</span>
