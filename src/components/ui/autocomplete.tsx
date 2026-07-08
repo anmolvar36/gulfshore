@@ -8,6 +8,7 @@ import useDebounce from "@/hooks/useDebounce";
 interface AutocompleteInputProps {
 	value: string;
 	onChange: (value: string) => void;
+	onSelect?: (value: string) => void;
 	placeholder?: string;
 	type: "community" | "subdivision" | "school";
 	className?: string;
@@ -16,6 +17,7 @@ interface AutocompleteInputProps {
 export function AutocompleteInput({
 	value,
 	onChange,
+	onSelect,
 	placeholder,
 	type,
 	className,
@@ -100,9 +102,13 @@ export function AutocompleteInput({
 							<li
 								key={idx}
 								className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-								onClick={() => {
+								onMouseDown={(e) => {
+									e.preventDefault(); // Prevent input blur
 									onChange(option);
 									setIsOpen(false);
+									if (onSelect) {
+										onSelect(option);
+									}
 								}}
 							>
 								{option}
