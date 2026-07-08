@@ -71,13 +71,14 @@ export default function CardCarousel({
 								e.stopPropagation();
 							}}>
 							<CarouselPrevious
-								variant={"ghost"}
-								size={"icon"}
-								className="left-1 p-2  cursor-pointer bg-transparent lg-svg top-1/2 md:left-1"
+								variant="outline"
+								size="icon"
+								className="left-2 cursor-pointer bg-white/80 hover:bg-white text-black border-0 shadow-sm top-1/2 md:left-2 h-8 w-8"
 							/>
 							<CarouselNext
-								variant={"ghost"}
-								className="right-1 p-2 cursor-pointer bg-transparent top-1/2 lg-svg md:right-1"
+								variant="outline"
+								size="icon"
+								className="right-2 cursor-pointer bg-white/80 hover:bg-white text-black border-0 shadow-sm top-1/2 md:right-2 h-8 w-8"
 							/>
 						</div>
 					</Carousel>
