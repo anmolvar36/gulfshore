@@ -28,6 +28,7 @@ import { Checkbox } from "../ui/checkbox";
 import { toast } from "sonner";
 import axios from "axios";
 import ExtractSearchParams from "@/hooks/extractSearchParams";
+import { AutocompleteInput } from "../ui/autocomplete";
 
 export default function MobileFiltersModal({
 	community,
@@ -48,6 +49,9 @@ export default function MobileFiltersModal({
 	const [bedrooms, setBedrooms] = useState("");
 	const [bathrooms, setBathrooms] = useState("");
 	const [city, setCity] = useState("");
+	const [communityInput, setCommunityInput] = useState(community || "");
+	const [subdivision, setSubdivision] = useState("");
+	const [school, setSchool] = useState("");
 	const [postalCode, setPostalCode] = useState("");
 	const [keywords, setKeywords] = useState<string[]>([]);
 	const [hoa, setHoa] = useState("Any");
@@ -132,8 +136,9 @@ export default function MobileFiltersModal({
 		const citySlug = encodeURIComponent(
 			capitalizeWords(city).replaceAll(" ", "-")
 		);
-		const communitySlug = community
-			? encodeURIComponent(community.replaceAll(" ", "-"))
+		const comm = communityInput || community || "";
+		const communitySlug = comm
+			? encodeURIComponent(comm.replaceAll(" ", "-"))
 			: "";
 
 		if (mappedTypes.length === 1) {
@@ -183,6 +188,9 @@ export default function MobileFiltersModal({
 		if (minAcres) queryParams.set("minAcres", minAcres);
 		if (maxAcres) queryParams.set("maxAcres", maxAcres);
 		if (statusFilter && statusFilter !== "Active") queryParams.set("status", statusFilter);
+		if (subdivision) queryParams.set("subdivision", subdivision);
+		if (school) queryParams.set("school", school);
+		if (comm && !citySlug) queryParams.set("developmentName", comm);
 		
 		const queryString = queryParams.toString();
 		if (queryString) {
@@ -271,8 +279,9 @@ export default function MobileFiltersModal({
 		const citySlug = city
 			? encodeURIComponent(capitalizeWords(city).replaceAll(" ", "-"))
 			: "";
-		const communitySlug = community
-			? encodeURIComponent(community.trim().replaceAll(" ", "-"))
+		const comm = communityInput || community || "";
+		const communitySlug = comm
+			? encodeURIComponent(comm.trim().replaceAll(" ", "-"))
 			: "";
 
 		// Property type handling
@@ -320,6 +329,9 @@ export default function MobileFiltersModal({
 		if (minAcres) queryParams.set("minAcres", minAcres);
 		if (maxAcres) queryParams.set("maxAcres", maxAcres);
 		if (statusFilter && statusFilter !== "Active") queryParams.set("status", statusFilter);
+		if (subdivision) queryParams.set("subdivision", subdivision);
+		if (school) queryParams.set("school", school);
+		if (comm && !citySlug) queryParams.set("developmentName", comm);
 		
 		const queryString = queryParams.toString();
 		if (queryString) {
@@ -434,6 +446,19 @@ export default function MobileFiltersModal({
 													</DropdownMenuGroup>
 												</DropdownMenuContent>
 											</DropdownMenu>
+										</div>
+
+										<div className="flex flex-col space-y-2">
+											<Label className="text-sm font-medium text-gray-900">
+												Community
+											</Label>
+											<AutocompleteInput
+												type="community"
+												value={communityInput}
+												onChange={setCommunityInput}
+												className="text-sm"
+												placeholder="e.g. Pelican Bay"
+											/>
 										</div>
 
 										<div className="col-span-2">
@@ -756,6 +781,32 @@ export default function MobileFiltersModal({
 												onChange={(e) => setMlsNumber(e.target.value)}
 												className="text-sm"
 												placeholder="MLS Number"
+											/>
+										</div>
+
+										<div className="flex flex-col space-y-2">
+											<Label className="text-sm font-medium text-gray-900">
+												Subdivision
+											</Label>
+											<AutocompleteInput
+												type="subdivision"
+												value={subdivision}
+												onChange={setSubdivision}
+												className="text-sm"
+												placeholder="e.g. Pelican Bay"
+											/>
+										</div>
+
+										<div className="flex flex-col space-y-2">
+											<Label className="text-sm font-medium text-gray-900">
+												School
+											</Label>
+											<AutocompleteInput
+												type="school"
+												value={school}
+												onChange={setSchool}
+												className="text-sm"
+												placeholder="e.g. Barron Collier High"
 											/>
 										</div>
 									</div>

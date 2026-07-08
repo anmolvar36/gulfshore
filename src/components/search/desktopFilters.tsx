@@ -123,7 +123,7 @@ export const Filters = ({
 		const parsed = parseFiltersFromSearchParams(searchParams);
 		const location = parseLocationFromPathname(pathname);
 		setCity(location.city || "");
-		setCommunityInput(location.developmentName || reduxFilters.developmentName || "");
+		setCommunityInput(location.developmentName || parsed.developmentName || reduxFilters.developmentName || "");
 		setSubdivision(parsed.subdivision || "");
 		setSchool(parsed.school || "");
 		setAddress(parsed.address || "");
@@ -194,7 +194,7 @@ export const Filters = ({
 		const nextQuery = buildQueryFromFilters(nextFilters, searchParams);
 		const nextPath = buildSearchPathWithLocation({
 			city,
-			developmentName: community || "",
+			developmentName: communityInput || community || "",
 		});
 		dispatch(setFilters(nextFilters));
 		router.replace(`${nextPath}?${nextQuery.toString()}`, {
@@ -308,7 +308,7 @@ export const Filters = ({
 		const nextQuery = buildQueryFromFilters(nextFilters, searchParams);
 		const nextPath = buildSearchPathWithLocation({
 			city,
-			developmentName: community || "",
+			developmentName: communityInput || community || "",
 		});
 		const nextUrl = `${nextPath}?${nextQuery.toString()}`;
 		handleSaveSearch(nextUrl);
