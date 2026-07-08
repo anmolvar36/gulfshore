@@ -243,7 +243,6 @@ export default function MapComponent({
 							</label>
 						</div>
 						
-<<<<<<< HEAD
 						<div className="h-px bg-gray-100" />
 						
 						<div className="flex flex-col gap-3">
@@ -276,18 +275,6 @@ export default function MapComponent({
 						>
 							{showDrone ? "Return to Map" : "Real View / Drone Photos"}
 						</button>
-=======
-						<div className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Drone View</div>
-						
-						<label className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer select-none">
-							<button 
-								className="w-full text-left font-semibold text-primary hover:underline"
-								onClick={toggleDroneView}
-							>
-								{showDrone ? "Return to Map" : "Real View / Drone Photos"}
-							</button>
-						</label>
->>>>>>> 6fa2d5fa041bd698193e132b7319679ae5631a4f
 					</div>
 				)}
 			</div>
