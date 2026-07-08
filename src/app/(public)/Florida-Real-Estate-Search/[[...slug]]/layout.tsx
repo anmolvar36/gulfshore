@@ -99,7 +99,7 @@ export default async function RootLayout({
 				<SearchLayoutClient filterParams={filtersParams}>
 						<div
 							id="container"
-							className="h-full flex-col flex overflow-y-auto gap-2">
+							className="h-full flex-col flex overflow-y-auto overflow-x-hidden w-full gap-2">
 							<div className="w-11/12 pt-8 mx-auto mb-5 lg:mb-8 ">
 								<h1 className="lg:text-xl text-lg font-medium text-primary">
 									{seoData?.heading ||
@@ -113,7 +113,7 @@ export default async function RootLayout({
 									<section className="mt-14 container mx-auto md:mt-16 lg:mt-20">
 										<div className="mx-auto  lg:px-8 px-4 sm:px-6">
 											<div className="rounded-2xl w-full overflow-hidden">
-												<div className="w-full overflow-hidden items-center grid gap-3  md:grid-cols-[repeat(auto-fit,minmax(400px,1fr))] grid-cols-[repeat(auto-fit,minmax(330px,1fr))]">
+												<div className="w-full overflow-hidden items-center grid gap-3 grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(330px,1fr))] lg:grid-cols-[repeat(auto-fit,minmax(400px,1fr))]">
 													{/* Image Section */}
 													<div className="w-full relative overflow-hidden">
 														<div className="relative rounded-xl overflow-hidden lg:h-full">
@@ -203,7 +203,7 @@ export default async function RootLayout({
 											{seoData.community || ""} {seoData.city || ""}{" "}
 											FL:
 										</h2>
-										<div className="grid gap-2 grid-cols-[repeat(auto-fit,minmax(300px,1fr))]">
+										<div className="grid gap-2 grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(300px,1fr))]">
 											{seoData.similar.map(
 												(similar: any, i: number) => (
 													<a

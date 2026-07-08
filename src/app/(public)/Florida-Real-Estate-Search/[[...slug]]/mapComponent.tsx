@@ -360,7 +360,8 @@ export default function MapComponent({
 						mapTypeControl: false,
 						streetViewControl: false,
 						fullscreenControl: false,
-					>
+					}}
+				>
 					<MarkerClustererF>
 						{(clusterer) => (
 							<>

@@ -128,7 +128,7 @@ const Navbar = () => {
 							].map(({ path: navPath, label }) => (
 								<NavigationMenuItem key={navPath}>
 									<NavigationMenuLink
-										className="relative px-5 py-3 rounded-xl font-medium text-black hover:bg-gray-100 transition-all duration-200"
+										className="relative px-5 py-3 rounded-xl font-medium text-black hover:bg-gray-100 hover:text-black transition-all duration-200"
 										href={navPath}>
 										{label}
 										{path === navPath && (
@@ -139,7 +139,7 @@ const Navbar = () => {
 							))}
 							<NavigationMenuItem key={"call"}>
 								<NavigationMenuLink
-									className="relative inline-flex text-center items-center gap-2 px-5 py-3 rounded-xl font-medium hover:bg-gray-100 transition-all duration-200"
+									className="relative inline-flex text-center items-center gap-2 px-5 py-3 rounded-xl font-medium hover:bg-gray-100 hover:text-black transition-all duration-200"
 									aria-label="Call us at 239-992-9119"
 									href={"tel:+1 239-992-9119"}>
 									<Phone size={20} />
@@ -148,7 +148,7 @@ const Navbar = () => {
 							</NavigationMenuItem>
 							<NavigationMenuItem key={"mail"}>
 								<NavigationMenuLink
-									className="relative inline-flex text-center items-center gap-2 px-5 py-3 rounded-xl font-medium hover:bg-gray-100 transition-all duration-200"
+									className="relative inline-flex text-center items-center gap-2 px-5 py-3 rounded-xl font-medium hover:bg-gray-100 hover:text-black transition-all duration-200"
 									aria-label="Email us"
 									href={"mailto:mailbox@gulfshoregroup.com"}>
 									<Mail size={20} />
@@ -186,7 +186,7 @@ const Navbar = () => {
 							<NavigationMenuList>
 								<NavigationMenuItem key={"call"}>
 									<NavigationMenuLink
-										className="relative inline-flex text-center items-center gap-2 p-3 rounded-xl font-medium hover:bg-gray-100 transition-all duration-200"
+										className="relative inline-flex text-center items-center gap-2 p-3 rounded-xl font-medium hover:bg-gray-100 hover:text-black transition-all duration-200"
 										href={"tel:+1 239-992-9119"}
 										aria-label="Call us">
 										<Phone size={22} />
@@ -195,7 +195,7 @@ const Navbar = () => {
 								</NavigationMenuItem>
 								<NavigationMenuItem key={"mail"}>
 									<NavigationMenuLink
-										className="relative inline-flex text-center items-center gap-2 p-3 rounded-xl font-medium hover:bg-gray-100 transition-all duration-200"
+										className="relative inline-flex text-center items-center gap-2 p-3 rounded-xl font-medium hover:bg-gray-100 hover:text-black transition-all duration-200"
 										href={"mailto:mailbox@gulfshoregroup.com"}
 										aria-label="Email us">
 										<Mail size={22} />
