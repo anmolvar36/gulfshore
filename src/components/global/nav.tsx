@@ -158,7 +158,7 @@ const Navbar = () => {
 							<SignedOut>
 								<NavigationMenuItem>
 									<Link href="/admin/dashboard">
-										<Button variant="outline" className="rounded-lg font-bold cursor-pointer border-[#B89A6A] text-[#B89A6A] hover:bg-[#B89A6A]/10">
+										<Button variant="outline" className="rounded-lg font-bold cursor-pointer border-[#B89A6A] text-[#B89A6A] hover:bg-[#B89A6A]/10 hover:text-[#B89A6A]">
 											Admin Panel
 										</Button>
 									</Link>
@@ -169,7 +169,7 @@ const Navbar = () => {
 									<div className="flex items-center gap-4">
 										{user?.publicMetadata?.role === "admin" && (
 											<Link href="/admin/dashboard">
-												<Button variant="outline" className="rounded-lg font-bold cursor-pointer border-blue-600 text-blue-600 hover:bg-blue-50">
+												<Button variant="outline" className="rounded-lg font-bold cursor-pointer border-blue-600 text-blue-600 hover:bg-blue-50 hover:text-blue-700">
 													Admin Panel
 												</Button>
 											</Link>
@@ -234,10 +234,10 @@ export const DrawerMenu = ({
 			</SheetTrigger>
 			<SheetContent className="w-[300px] bg-white/95 backdrop-blur-xl border-l border-gray-200/50">
 				<SheetClose />
-				<SheetTitle className="text-2xl font-bold bg-clip-text text-gray-900">
+				<SheetTitle className="text-2xl font-bold bg-clip-text text-gray-900 px-4">
 					Gulfshore Group
 				</SheetTitle>
-				<NavigationMenu>
+				<div className="w-full">
 					<div className="flex flex-col pt-6 space-y-1">
 						{[
 							{ path: "/", label: "Home" },
@@ -248,50 +248,50 @@ export const DrawerMenu = ({
 							{ path: "/contact", label: "Contact Us" },
 							{ path: "/about", label: "About Us" },
 						].map(({ path: navPath, label }) => (
-							<NavigationMenuLink
+							<Link
 								key={navPath}
 								href={navPath}
-								className="relative px-4 py-4 rounded-xl hover:bg-linear-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200 font-medium text-base">
+								className="relative block w-full px-4 py-3 rounded-xl hover:bg-linear-to-r hover:from-blue-50 hover:to-purple-50 hover:text-black text-gray-800 transition-all duration-200 font-medium text-base">
 								<span className="relative z-10">{label}</span>
 								{path === navPath && (
-									<div className="absolute inset-0 bg-linear-to-r from-blue-100 to-purple-100 rounded-xl" />
+									<div className="absolute inset-0 bg-linear-to-r from-blue-100 to-purple-100 opacity-50 rounded-xl" />
 								)}
-							</NavigationMenuLink>
+							</Link>
 						))}
 						<SignedOut>
-							<NavigationMenuLink
+							<Link
 								href="/admin/dashboard"
-								className="relative px-4 py-4 rounded-xl text-[#B89A6A] hover:bg-[#B89A6A]/10 transition-all duration-200 font-bold text-base">
+								className="relative block w-full px-4 py-3 rounded-xl text-[#B89A6A] hover:bg-[#B89A6A]/10 hover:text-[#B89A6A] transition-all duration-200 font-bold text-base">
 								<span>Admin Panel</span>
-							</NavigationMenuLink>
+							</Link>
 						</SignedOut>
 						<SignedIn>
 							{" "}
 							{user?.publicMetadata?.role === "admin" && (
-								<NavigationMenuLink
+								<Link
 									href="/admin/dashboard"
-									className="relative px-4 py-4 rounded-xl text-blue-600 hover:bg-blue-50 transition-all duration-200 font-bold text-base">
+									className="relative block w-full px-4 py-3 rounded-xl text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 font-bold text-base">
 									<span>Admin Dashboard</span>
-								</NavigationMenuLink>
+								</Link>
 							)}
-							<NavigationMenuLink
+							<Link
 								href="https://gulfshoregroup.com/favorites"
-								className="relative px-4 py-4 rounded-xl hover:bg-linear-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200 font-medium text-base">
+								className="relative block w-full px-4 py-3 rounded-xl hover:bg-linear-to-r hover:from-blue-50 hover:to-purple-50 hover:text-black text-gray-800 transition-all duration-200 font-medium text-base">
 								<span>Saved Properties</span>
-							</NavigationMenuLink>
-							<NavigationMenuLink
+							</Link>
+							<Link
 								href="https://gulfshoregroup.com/user/saved-searches"
-								className="relative px-4 py-4 rounded-xl hover:bg-linear-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200 font-medium text-base">
+								className="relative block w-full px-4 py-3 rounded-xl hover:bg-linear-to-r hover:from-blue-50 hover:to-purple-50 hover:text-black text-gray-800 transition-all duration-200 font-medium text-base">
 								<span>Saved Searches</span>
-							</NavigationMenuLink>
+							</Link>
 							<SignOutButton>
-								<button className="w-full text-left relative px-4 py-4 rounded-xl text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200 font-semibold cursor-pointer text-base">
+								<button className="w-full text-left relative px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200 font-semibold cursor-pointer text-base">
 									Sign Out
 								</button>
 							</SignOutButton>
 						</SignedIn>
 					</div>
-				</NavigationMenu>
+				</div>
 			</SheetContent>
 		</Sheet>
 	);

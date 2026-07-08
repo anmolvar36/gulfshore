@@ -241,7 +241,7 @@ export default function StickySearchBar() {
 						</DropdownMenuContent>
 					</DropdownMenu>
 
-					<Filters />
+					<Filters classname="!inline-flex" />
 					<SortComponent />
 					<SaveSearchButton />
 				</div>
