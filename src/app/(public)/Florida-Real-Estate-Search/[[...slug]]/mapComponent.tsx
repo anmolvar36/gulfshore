@@ -255,7 +255,7 @@ export default function MapComponent({
 			map.addListener("idle", refreshData);
 			const panorama = map.getStreetView();
 			panorama.addListener("visible_changed", () => {
-				setStreetViewActive(panorama.getVisible());
+				setStreetViewActive(panorama.getVisible() || false);
 			});
 		},
 		[refreshData]
