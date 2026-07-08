@@ -19,7 +19,6 @@ export async function GET(req: NextRequest) {
 				where: {
 					name: {
 						contains: q,
-						mode: "insensitive",
 					},
 				},
 				select: {
@@ -35,7 +34,6 @@ export async function GET(req: NextRequest) {
 				where: {
 					SubdivisionName: {
 						contains: q,
-						mode: "insensitive",
 					},
 				},
 				select: {
@@ -52,7 +50,6 @@ export async function GET(req: NextRequest) {
 				where: {
 					HighSchool: {
 						contains: q,
-						mode: "insensitive",
 					},
 				},
 				select: {
