@@ -30,9 +30,9 @@ export default function SearchSuggestions() {
 							href={`/Florida-Real-Estate-Search/Homes/${capitalizeWords(
 								city
 							).replaceAll(" ", "-")}`}
-							className="inline-flex  gap-1 items-center px-2 lg:py-3 py-2 text-sm text-start font-medium  hover:underline">
-							<Search size={20} />{" "}
-							<span className=" font-normal lg:font-medium">
+							className="inline-flex gap-1 items-start px-2 lg:py-3 py-2 text-sm text-start font-medium hover:underline">
+							<Search size={20} className="flex-shrink-0 mt-[2px]" />{" "}
+							<span className="font-normal lg:font-medium">
 								Single Family Homes For Sale in{" "}
 								{capitalizeWords(city)}
 							</span>
@@ -52,9 +52,9 @@ export default function SearchSuggestions() {
 							href={`/Florida-Real-Estate-Search/Condos/${capitalizeWords(
 								city
 							).replaceAll(" ", "-")}`}
-							className="inline-flex gap-1 items-center px-2 lg:py-3 py-2 text-sm text-start  hover:underline">
-							<Search size={20} />{" "}
-							<span className=" font-normal lg:font-medium">
+							className="inline-flex gap-1 items-start px-2 lg:py-3 py-2 text-sm text-start hover:underline">
+							<Search size={20} className="flex-shrink-0 mt-[2px]" />{" "}
+							<span className="font-normal lg:font-medium">
 								Condos For Sale in {capitalizeWords(city)}
 							</span>
 						</a>
@@ -73,9 +73,9 @@ export default function SearchSuggestions() {
 							href={`/Florida-Real-Estate-Search/Residential-Lots/${capitalizeWords(
 								city
 							).replaceAll(" ", "-")}`}
-							className="inline-flex gap-1 items-center px-2 lg:py-3 py-2 text-sm text-start font-medium  hover:underline">
-							<Search size={20} />{" "}
-							<span className=" font-normal lg:font-medium">
+							className="inline-flex gap-1 items-start px-2 lg:py-3 py-2 text-sm text-start font-medium hover:underline">
+							<Search size={20} className="flex-shrink-0 mt-[2px]" />{" "}
+							<span className="font-normal lg:font-medium">
 								Residential Lots For Sale in {capitalizeWords(city)}
 							</span>
 						</a>

@@ -53,6 +53,7 @@ export default function MapComponent({
 	const [dropdownOpen, setDropdownOpen] = useState(false);
 	const dropdownRef = useRef<HTMLDivElement>(null);
 	const hasCenteredRef = useRef(false);
+	const isInitialLoadRef = useRef(true);
 
 	const dispatch = useAppDispatch();
 	const properties = useSelector(selectAllProperties);
@@ -138,6 +139,10 @@ export default function MapComponent({
 	const refreshData = useCallback(
 		debounce(() => {
 			if (!mapRef.current) return;
+			if (isInitialLoadRef.current) {
+				isInitialLoadRef.current = false;
+				return;
+			}
 			const b = mapRef.current.getBounds();
 			if (!b) return;
 			const bounds = {
@@ -276,67 +281,71 @@ export default function MapComponent({
 			<div className="absolute top-4 left-4 z-50" ref={dropdownRef}>
 				<button
 					onClick={() => setDropdownOpen(!dropdownOpen)}
-					className="flex items-center gap-1.5 px-3 py-2 bg-white text-gray-800 border border-gray-200 rounded-lg shadow-md font-medium text-xs hover:bg-gray-50 transition-colors cursor-pointer"
+					className="flex items-center gap-2 px-4 py-2.5 bg-white text-gray-800 border border-gray-200 rounded-lg shadow-md font-medium text-sm hover:bg-gray-50 transition-colors cursor-pointer"
 				>
-					<Layers size={13} className="text-[#B89A6A]" />
+					<Layers size={16} className="text-[#B89A6A]" />
 					<span>Map Options</span>
-					<ChevronDown size={11} className="text-gray-400" />
+					<ChevronDown size={14} className="text-gray-400" />
 				</button>
 				
 				{dropdownOpen && (
-					<div className="absolute left-0 mt-1.5 w-48 bg-white border border-gray-200 rounded-xl shadow-xl p-3 z-50 flex flex-col gap-2.5">
-						<div className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Map Style</div>
-						<label className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer select-none">
-							<input
-								type="radio"
-								name="mapStyle"
-								checked={mapTypeId === "roadmap" && !showDrone}
-								onChange={() => { setMapTypeId("roadmap"); setShowDrone(false); }}
-								className="text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1"
-							/>
-							Standard Map
-						</label>
-						<label className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer select-none">
-							<input
-								type="radio"
-								name="mapStyle"
-								checked={mapTypeId === "hybrid" && !showDrone}
-								onChange={() => { setMapTypeId("hybrid"); setShowDrone(false); }}
-								className="text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1"
-							/>
-							Satellite View
-						</label>
+					<div className="absolute left-0 mt-2 w-56 bg-white border border-gray-200 rounded-xl shadow-xl p-4 z-50 flex flex-col gap-4">
+						<div className="flex flex-col gap-3">
+							<div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Map Style</div>
+							<label className="flex items-center gap-3 text-sm text-gray-800 cursor-pointer select-none">
+								<input
+									type="radio"
+									name="mapStyle"
+									checked={mapTypeId === "roadmap" && !showDrone}
+									onChange={() => { setMapTypeId("roadmap"); setShowDrone(false); }}
+									className="w-4 h-4 text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1"
+								/>
+								Standard Map
+							</label>
+							<label className="flex items-center gap-3 text-sm text-gray-800 cursor-pointer select-none">
+								<input
+									type="radio"
+									name="mapStyle"
+									checked={mapTypeId === "hybrid" && !showDrone}
+									onChange={() => { setMapTypeId("hybrid"); setShowDrone(false); }}
+									className="w-4 h-4 text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1"
+								/>
+								Satellite View
+							</label>
+						</div>
 						
-						<div className="h-px bg-gray-100 my-0.5" />
+						<div className="h-px bg-gray-100" />
 						
-						<div className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Overlays</div>
-						<label className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer select-none">
-							<input
-								type="checkbox"
-								checked={showFema}
-								onChange={toggleFemaLayer}
-								className="rounded text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1 cursor-pointer"
-							/>
-							FEMA Flood Map
-						</label>
-						<label className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer select-none">
-							<input
-								type="checkbox"
-								checked={streetViewActive}
-								onChange={toggleStreetView}
-								className="rounded text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1 cursor-pointer"
-							/>
-							Street View Mode
-						</label>
+						<div className="flex flex-col gap-3">
+							<div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Overlays & Features</div>
+							<label className="flex items-center gap-3 text-sm text-gray-800 cursor-pointer select-none">
+								<input
+									type="checkbox"
+									checked={streetViewActive}
+									onChange={toggleStreetView}
+									className="w-4 h-4 rounded text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1 cursor-pointer"
+								/>
+								Street View
+							</label>
+							<label className="flex items-center gap-3 text-sm text-gray-800 cursor-pointer select-none">
+								<input
+									type="checkbox"
+									checked={showFema}
+									onChange={toggleFemaLayer}
+									className="w-4 h-4 rounded text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1 cursor-pointer"
+								/>
+								FEMA Flood Map
+							</label>
+						</div>
+
+						<div className="h-px bg-gray-100" />
 						
-						<label className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer select-none mt-1">
-							<button 
-								className="w-full text-left font-semibold text-primary hover:underline"
-								onClick={toggleDroneView}
-							>
-								{showDrone ? "Return to Map" : "Real View / Drone Photos"}
-							</button>
-						</label>
+						<button 
+							className="w-full text-left font-medium text-sm text-primary hover:underline py-1"
+							onClick={toggleDroneView}
+						>
+							{showDrone ? "Return to Map" : "Real View / Drone Photos"}
+						</button>
 					</div>
 				)}
 			</div>

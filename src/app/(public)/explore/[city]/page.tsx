@@ -213,8 +213,8 @@ async function ExploreCity({
 									similar.DevelopmentName,
 									similar.PropertyAddress
 								)}
-								className="inline-flex gap-1 items-center px-2 lg:py-3 py-2 text-sm text-start font-medium  hover:underline">
-								<Search size={20} />{" "}
+								className="inline-flex gap-1 items-start px-2 lg:py-3 py-2 text-sm text-start font-medium hover:underline">
+								<Search size={20} className="flex-shrink-0 mt-[2px]" />{" "}
 								<span className=" lg:font-medium text-blue-600 md:font-normal">
 									{similar.FullAddress} -{" "}
 									{formatPrice(Number(similar.CurrentPrice))}
@@ -231,8 +231,8 @@ async function ExploreCity({
 				<div className="grid gap-2 grid-cols-[repeat(auto-fit,minmax(300px,1fr))]">
 					<a
 						href={`/Florida-Real-Estate-Search/${seoData.city}/keyword-pool`}
-						className="inline-flex gap-1 items-center px-2 lg:py-3 py-2 text-sm text-start font-medium  hover:underline">
-						<Search size={20} />{" "}
+						className="inline-flex gap-1 items-start px-2 lg:py-3 py-2 text-sm text-start font-medium hover:underline">
+						<Search size={20} className="flex-shrink-0 mt-[2px]" />{" "}
 						<span className=" lg:font-medium text-blue-600 md:font-normal">
 							Homes & Real Estate with Pool for Sale in {seoData.city}
 						</span>
@@ -241,8 +241,8 @@ async function ExploreCity({
 						<>
 							<a
 								href={`/Florida-Real-Estate-Search/Homes/${seoData.community}/${seoData.city}`}
-								className="inline-flex gap-1 items-center px-2 lg:py-3 py-2 text-sm text-start font-medium  hover:underline">
-								<Search size={20} />{" "}
+								className="inline-flex gap-1 items-start px-2 lg:py-3 py-2 text-sm text-start font-medium hover:underline">
+								<Search size={20} className="flex-shrink-0 mt-[2px]" />{" "}
 								<span className=" lg:font-medium text-blue-600 md:font-normal">
 									Single Family Homes for Sale in {seoData.community}{" "}
 									{seoData.city}
@@ -250,8 +250,8 @@ async function ExploreCity({
 							</a>{" "}
 							<a
 								href={`/Florida-Real-Estate-Search/${seoData.city}/${seoData.community}/keyword-waterfront`}
-								className="inline-flex gap-1 items-center px-2 lg:py-3 py-2 text-sm text-start font-medium  hover:underline">
-								<Search size={20} />{" "}
+								className="inline-flex gap-1 items-start px-2 lg:py-3 py-2 text-sm text-start font-medium hover:underline">
+								<Search size={20} className="flex-shrink-0 mt-[2px]" />{" "}
 								<span className=" lg:font-medium text-blue-600 md:font-normal">
 									Waterfront Homes and Real Estate for Sale in{" "}
 									{seoData.community} {seoData.city}
@@ -259,8 +259,8 @@ async function ExploreCity({
 							</a>
 							<a
 								href={`/Florida-Real-Estate-Search/${seoData.city}/${seoData.community}/keyword-pool`}
-								className="inline-flex gap-1 items-center px-2 lg:py-3 py-2 text-sm text-start font-medium  hover:underline">
-								<Search size={20} />{" "}
+								className="inline-flex gap-1 items-start px-2 lg:py-3 py-2 text-sm text-start font-medium hover:underline">
+								<Search size={20} className="flex-shrink-0 mt-[2px]" />{" "}
 								<span className=" lg:font-medium text-blue-600 md:font-normal">
 									Homes with Pool for Sale in {seoData.community}{" "}
 									{seoData.city}
@@ -268,8 +268,8 @@ async function ExploreCity({
 							</a>
 							<a
 								href={`/Florida-Real-Estate-Search/${seoData.city}/${seoData.community}/keyword-gulfaccess`}
-								className="inline-flex gap-1 items-center px-2 lg:py-3 py-2 text-sm text-start font-medium  hover:underline">
-								<Search size={20} />{" "}
+								className="inline-flex gap-1 items-start px-2 lg:py-3 py-2 text-sm text-start font-medium hover:underline">
+								<Search size={20} className="flex-shrink-0 mt-[2px]" />{" "}
 								<span className=" lg:font-medium text-blue-600 md:font-normal">
 									Gulf Access Properties for Sale in{" "}
 									{seoData.community}
@@ -280,16 +280,16 @@ async function ExploreCity({
 					)}
 					<a
 						href={`/Florida-Real-Estate-Search/${seoData.city}/keyword-gulfaccess`}
-						className="inline-flex gap-1 items-center px-2 lg:py-3 py-2 text-sm text-start font-medium  hover:underline">
-						<Search size={20} />{" "}
+						className="inline-flex gap-1 items-start px-2 lg:py-3 py-2 text-sm text-start font-medium hover:underline">
+						<Search size={20} className="flex-shrink-0 mt-[2px]" />{" "}
 						<span className=" lg:font-medium text-blue-600 md:font-normal">
 							Gulf Access Properties for Sale in {seoData.city}
 						</span>
 					</a>
 					<a
 						href={`/Florida-Real-Estate-Search/${seoData.city}/keyword-waterfront`}
-						className="inline-flex gap-1 items-center px-2 lg:py-3 py-2 text-sm text-start font-medium  hover:underline">
-						<Search size={20} />{" "}
+						className="inline-flex gap-1 items-start px-2 lg:py-3 py-2 text-sm text-start font-medium hover:underline">
+						<Search size={20} className="flex-shrink-0 mt-[2px]" />{" "}
 						<span className=" lg:font-medium text-blue-600 md:font-normal">
 							Waterfront Homes & Real Estate in {seoData.city}
 						</span>
