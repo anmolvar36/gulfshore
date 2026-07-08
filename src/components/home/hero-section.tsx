@@ -26,11 +26,11 @@ const HeroSection = () => {
                     {/* Text Section */}
                     <div className="max-w-4xl mb-5">
                         <h1 className="hidden md:block text-left text-3xl md:text-5xl lg:text-6xl font-semibold text-white leading-tight tracking-tight">
-                            Find the Right Property in Naples Florida
+                            Buy Or Sell In Naples, FL And Surrounding Area
                         </h1>
 
                         <h2 className="block md:hidden text-left text-3xl font-bold text-white leading-tight">
-                            Find the Right Property in Naples FL
+                            Buy Or Sell In Naples, FL And Surrounding Area
                         </h2>
 
                         <p className="mt-3 text-left text-sm sm:text-base md:text-lg text-slate-200 max-w-2xl">
