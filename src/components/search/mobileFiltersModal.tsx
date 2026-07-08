@@ -23,6 +23,7 @@ import capitalizeWords from "@/hooks/capitalize-letter";
 import { SortItem, SortItems } from "@/lib/constants";
 import Cities from "@/types/cities";
 import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
 import { Checkbox } from "../ui/checkbox";
 import { toast } from "sonner";
 import axios from "axios";
@@ -60,6 +61,7 @@ export default function MobileFiltersModal({
 	);
 
 	const router = useRouter();
+	const { isLoaded, isSignedIn } = useAuth();
 
 
 	const handleSearch = () => {
@@ -191,6 +193,14 @@ export default function MobileFiltersModal({
 	};
 
 	const handleSaveSearch = async (url: string) => {
+		if (!isLoaded) return;
+		if (!isSignedIn) {
+			toast.info("Sign in to save searches", {
+				description: "Create an account or log in to save this search.",
+			});
+			router.push("/signup");
+			return;
+		}
 		try {
 			setLoading(true);
 			const filters = await ExtractSearchParams(url.split("/"));
