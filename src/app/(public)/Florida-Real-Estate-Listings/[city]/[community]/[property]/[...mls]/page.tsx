@@ -45,6 +45,7 @@ import createRealEstateJsonLd from "@/hooks/getJsonSchema";
 import SimilarLinksSection from "@/components/search/links-section/similarLinksSection";
 import CityLinksSection from "@/components/search/links-section/cityLinksSection";
 import { Property } from "@/app/generated/prisma/client";
+import SimilarPropertiesCarousel from "@/components/property/similarPropertiesCarousel";
 
 export default async function Listing({
 	params,
@@ -412,13 +413,6 @@ export default async function Listing({
 
 										<div className="prose prose-gray max-w-none lg:max-h-[480px] overflow-y-auto">
 											<ReadMore
-												link={`/Florida-Real-Estate-Search/${capitalizeWords(
-													property.City
-												).replaceAll(" ", "-")}/${capitalizeWords(
-													property.Development ||
-														(property.raw as any)?.MLSAreaMajor ||
-														""
-												).replaceAll(" ", "-")}`}
 												className="text-gray-500 leading-relaxed ">
 												{Meta.content.infoText
 													?.replaceAll("*", "")
@@ -446,43 +440,12 @@ export default async function Listing({
 					transaction in reliance upon it.
 				</span>
 			</div>
-			{/* {property.similar && (
-				<section className="my-4 w-11/12 mx-auto">
-					<h2 className="lg:text-lg font-medium px-4 pt-3 text-gray-900 lg:font-semibold mb-2">
-						Explore More Properties in {development}:
-					</h2>
-					<div className="grid gap-2 grid-cols-[repeat(auto-fit,minmax(300px,1fr))]">
-						{property.similar.map(
-							(
-								similar: {
-									City: string;
-									slug: string;
-									DevelopmentName: string;
-									FullAddress: string;
-									PropertyAddress: string;
-									CurrentPrice: string;
-								},
-								i: number
-							) => (
-								<a
-									key={i}
-									href={UrlMaker(
-										similar.City,
-										similar.DevelopmentName,
-										similar.PropertyAddress
-									)}
-									className="inline-flex gap-1 items-center px-2 lg:py-3 py-2 text-sm text-start font-medium  hover:underline">
-									<Search size={20} />{" "}
-									<span className=" lg:font-medium text-blue-600 md:font-normal">
-										{capitalizeWords(similar.FullAddress)} -{" "}
-										{formatPrice(Number(similar.CurrentPrice))}
-									</span>
-								</a>
-							)
-						)}
-					</div>
-				</section>
-			)} */}
+			{(property as any).similar && (property as any).similar.length > 0 && (
+				<SimilarPropertiesCarousel
+					properties={(property as any).similar}
+					development={development}
+				/>
+			)}
 
 			<SimilarLinksSection property={property} />
 			<CityLinksSection city={property.City} />
