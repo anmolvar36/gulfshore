@@ -5,6 +5,7 @@ import { AutocompleteInput } from "../ui/autocomplete";
 import { Button } from "../ui/button";
 import { ChevronDown, LoaderIcon, Settings2 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -92,6 +93,7 @@ export const Filters = ({
 	const searchParams = useSearchParams();
 	const [loading, setLoading] = useState<boolean>(false);
 	const pathname = usePathname();
+	const { isLoaded, isSignedIn } = useAuth();
 
 	// States
 	const [propertyType, setPropertyType] = useState<string[]>([]);
@@ -205,6 +207,14 @@ export const Filters = ({
 	};
 
 	const handleSaveSearch = async (url: string) => {
+		if (!isLoaded) return;
+		if (!isSignedIn) {
+			toast.info("Sign in to save searches", {
+				description: "Create an account or log in to save this search.",
+			});
+			router.push("/signup");
+			return;
+		}
 		try {
 			setLoading(true);
 			const filters = {
