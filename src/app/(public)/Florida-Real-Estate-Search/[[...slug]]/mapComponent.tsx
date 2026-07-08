@@ -51,7 +51,10 @@ export default function MapComponent({
 
 	const [showDrone, setShowDrone] = useState(false);
 	const [dropdownOpen, setDropdownOpen] = useState(false);
+	const [streetViewActive, setStreetViewActive] = useState(false);
+	const [showFema, setShowFema] = useState(false);
 	const dropdownRef = useRef<HTMLDivElement>(null);
+	const femaOverlayRef = useRef<google.maps.ImageMapType | null>(null);
 	const hasCenteredRef = useRef(false);
 	const isInitialLoadRef = useRef(true);
 
@@ -177,6 +180,60 @@ export default function MapComponent({
 		[dispatch]
 	);
 
+	const toggleFemaLayer = useCallback(() => {
+		if (!mapRef.current) return;
+		const nextState = !showFema;
+		setShowFema(nextState);
+		if (nextState) {
+			const femaType = new google.maps.ImageMapType({
+				getTileUrl: (coord, zoom) => {
+					const initialResolution = 2 * Math.PI * 6378137 / 256;
+					const originShift = 2 * Math.PI * 6378137 / 2;
+					const zoomResolution = initialResolution / (1 << zoom);
+					const tileWidth = 256 * zoomResolution;
+					const minX = coord.x * tileWidth - originShift;
+					const maxX = (coord.x + 1) * tileWidth - originShift;
+					const minY = originShift - (coord.y + 1) * tileWidth;
+					const maxY = originShift - coord.y * tileWidth;
+					const bbox = `${minX},${minY},${maxX},${maxY}`;
+					return `https://hazards.fema.gov/gis/nfhl/rest/services/public/NFHL/MapServer/export?bbox=${bbox}&bboxSR=3857&layers=show%3A28&size=256,256&imageSR=3857&format=png32&transparent=true&f=image`;
+				},
+				tileSize: new google.maps.Size(256, 256),
+				opacity: 0.35,
+				name: "FEMA Flood Zone Map",
+			});
+			femaOverlayRef.current = femaType;
+			mapRef.current.overlayMapTypes.insertAt(0, femaType);
+		} else {
+			if (femaOverlayRef.current) {
+				const overlayTypes = mapRef.current.overlayMapTypes;
+				for (let i = 0; i < overlayTypes.getLength(); i++) {
+					if (overlayTypes.getAt(i) === femaOverlayRef.current) {
+						overlayTypes.removeAt(i);
+						break;
+					}
+				}
+				femaOverlayRef.current = null;
+			}
+		}
+	}, [showFema]);
+
+	const toggleStreetView = useCallback(() => {
+		if (!mapRef.current) return;
+		const panorama = mapRef.current.getStreetView();
+		const nextState = !streetViewActive;
+		setStreetViewActive(nextState);
+		if (nextState) {
+			const centerCoord = mapRef.current.getCenter();
+			if (centerCoord) {
+				panorama.setPosition(centerCoord);
+				panorama.setVisible(true);
+			}
+		} else {
+			panorama.setVisible(false);
+		}
+	}, [streetViewActive]);
+
 	const toggleDroneView = useCallback(() => {
 		if (!ui.details) {
 			alert("Please select a property marker on the map first to view its Drone / Real View photos.");
@@ -195,6 +252,10 @@ export default function MapComponent({
 		(map: google.maps.Map) => {
 			mapRef.current = map;
 			map.addListener("idle", refreshData);
+			const panorama = map.getStreetView();
+			panorama.addListener("visible_changed", () => {
+				setStreetViewActive(panorama.getVisible() || false);
+			});
 		},
 		[refreshData]
 	);
@@ -239,6 +300,30 @@ export default function MapComponent({
 									className="w-4 h-4 text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1"
 								/>
 								Satellite View
+							</label>
+						</div>
+
+						<div className="h-px bg-gray-100" />
+						
+						<div className="flex flex-col gap-3">
+							<div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Overlays & Features</div>
+							<label className="flex items-center gap-3 text-sm text-gray-800 cursor-pointer select-none">
+								<input
+									type="checkbox"
+									checked={streetViewActive}
+									onChange={toggleStreetView}
+									className="w-4 h-4 rounded text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1 cursor-pointer"
+								/>
+								Street View
+							</label>
+							<label className="flex items-center gap-3 text-sm text-gray-800 cursor-pointer select-none">
+								<input
+									type="checkbox"
+									checked={showFema}
+									onChange={toggleFemaLayer}
+									className="w-4 h-4 rounded text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1 cursor-pointer"
+								/>
+								FEMA Flood Map
 							</label>
 						</div>
 
