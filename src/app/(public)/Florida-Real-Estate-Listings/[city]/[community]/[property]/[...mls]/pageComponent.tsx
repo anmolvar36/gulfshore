@@ -38,13 +38,7 @@ const CitiesSection = dynamic(
 	{ ssr: false, loading: () => <Skeleton /> }
 );
 
-const WalkScore = dynamic(
-	() => import("@/components/property/walkscore"),
-	{
-		ssr: false,
-		loading: () => <Skeleton />,
-	}
-);
+
 
 export default function PropertyDetail(property: Property) {
 	const { isLoaded, isSignedIn } = useUser();
@@ -137,13 +131,7 @@ export default function PropertyDetail(property: Property) {
 					</div>
 
 					<div className="flex flex-col gap-2">
-						<Suspense>
-							<WalkScore
-								latitude={Latitude}
-								longitude={Longitude}
-								address={property.FullAddress}
-							/>
-						</Suspense>
+
 						<div className="flex-col flex gap-2 mt-5 px-2">
 							{!(property.raw as any)?.HighSchool &&
 							!(property.raw as any)?.MiddleSchool &&

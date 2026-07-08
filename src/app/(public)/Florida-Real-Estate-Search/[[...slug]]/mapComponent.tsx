@@ -48,7 +48,7 @@ export default function MapComponent({
 		lng: -81.7948,
 	});
 	const [mapTypeId, setMapTypeId] = useState<"roadmap" | "hybrid">("roadmap");
-	const [streetViewActive, setStreetViewActive] = useState(false);
+
 	const [showDrone, setShowDrone] = useState(false);
 	const [dropdownOpen, setDropdownOpen] = useState(false);
 	const dropdownRef = useRef<HTMLDivElement>(null);
@@ -176,73 +176,7 @@ export default function MapComponent({
 		[dispatch]
 	);
 
-	const [showFema, setShowFema] = useState(false);
-	const femaOverlayRef = useRef<google.maps.ImageMapType | null>(null);
 
-	const toggleFemaLayer = useCallback(() => {
-		if (!mapRef.current) return;
-		const nextState = !showFema;
-		setShowFema(nextState);
-
-		if (nextState) {
-			// Initialize FEMA tile layer options using EPSG:3857 (Web Mercator) coordinates
-			const femaType = new google.maps.ImageMapType({
-				getTileUrl: (coord, zoom) => {
-					const initialResolution = 2 * Math.PI * 6378137 / 256;
-					const originShift = 2 * Math.PI * 6378137 / 2;
-					
-					const zoomResolution = initialResolution / (1 << zoom);
-					const tileWidth = 256 * zoomResolution;
-					
-					const minX = coord.x * tileWidth - originShift;
-					const maxX = (coord.x + 1) * tileWidth - originShift;
-					
-					const minY = originShift - (coord.y + 1) * tileWidth;
-					const maxY = originShift - coord.y * tileWidth;
-					
-					const bbox = `${minX},${minY},${maxX},${maxY}`;
-					return `https://hazards.fema.gov/gis/nfhl/rest/services/public/NFHL/MapServer/export?bbox=${bbox}&bboxSR=3857&layers=show%3A28&size=256,256&imageSR=3857&format=png32&transparent=true&f=image`;
-				},
-				tileSize: new google.maps.Size(256, 256),
-				opacity: 0.35,
-				name: "FEMA Flood Zone Map",
-			});
-			femaOverlayRef.current = femaType;
-			mapRef.current.overlayMapTypes.insertAt(0, femaType);
-		} else {
-			if (femaOverlayRef.current) {
-				const overlayTypes = mapRef.current.overlayMapTypes;
-				let foundIndex = -1;
-				for (let i = 0; i < overlayTypes.getLength(); i++) {
-					if (overlayTypes.getAt(i) === femaOverlayRef.current) {
-						foundIndex = i;
-						break;
-					}
-				}
-				if (foundIndex > -1) {
-					overlayTypes.removeAt(foundIndex);
-				}
-				femaOverlayRef.current = null;
-			}
-		}
-	}, [showFema]);
-
-	const toggleStreetView = useCallback(() => {
-		if (!mapRef.current) return;
-		const panorama = mapRef.current.getStreetView();
-		const nextState = !streetViewActive;
-		setStreetViewActive(nextState);
-
-		if (nextState) {
-			const centerCoord = mapRef.current.getCenter();
-			if (centerCoord) {
-				panorama.setPosition(centerCoord);
-				panorama.setVisible(true);
-			}
-		} else {
-			panorama.setVisible(false);
-		}
-	}, [streetViewActive]);
 
 	const toggleDroneView = useCallback(() => {
 		if (!ui.details) {
@@ -262,11 +196,6 @@ export default function MapComponent({
 		(map: google.maps.Map) => {
 			mapRef.current = map;
 			map.addListener("idle", refreshData);
-
-			const panorama = map.getStreetView();
-			panorama.addListener("visible_changed", () => {
-				setStreetViewActive(panorama.getVisible());
-			});
 		},
 		[refreshData]
 	);
@@ -314,6 +243,7 @@ export default function MapComponent({
 							</label>
 						</div>
 						
+<<<<<<< HEAD
 						<div className="h-px bg-gray-100" />
 						
 						<div className="flex flex-col gap-3">
@@ -346,6 +276,18 @@ export default function MapComponent({
 						>
 							{showDrone ? "Return to Map" : "Real View / Drone Photos"}
 						</button>
+=======
+						<div className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Drone View</div>
+						
+						<label className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer select-none">
+							<button 
+								className="w-full text-left font-semibold text-primary hover:underline"
+								onClick={toggleDroneView}
+							>
+								{showDrone ? "Return to Map" : "Real View / Drone Photos"}
+							</button>
+						</label>
+>>>>>>> 6fa2d5fa041bd698193e132b7319679ae5631a4f
 					</div>
 				)}
 			</div>

@@ -45,6 +45,7 @@ import createRealEstateJsonLd from "@/hooks/getJsonSchema";
 import SimilarLinksSection from "@/components/search/links-section/similarLinksSection";
 import CityLinksSection from "@/components/search/links-section/cityLinksSection";
 import { Property } from "@/app/generated/prisma/client";
+import WalkScore from "@/components/property/walkscore";
 
 export default async function Listing({
 	params,
@@ -308,6 +309,15 @@ export default async function Listing({
 			</div>
 
 			<div className="w-11/12 my-12 mx-auto">
+				<div className="mb-8">
+					<Suspense>
+						<WalkScore
+							latitude={parseFloat(property.Latitude?.toString() || "")}
+							longitude={parseFloat(property.Longitude?.toString() || "")}
+							address={property.FullAddress}
+						/>
+					</Suspense>
+				</div>
 				<PropertyDetailsTable property={property} />
 				<Suspense>
 					<MortgageCalculator

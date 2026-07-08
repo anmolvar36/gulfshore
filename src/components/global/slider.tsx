@@ -21,14 +21,11 @@ const SliderComponent = ({
 	images: any;
 	address: string;
 }) => {
-	const imageUrl =
-		process.env.IMGURL || "https://gulfshoregroup.com/";
 	const [fullscreenImage, setFullscreenImage] = useState<
 		string | null
 	>(null);
 
-	const imageArray: string[] =
-		images.length > 1 ? images.slice(1) : images;
+	const imageArray: string[] = images || [];
 
 	const openFullscreen = (image: string, index: number) => {
 		setFullscreenImage(image);
@@ -159,7 +156,7 @@ const SliderComponent = ({
 										{imageArray.map((image, index) => (
 											<CarouselItem key={index}>
 												<Image
-													src={imageUrl + image}
+													src={image}
 													alt={address + "-" + (index + 1)}
 													width={2560}
 													height={1440}
