@@ -125,10 +125,10 @@ export default function StickySearchBar() {
 		<div className="sticky px-3 md:px-4 border-b border-gray-200 gap-1.5 h-min py-2 flex flex-col top-0 inset-0 z-50 bg-white/95 backdrop-blur-sm">
 			{/* Row 1: Search box + Map/List toggle */}
 			<div className="flex items-center gap-2 w-full">
-				<SearchBox compact={true} classname="flex-1 md:min-w-[320px] lg:min-w-[400px] flex justify-between p-1 rounded-md bg-white items-center gap-1 border" />
+				<SearchBox compact={true} classname="flex-1 min-w-0 md:min-w-[320px] lg:min-w-[400px] flex justify-between p-1 rounded-md bg-white items-center gap-1 border" />
 				
 				{/* Mobile Filters Button - Always Visible */}
-				<Filters classname="md:hidden flex-shrink-0 !w-auto !px-3" />
+				<Filters classname="!flex md:!hidden flex-shrink-0 !w-auto !px-3" />
 
 				<a
 					className="hidden md:block ml-auto"

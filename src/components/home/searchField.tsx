@@ -416,7 +416,7 @@ const SearchBox = ({
 	return (
 		<div
 			ref={containerRef}
-			className={`relative w-full mx-auto ${compact ? "" : "max-w-4xl"}`}>
+			className={`relative w-full mx-auto min-w-0 ${compact ? "" : "max-w-4xl"}`}>
 			
 			<div className={`flex items-center bg-white border border-gray-200 overflow-hidden transition-all duration-300 focus-within:ring-2 focus-within:ring-primary/20 
 				${compact 
@@ -430,7 +430,7 @@ const SearchBox = ({
 				</div>
 	
 				{/* Input */}
-				<div className="flex-1 h-full">
+				<div className="flex-1 h-full min-w-0">
 					<input
 						ref={inputRef}
 						type="text"
@@ -440,7 +440,7 @@ const SearchBox = ({
 						onFocus={handleFocus}
 						onBlur={handleBlur}
 						placeholder={compact ? "Search city, zip, or address..." : "Search by city, address, or ZIP code"}
-						className={`w-full h-full px-3 font-medium text-gray-800 placeholder:text-gray-400 bg-transparent border-none outline-none 
+						className={`w-full min-w-0 h-full px-3 font-medium text-gray-800 placeholder:text-gray-400 bg-transparent border-none outline-none 
 							${compact ? "text-sm" : "text-[15px] md:text-lg"}`}
 						autoComplete="off"
 						spellCheck="false"
