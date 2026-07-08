@@ -21,19 +21,17 @@ const SliderComponent = ({
 	images: any;
 	address: string;
 }) => {
-	const [fullscreenImage, setFullscreenImage] = useState<
-		string | null
-	>(null);
+	const [fullscreenData, setFullscreenData] = useState<{ url: string; index: number } | null>(null);
 
 	const imageArray: string[] = images || [];
 
 	const openFullscreen = (image: string, index: number) => {
-		setFullscreenImage(image);
+		setFullscreenData({ url: image, index });
 		document.body.style.overflow = "hidden";
 	};
 
 	const closeFullscreen = () => {
-		setFullscreenImage(null);
+		setFullscreenData(null);
 		document.body.style.overflow = "auto";
 	};
 	const [api, setApi] = useState<CarouselApi>();
@@ -129,7 +127,7 @@ const SliderComponent = ({
 			)}
 
 			{/* Fullscreen Modal */}
-			{fullscreenImage && (
+			{fullscreenData && (
 				<div className="fixed inset-0 bg-black/95 backdrop-blur-sm flex flex-col items-center h-full w-full justify-center z-50">
 					<div className="relative w-full h-full max-w-7xl mx-auto px-4">
 						{/* Close Button */}
@@ -151,7 +149,7 @@ const SliderComponent = ({
 								<Carousel
 									setApi={setApi}
 									className="max-w-[98dvw] w-full max-h-[90dvh]"
-									opts={{ align: "center", loop: true }}>
+									opts={{ align: "center", loop: true, startIndex: fullscreenData.index }}>
 									<CarouselContent>
 										{imageArray.map((image, index) => (
 											<CarouselItem key={index}>
