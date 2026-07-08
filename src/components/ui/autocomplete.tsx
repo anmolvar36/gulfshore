@@ -102,8 +102,9 @@ export function AutocompleteInput({
 							<li
 								key={idx}
 								className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-								onMouseDown={(e) => {
-									e.preventDefault(); // Prevent input blur
+								onMouseDown={(e) => e.preventDefault()}
+								onTouchStart={(e) => e.preventDefault()}
+								onClick={(e) => {
 									onChange(option);
 									setIsOpen(false);
 									if (onSelect) {

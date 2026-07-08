@@ -126,6 +126,10 @@ export default function StickySearchBar() {
 			{/* Row 1: Search box + Map/List toggle */}
 			<div className="flex items-center gap-2 w-full">
 				<SearchBox compact={true} classname="flex-1 md:min-w-[320px] lg:min-w-[400px] flex justify-between p-1 rounded-md bg-white items-center gap-1 border" />
+				
+				{/* Mobile Filters Button - Always Visible */}
+				<Filters classname="md:hidden flex-shrink-0 !w-auto !px-3" />
+
 				<a
 					className="hidden md:block ml-auto"
 					href={`${path}?${(() => {
@@ -241,7 +245,7 @@ export default function StickySearchBar() {
 						</DropdownMenuContent>
 					</DropdownMenu>
 
-					<Filters classname="!inline-flex" />
+					<Filters classname="hidden md:!inline-flex" />
 					<SortComponent />
 					<SaveSearchButton />
 				</div>

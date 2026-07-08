@@ -415,9 +415,12 @@ export default function MobileFiltersModal({
 						{/* Filters */}
 						<div className="space-y-4">
 							<div className="border-t border-gray-200 pt-6">
-								<h3 className="text-sm font-medium text-gray-700 mb-3">
+								<h3 className="text-sm font-medium text-gray-700 mb-1">
 									Filters
 								</h3>
+								<p className="text-xs text-gray-500 mb-3">
+									Tip: Type at least 2 letters in Community, Subdivision, or School to auto-generate options.
+								</p>
 								<div className="space-y-3">
 									<div className="flex flex-col gap-6 my-3">
 										<div className="flex flex-col space-y-2">

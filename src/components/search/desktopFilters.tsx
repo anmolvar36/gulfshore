@@ -335,6 +335,9 @@ export const Filters = ({
 			<DialogContent className="max-w-3xl max-h-[99dvh] md:max-h-[90vh] overflow-y-auto sm:rounded-2xl rounded-2xl">
 				<DialogHeader>
 					<DialogTitle>Filters</DialogTitle>
+					<p className="text-sm text-gray-500 text-left">
+						Tip: Type at least 2 letters in Community, Subdivision, or School to auto-generate search options.
+					</p>
 				</DialogHeader>
 
 				{/* Grid of filters */}
@@ -375,7 +378,7 @@ export const Filters = ({
 							value={communityInput}
 							onChange={setCommunityInput}
 							className="text-sm"
-							placeholder="e.g. Pelican Bay"
+							placeholder="Type 2+ letters (e.g. Pelican Bay)"
 						/>
 					</div>
 					{/* Zipcode */}
@@ -564,7 +567,7 @@ export const Filters = ({
 							value={subdivision}
 							onChange={setSubdivision}
 							className="text-sm"
-							placeholder="e.g. Pelican Bay"
+							placeholder="Type 2+ letters (e.g. Pelican)"
 						/>
 					</div>
 					<div className="flex flex-col space-y-2">
@@ -576,7 +579,7 @@ export const Filters = ({
 							value={school}
 							onChange={setSchool}
 							className="text-sm"
-							placeholder="e.g. Barron Collier High"
+							placeholder="Type 2+ letters..."
 						/>
 					</div>
 					<div className="flex flex-col space-y-2">
@@ -690,7 +693,7 @@ export const Filters = ({
 							value={minAcres}
 							onChange={(e) => setMinAcres(e.target.value)}
 							className="text-sm"
-							placeholder="e.g. 0.5"
+							placeholder="Type 2+ letters..."
 						/>
 					</div>
 
