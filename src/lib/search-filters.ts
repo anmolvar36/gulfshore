@@ -29,6 +29,7 @@ const FILTER_KEYS: (keyof Filters)[] = [
 	"school",
 	"mls",
 	"address",
+	"developmentName",
 ];
 
 const BASE_SEARCH_PATH = "/Florida-Real-Estate-Search";

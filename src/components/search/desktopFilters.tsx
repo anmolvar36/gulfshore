@@ -1,9 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Input } from "../ui/input";
+import { AutocompleteInput } from "../ui/autocomplete";
 import { Button } from "../ui/button";
 import { ChevronDown, LoaderIcon, Settings2 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -91,6 +93,7 @@ export const Filters = ({
 	const searchParams = useSearchParams();
 	const [loading, setLoading] = useState<boolean>(false);
 	const pathname = usePathname();
+	const { isLoaded, isSignedIn } = useAuth();
 
 	// States
 	const [propertyType, setPropertyType] = useState<string[]>([]);
@@ -120,7 +123,7 @@ export const Filters = ({
 		const parsed = parseFiltersFromSearchParams(searchParams);
 		const location = parseLocationFromPathname(pathname);
 		setCity(location.city || "");
-		setCommunityInput(location.developmentName || reduxFilters.developmentName || "");
+		setCommunityInput(location.developmentName || parsed.developmentName || reduxFilters.developmentName || "");
 		setSubdivision(parsed.subdivision || "");
 		setSchool(parsed.school || "");
 		setAddress(parsed.address || "");
@@ -191,7 +194,7 @@ export const Filters = ({
 		const nextQuery = buildQueryFromFilters(nextFilters, searchParams);
 		const nextPath = buildSearchPathWithLocation({
 			city,
-			developmentName: community || "",
+			developmentName: communityInput || community || "",
 		});
 		dispatch(setFilters(nextFilters));
 		router.replace(`${nextPath}?${nextQuery.toString()}`, {
@@ -204,6 +207,14 @@ export const Filters = ({
 	};
 
 	const handleSaveSearch = async (url: string) => {
+		if (!isLoaded) return;
+		if (!isSignedIn) {
+			toast.info("Sign in to save searches", {
+				description: "Create an account or log in to save this search.",
+			});
+			router.push("/signup");
+			return;
+		}
 		try {
 			setLoading(true);
 			const filters = {
@@ -301,7 +312,7 @@ export const Filters = ({
 		const nextQuery = buildQueryFromFilters(nextFilters, searchParams);
 		const nextPath = buildSearchPathWithLocation({
 			city,
-			developmentName: community || "",
+			developmentName: communityInput || community || "",
 		});
 		const nextUrl = `${nextPath}?${nextQuery.toString()}`;
 		handleSaveSearch(nextUrl);
@@ -328,6 +339,9 @@ export const Filters = ({
 			<DialogContent className="max-w-3xl max-h-[99dvh] md:max-h-[90vh] overflow-y-auto sm:rounded-2xl rounded-2xl">
 				<DialogHeader>
 					<DialogTitle>Filters</DialogTitle>
+					<p className="text-sm text-gray-500 text-left">
+						Tip: Type at least 2 letters in Community, Subdivision, or School to auto-generate search options.
+					</p>
 				</DialogHeader>
 
 				{/* Grid of filters */}
@@ -363,12 +377,12 @@ export const Filters = ({
 						<Label className="text-sm font-medium text-gray-900">
 							Community
 						</Label>
-						<Input
-							type="text"
+						<AutocompleteInput
+							type="community"
 							value={communityInput}
-							onChange={(e) => setCommunityInput(e.target.value)}
+							onChange={setCommunityInput}
 							className="text-sm"
-							placeholder="e.g. Pelican Bay"
+							placeholder="Type 2+ letters (e.g. Pelican Bay)"
 						/>
 					</div>
 					{/* Zipcode */}
@@ -552,24 +566,24 @@ export const Filters = ({
 						<Label className="text-sm font-medium text-gray-900">
 							Subdivision
 						</Label>
-						<Input
-							type="text"
+						<AutocompleteInput
+							type="subdivision"
 							value={subdivision}
-							onChange={(e) => setSubdivision(e.target.value)}
+							onChange={setSubdivision}
 							className="text-sm"
-							placeholder="e.g. Pelican Bay"
+							placeholder="Type 2+ letters (e.g. Pelican)"
 						/>
 					</div>
 					<div className="flex flex-col space-y-2">
 						<Label className="text-sm font-medium text-gray-900">
 							School
 						</Label>
-						<Input
-							type="text"
+						<AutocompleteInput
+							type="school"
 							value={school}
-							onChange={(e) => setSchool(e.target.value)}
+							onChange={setSchool}
 							className="text-sm"
-							placeholder="e.g. Barron Collier High"
+							placeholder="Type 2+ letters..."
 						/>
 					</div>
 					<div className="flex flex-col space-y-2">
@@ -683,7 +697,7 @@ export const Filters = ({
 							value={minAcres}
 							onChange={(e) => setMinAcres(e.target.value)}
 							className="text-sm"
-							placeholder="e.g. 0.5"
+							placeholder="Type 2+ letters..."
 						/>
 					</div>
 

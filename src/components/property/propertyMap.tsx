@@ -1,5 +1,9 @@
 "use client";
 
+import React, { useRef, useCallback, useState } from "react";
+import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
+import { Layers, ChevronDown } from "lucide-react";
+
 interface PropertyMapProps {
 	property: any;
 	Latitude: number;
@@ -15,11 +19,108 @@ const mapContainerStyle = {
 	overflow: "hidden",
 };
 
-const PropertyMap = ({
-	property,
-	Latitude,
-	Longitude,
-}: PropertyMapProps) => {
+export default function PropertyMap({ property, Latitude, Longitude }: PropertyMapProps) {
+	const [mapTypeId, setMapTypeId] = useState<"roadmap" | "hybrid">("roadmap");
+	const [streetViewActive, setStreetViewActive] = useState(false);
+	const [showFema, setShowFema] = useState(false);
+	const [showDrone, setShowDrone] = useState(false);
+	const [dropdownOpen, setDropdownOpen] = useState(false);
+	
+	const dropdownRef = useRef<HTMLDivElement>(null);
+	const femaOverlayRef = useRef<google.maps.ImageMapType | null>(null);
+	const mapRef = useRef<google.maps.Map | null>(null);
+
+	const { isLoaded } = useJsApiLoader({
+		id: "google-map-script",
+		googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "AIzaSyBQwpzlVeV9AI6FETYYUmLt730XEKRdfAY",
+	});
+
+	// close dropdown on click outside
+	React.useEffect(() => {
+		function handleClickOutside(event: MouseEvent) {
+			if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+				setDropdownOpen(false);
+			}
+		}
+		document.addEventListener("mousedown", handleClickOutside);
+		return () => document.removeEventListener("mousedown", handleClickOutside);
+	}, []);
+
+	const toggleFemaLayer = useCallback(() => {
+		if (!mapRef.current) return;
+		const nextState = !showFema;
+		setShowFema(nextState);
+
+		if (nextState) {
+			const femaType = new google.maps.ImageMapType({
+				getTileUrl: (coord, zoom) => {
+					const initialResolution = 2 * Math.PI * 6378137 / 256;
+					const originShift = 2 * Math.PI * 6378137 / 2;
+					const zoomResolution = initialResolution / (1 << zoom);
+					const tileWidth = 256 * zoomResolution;
+					const minX = coord.x * tileWidth - originShift;
+					const maxX = (coord.x + 1) * tileWidth - originShift;
+					const minY = originShift - (coord.y + 1) * tileWidth;
+					const maxY = originShift - coord.y * tileWidth;
+					const bbox = `${minX},${minY},${maxX},${maxY}`;
+					return `https://hazards.fema.gov/gis/nfhl/rest/services/public/NFHL/MapServer/export?bbox=${bbox}&bboxSR=3857&layers=show%3A28&size=256,256&imageSR=3857&format=png32&transparent=true&f=image`;
+				},
+				tileSize: new google.maps.Size(256, 256),
+				opacity: 0.35, // Made highly transparent so Satellite is visible
+				name: "FEMA Flood Zone Map",
+			});
+			femaOverlayRef.current = femaType;
+			mapRef.current.overlayMapTypes.insertAt(0, femaType);
+		} else {
+			if (femaOverlayRef.current) {
+				const overlayTypes = mapRef.current.overlayMapTypes;
+				for (let i = 0; i < overlayTypes.getLength(); i++) {
+					if (overlayTypes.getAt(i) === femaOverlayRef.current) {
+						overlayTypes.removeAt(i);
+						break;
+					}
+				}
+				femaOverlayRef.current = null;
+			}
+		}
+	}, [showFema]);
+
+	const toggleStreetView = useCallback(() => {
+		if (!mapRef.current) return;
+		const panorama = mapRef.current.getStreetView();
+		const nextState = !streetViewActive;
+		setStreetViewActive(nextState);
+
+		if (nextState) {
+			panorama.setPosition({ lat: Latitude, lng: Longitude });
+			panorama.setVisible(true);
+		} else {
+			panorama.setVisible(false);
+		}
+	}, [streetViewActive, Latitude, Longitude]);
+
+	const toggleDroneView = useCallback(() => {
+		const hasVirtualTour = property?.VirtualTourURLBranded || property?.VirtualTourURLUnbranded;
+		if (hasVirtualTour) {
+			setShowDrone(!showDrone);
+			setDropdownOpen(false);
+		} else {
+			alert("Drone / Real View photos are not available for this property.");
+		}
+	}, [property, showDrone]);
+
+	const onLoad = useCallback((map: google.maps.Map) => {
+		mapRef.current = map;
+		const panorama = map.getStreetView();
+		panorama.addListener("visible_changed", () => {
+			setStreetViewActive(panorama.getVisible());
+		});
+	}, []);
+
+	const onUnmount = useCallback(() => {
+		mapRef.current = null;
+	}, []);
+
 	if (!Latitude || !Longitude) {
 		return (
 			<div className="text-gray-500 text-sm p-4 bg-gray-50 border rounded-lg text-center">
@@ -28,32 +129,107 @@ const PropertyMap = ({
 		);
 	}
 
-	// Centering the Leaflet/OpenStreetMap bounding box around property coordinates
-	const delta = 0.003;
-	const minLng = Longitude - delta;
-	const minLat = Latitude - delta;
-	const maxLng = Longitude + delta;
-	const maxLat = Latitude + delta;
-	const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${minLng}%2C${minLat}%2C${maxLng}%2C${maxLat}&layer=mapnik&marker=${Latitude}%2C${Longitude}`;
-
 	return (
 		<div>
 			<h4 className="text-lg lg:text-xl font-medium text-gray-900 mb-4">
-				Map View (OpenStreetMap)
+				Property Map & Views
 			</h4>
-			<div style={mapContainerStyle}>
-				<iframe
-					title="Property Location Map"
-					width="100%"
-					height="100%"
-					frameBorder="0"
-					scrolling="no"
-					src={mapUrl}
-					style={{ border: 0 }}
-				/>
+			<div className="relative" style={mapContainerStyle}>
+				
+				<div className="absolute top-4 left-4 z-50" ref={dropdownRef}>
+					<button
+						onClick={() => setDropdownOpen(!dropdownOpen)}
+						className="flex items-center gap-1.5 px-3 py-2 bg-white text-gray-800 border border-gray-200 rounded-lg shadow-md font-medium text-xs hover:bg-gray-50 transition-colors cursor-pointer"
+					>
+						<Layers size={13} className="text-[#B89A6A]" />
+						<span>Map Options</span>
+						<ChevronDown size={11} className="text-gray-400" />
+					</button>
+					
+					{dropdownOpen && (
+						<div className="absolute left-0 mt-1.5 w-48 bg-white border border-gray-200 rounded-xl shadow-xl p-3 z-50 flex flex-col gap-2.5">
+							<div className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Map Style</div>
+							<label className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer select-none">
+								<input
+									type="radio"
+									name="propMapStyle"
+									checked={mapTypeId === "roadmap" && !showDrone}
+									onChange={() => { setMapTypeId("roadmap"); setShowDrone(false); }}
+									className="text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1 cursor-pointer"
+								/>
+								Standard Map
+							</label>
+							<label className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer select-none">
+								<input
+									type="radio"
+									name="propMapStyle"
+									checked={mapTypeId === "hybrid" && !showDrone}
+									onChange={() => { setMapTypeId("hybrid"); setShowDrone(false); }}
+									className="text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1 cursor-pointer"
+								/>
+								Satellite View
+							</label>
+							
+							<div className="h-px bg-gray-100 my-0.5" />
+							
+							<div className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Overlays & Views</div>
+							<label className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer select-none">
+								<input
+									type="checkbox"
+									checked={showFema}
+									onChange={toggleFemaLayer}
+									className="rounded text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1 cursor-pointer"
+								/>
+								FEMA Flood Map
+							</label>
+							<label className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer select-none">
+								<input
+									type="checkbox"
+									checked={streetViewActive}
+									onChange={toggleStreetView}
+									className="rounded text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1 cursor-pointer"
+								/>
+								Street View Mode
+							</label>
+							
+							<label className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer select-none mt-1">
+								<button 
+									className="w-full text-left font-semibold text-primary hover:underline"
+									onClick={toggleDroneView}
+								>
+									{showDrone ? "Return to Map" : "Real View / Drone Photos"}
+								</button>
+							</label>
+						</div>
+					)}
+				</div>
+
+				{showDrone ? (
+					<iframe 
+						src={property?.VirtualTourURLBranded || property?.VirtualTourURLUnbranded} 
+						className="w-full h-full border-0"
+						title="Drone / Real View"
+					/>
+				) : (
+					isLoaded && (
+						<GoogleMap
+							onLoad={onLoad}
+							onUnmount={onUnmount}
+							center={{ lat: Latitude, lng: Longitude }}
+							zoom={16}
+							mapTypeId={mapTypeId}
+							mapContainerStyle={{ width: "100%", height: "100%" }}
+							options={{
+								mapTypeControl: false,
+								streetViewControl: false,
+								fullscreenControl: true,
+							}}
+						>
+							<Marker position={{ lat: Latitude, lng: Longitude }} />
+						</GoogleMap>
+					)
+				)}
 			</div>
 		</div>
 	);
-};
-
-export default PropertyMap;
+}
