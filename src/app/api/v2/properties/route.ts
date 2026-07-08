@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { redisGet, redisSet } from "@/lib/safeRedis";
 
-const MAX_LIMIT = 100;
+const MAX_LIMIT = 200;
 
 function parseNumber(value?: string | null) {
 	if (!value) return undefined;
@@ -422,7 +422,10 @@ export async function GET(req: NextRequest) {
 					communityId: true,
 					raw: true,
 				  },
-				orderBy: { [sortField]: sortOrder },
+				orderBy: [
+					{ [sortField]: sortOrder },
+					{ id: "asc" }
+				],
 			}),
 		]);
 

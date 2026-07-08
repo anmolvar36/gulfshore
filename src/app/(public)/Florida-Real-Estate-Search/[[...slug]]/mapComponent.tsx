@@ -157,13 +157,14 @@ export default function MapComponent({
 							...bounds,
 						})
 					);
+					dispatch(setLimit(100));
 
 					dispatch(fetchProperties());
 				};
 				fetchdata();
 			} else {
 				dispatch(setCoordinates(bounds));
-				dispatch(setLimit(40));
+				dispatch(setLimit(100));
 				dispatch(fetchProperties());
 			}
 		}, 650),

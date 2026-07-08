@@ -29,8 +29,7 @@ export default async function fetchMetadataFromSlug(
 ): Promise<MetaData> {
 	try {
 		const slugs = await ExtractSearchParams(params);
-		const url = "https://gulfshoregroup.com";
-		// const url = "http://localhost:3000";
+		const url = typeof window === 'undefined' ? (process.env.NEXT_PUBLIC_SERVER_URL || "https://gulfshoregroup.com") : "";
 
 		const query = new URLSearchParams(slugs as any).toString();
 

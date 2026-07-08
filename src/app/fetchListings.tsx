@@ -44,7 +44,7 @@ export async function useSearchFilters(slugs: string[]) {
 	const parts = slugs;
 	const filters = await ExtractSearchParams(parts);
 
-	const url = "https://gulfshoregroup.com";
+	const url = process.env.NEXT_PUBLIC_SERVER_URL || "https://gulfshoregroup.com";
 	const res = await axios.get(`${url}/api/v2/properties`, {
 		params: {
 			...filters,

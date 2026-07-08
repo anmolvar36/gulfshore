@@ -2,8 +2,9 @@ import capitalizeWords from "@/hooks/capitalize-letter";
 
 async function fetchCommunities(city: string) {
 	try {
+		const url = typeof window === 'undefined' ? (process.env.NEXT_PUBLIC_SERVER_URL || "https://gulfshoregroup.com") : "";
 		const res = await fetch(
-			`https://gulfshoregroup.com/api/v2/cities/${capitalizeWords(
+			`${url}/api/v2/cities/${capitalizeWords(
 				city.replaceAll("-", " ")
 			)}/communities/`
 		);
