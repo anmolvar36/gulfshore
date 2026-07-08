@@ -60,7 +60,7 @@ export default function OwnerCard({
 
 						<span>
 							<p className="mt-4 text-gray-700 text-sm max-w-md">
-								With over a decade of experience in the Southwest
+								With over two decade of experience in the Southwest
 								Florida real estate market, Dimitri Schwarz is
 								dedicated to helping clients find their dream homes.
 								His expertise, personalized approach, and local market

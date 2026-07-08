@@ -2,6 +2,7 @@ import ExtractSearchParams from "@/hooks/extractSearchParams";
 import MapViewList from "./mapViewList";
 import React from "react";
 import { parseFiltersFromQuery } from "@/lib/search-filters";
+import CityFAQ from "@/components/city/city-faq";
 
 export default async function ListingsPage({
 	params,
@@ -28,9 +29,12 @@ export default async function ListingsPage({
 	};
 
 	return (
-		<MapViewList
-			filter={filter}
-			view={view === "map" ? "map" : "list"}
-		/>
+		<>
+			<MapViewList
+				filter={filter}
+				view={view === "map" ? "map" : "list"}
+			/>
+			<CityFAQ city={filter.city} />
+		</>
 	);
 }

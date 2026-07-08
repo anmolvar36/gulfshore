@@ -243,7 +243,11 @@ export default function MobileFiltersModal({
 				},
 			});
 		} catch (error: any) {
-			toast("Failed to save search");
+			if (error.response?.status === 400 && error.response?.data?.error === "userId is required") {
+				toast.error("Please login to save your search.");
+			} else {
+				toast.error("Failed to save search");
+			}
 		} finally {
 			setLoading(false);
 		}

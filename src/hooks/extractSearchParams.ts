@@ -148,7 +148,7 @@ export default async function ExtractSearchParams(
 			else if (slug.startsWith("keyword-")) {
 				const keyword = slug.replace("keyword-", "");
 				if (keyword === "waterfront") features.push("waterfront");
-				else if (keyword === "spa") features.push("waterfront");
+				else if (keyword === "spa") features.push("spa");
 				else if (keyword === "pool") features.push("pool");
 				else if (keyword === "gulfaccess")
 					features.push("gulfaccess");

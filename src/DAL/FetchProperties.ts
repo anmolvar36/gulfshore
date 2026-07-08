@@ -18,9 +18,7 @@ export default async function FetchProperties(params: string[]) {
 export async function FetchProperty(params: string) {
 	const slug = decodeURIComponent(params);
 	try {
-		const baseUrl =
-			process.env.NEXT_PUBLIC_SERVER_URL ||
-			"https://gulfshoregroup.com";
+		const baseUrl = typeof window === 'undefined' ? (process.env.NEXT_PUBLIC_SERVER_URL || "https://gulfshoregroup.com") : "";
 
 		const res = await fetch(`${baseUrl}/api/v2/properties/${slug}`, {
 			method: "GET",
@@ -31,8 +29,7 @@ export async function FetchProperty(params: string) {
 			return response.data;
 		}
 	} catch (error) {
-		return redirect(
-			`https://gulfshoregroup.com/Florida-Real-Estate-Search`
-		);
+		const url = typeof window === 'undefined' ? (process.env.NEXT_PUBLIC_SERVER_URL || "https://gulfshoregroup.com") : "";
+		return redirect(`${url}/Florida-Real-Estate-Search`);
 	}
 }
