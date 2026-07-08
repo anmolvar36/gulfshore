@@ -45,11 +45,8 @@ import createRealEstateJsonLd from "@/hooks/getJsonSchema";
 import SimilarLinksSection from "@/components/search/links-section/similarLinksSection";
 import CityLinksSection from "@/components/search/links-section/cityLinksSection";
 import { Property } from "@/app/generated/prisma/client";
-<<<<<<< HEAD
 import SimilarPropertiesCarousel from "@/components/property/similarPropertiesCarousel";
-=======
 import WalkScore from "@/components/property/walkscore";
->>>>>>> 5b1e20237baa93513255728fff61b4fd49d472ee
 
 export default async function Listing({
 	params,
@@ -203,7 +200,7 @@ export default async function Listing({
 									const city = property.City || "";
 									const state = property.StateOrProvince || "FL";
 									const zip = property.PostalCode || "";
-									
+
 									if (address.toLowerCase().includes(city.toLowerCase())) {
 										return capitalizeWords(address).replace(" Fl", " FL");
 									}
@@ -340,8 +337,8 @@ export default async function Listing({
 						<span className="text-primary">
 							{capitalizeWords(
 								property.Community ||
-									(property.raw as any)?.MLSAreaMajor ||
-									""
+								(property.raw as any)?.MLSAreaMajor ||
+								""
 							)}
 							, {capitalizeWords(property.City)} Florida
 						</span>
