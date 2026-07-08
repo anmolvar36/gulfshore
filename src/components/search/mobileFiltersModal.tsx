@@ -472,7 +472,7 @@ export default function MobileFiltersModal({
 											<Label className="text-sm font-medium text-gray-900 mb-2 block">
 												Property Type
 											</Label>
-											<div className="grid grid-cols-3 gap-4">
+											<div className="grid grid-cols-2 gap-4">
 												{propertyTypeOptions.map((type) => (
 													<div
 														key={type.value}
@@ -506,7 +506,7 @@ export default function MobileFiltersModal({
 											<Label className="text-sm font-medium text-gray-900 mb-2 block">
 												Features
 											</Label>
-											<div className="grid grid-cols-3 gap-4">
+											<div className="grid grid-cols-2 gap-4">
 												{["Gulf Access", "Waterfront", "Pool", "Garage", "Spa"].map(
 													(f, i) => (
 														<div

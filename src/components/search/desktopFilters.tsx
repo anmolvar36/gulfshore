@@ -606,7 +606,7 @@ export const Filters = ({
 						<Label className="text-sm font-medium text-gray-900 mb-2 block">
 							Property Type
 						</Label>
-						<div className="grid grid-cols-3 gap-4">
+						<div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
 							{propertyTypeOptions.map((type, i) => (
 								<div key={i} className="flex items-center space-x-2">
 									<Checkbox
@@ -634,7 +634,7 @@ export const Filters = ({
 						<Label className="text-sm font-medium text-gray-900 mb-2 block">
 							Features
 						</Label>
-						<div className="grid grid-cols-3 gap-4">
+						<div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
 							{[
 								"Gulf Access",
 								"Waterfront",
