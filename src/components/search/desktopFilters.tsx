@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Input } from "../ui/input";
+import { AutocompleteInput } from "../ui/autocomplete";
 import { Button } from "../ui/button";
 import { ChevronDown, LoaderIcon, Settings2 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -359,10 +360,10 @@ export const Filters = ({
 						<Label className="text-sm font-medium text-gray-900">
 							Community
 						</Label>
-						<Input
-							type="text"
+						<AutocompleteInput
+							type="community"
 							value={communityInput}
-							onChange={(e) => setCommunityInput(e.target.value)}
+							onChange={setCommunityInput}
 							className="text-sm"
 							placeholder="e.g. Pelican Bay"
 						/>
@@ -548,10 +549,10 @@ export const Filters = ({
 						<Label className="text-sm font-medium text-gray-900">
 							Subdivision
 						</Label>
-						<Input
-							type="text"
+						<AutocompleteInput
+							type="subdivision"
 							value={subdivision}
-							onChange={(e) => setSubdivision(e.target.value)}
+							onChange={setSubdivision}
 							className="text-sm"
 							placeholder="e.g. Pelican Bay"
 						/>
@@ -560,10 +561,10 @@ export const Filters = ({
 						<Label className="text-sm font-medium text-gray-900">
 							School
 						</Label>
-						<Input
-							type="text"
+						<AutocompleteInput
+							type="school"
 							value={school}
-							onChange={(e) => setSchool(e.target.value)}
+							onChange={setSchool}
 							className="text-sm"
 							placeholder="e.g. Barron Collier High"
 						/>
