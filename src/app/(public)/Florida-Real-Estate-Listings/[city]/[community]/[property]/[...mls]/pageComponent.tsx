@@ -8,7 +8,7 @@ import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DialogTrigger } from "@radix-ui/react-dialog";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
 import { SignIn } from "@clerk/clerk-react";
@@ -208,6 +208,7 @@ export default function PropertyDetail(property: Property) {
 								</span>
 							</DialogTrigger>
 							<DialogContent className="w-[90vw] lg:w-full md:w-full rounded-md">
+								<DialogTitle className="sr-only">Contact Options</DialogTitle>
 								<div className="py-5 px-2 flex flex-col gap-2">
 									<h2 className="py-2 font-medium text-base">
 										Gulfshore Group

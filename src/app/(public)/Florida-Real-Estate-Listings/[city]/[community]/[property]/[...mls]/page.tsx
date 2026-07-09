@@ -335,12 +335,7 @@ export default async function Listing({
 					<h2 className="py-4 px-2 font-semibold mt-10 lg:mt-12 text-lg lg:text-xl">
 						Similar Properties in{" "}
 						<span className="text-primary">
-							{capitalizeWords(
-								property.Community ||
-								(property.raw as any)?.MLSAreaMajor ||
-								""
-							)}
-							, {capitalizeWords(property.City)} Florida
+							{development}, {capitalizeWords(property.City)} Florida
 						</span>
 					</h2>
 				}
@@ -354,8 +349,7 @@ export default async function Listing({
 						if (type === "Land" || type.includes("Lot")) return "Residential-Lots";
 						return "Homes";
 					})(),
-					development: property.Development || "",
-					developmentName: property.Community || property.Development || "",
+					developmentName: development,
 					sort: "CurrentPrice",
 					limit: "5",
 					order: "desc",

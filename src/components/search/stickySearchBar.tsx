@@ -76,10 +76,29 @@ export default function StickySearchBar() {
 		});
 	};
 
-	const onQuickPropertyTypeToggle = (value: string, checked: boolean) => {
+	const onPropertyTypeToggle = (value: string, checked: boolean) => {
 		const nextTypes = checked
 			? [...filters.propertyTypes, value]
 			: filters.propertyTypes.filter((t) => t !== value);
+		const nextFilters = {
+			...filters,
+			propertyTypes: nextTypes,
+			page: "1",
+		};
+		const nextParams = buildQueryFromFilters(nextFilters, params);
+		dispatch(setFilters(nextFilters));
+		router.replace(`${path}?${nextParams.toString()}`, { scroll: false });
+		dispatch(fetchProperties());
+		window.scrollTo({ top: 0, behavior: "smooth" });
+		document.getElementById("container")?.scrollTo({
+			top: 0,
+			behavior: "smooth",
+		});
+	};
+
+	const onQuickCategoryToggle = (value: string, checked: boolean) => {
+		// Single-select behavior for quick chips: if checking, clear others and set this one. If unchecking, clear all.
+		const nextTypes = checked ? [value] : [];
 		const nextFilters = {
 			...filters,
 			propertyTypes: nextTypes,
@@ -159,7 +178,7 @@ export default function StickySearchBar() {
 						return (
 							<button
 								key={value}
-								onClick={() => onQuickPropertyTypeToggle(value, !active)}
+								onClick={() => onQuickCategoryToggle(value, !active)}
 								className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium transition-colors whitespace-nowrap
 									${active
 										? "bg-primary text-white border-primary"
@@ -237,7 +256,7 @@ export default function StickySearchBar() {
 									key={type.value}
 									checked={filters.propertyTypes.includes(type.value)}
 									onCheckedChange={(checked) =>
-										onQuickPropertyTypeToggle(type.value, Boolean(checked))
+										onPropertyTypeToggle(type.value, Boolean(checked))
 									}>
 									{type.label}
 								</DropdownMenuCheckboxItem>
