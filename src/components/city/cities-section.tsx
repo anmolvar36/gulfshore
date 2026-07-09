@@ -95,21 +95,21 @@ export default function CitiesSection() {
 											);
 										}}
 										key={index}
-										className={`h-64 w-52 md:w-56 group overflow-hidden hover:underline hover:cursor-pointer rounded-xl shrink-0`}>
-										<div className="relative">
+										className="h-64 w-52 md:w-56 group relative overflow-hidden hover:cursor-pointer rounded-2xl border-0 shadow-md shrink-0">
+										<div className="relative h-full w-full">
 											<Image
-											  unoptimized
+												unoptimized
 												src={city.defaultImage || (Array.isArray(city.images) ? city.images[0] : null) || "/map-bg.webp"}
-												width={160}
-												height={400}
-												className="h-64 w-56 group-hover:scale-110 transition duration-800 ease-in-out md:w-56 opacity-95 rounded-lg"
+												width={240}
+												height={320}
+												className="h-full w-full object-cover group-hover:scale-110 transition duration-500 ease-in-out"
 												alt={`/Florida-Real-Estate-Search/${city.name}`}
 											/>
-											<div className="h-full w-full pb-16 bg-black/60  rounded-lg absolute top-0 left-0 bg-cover flex flex-col justify-end gap-4 items-center text-center  font-medium text-medium">
-												<span className="font-bold  text-white inset-0 text-xl">
+											<div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-4 text-center">
+												<span className="font-bold text-white text-lg md:text-xl tracking-wide drop-shadow-sm">
 													{city.name}
 												</span>
-												<span className="text-sm font-bold text-gray-100">
+												<span className="text-xs md:text-sm font-semibold text-gray-200 mt-1">
 													{(city._count?.properties ?? city._count?.communities ?? 0)} Listings
 												</span>
 											</div>
@@ -119,8 +119,8 @@ export default function CitiesSection() {
 							);
 						})}
 					</CarouselContent>
-					<CarouselPrevious className="xl:-left-3 w-10 h-10 -left-3 md:bottom-2/6 bottom-2/6 bg-accent " />
-					<CarouselNext className="xl:-right-3 w-10 h-10 -right-3 bottom-2/6 md:bottom-2/6 bg-accent" />
+					<CarouselPrevious className="w-9 h-9 left-1 md:-left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white shadow-md border-0" />
+					<CarouselNext className="w-9 h-9 right-1 md:-right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white shadow-md border-0" />
 				</Carousel>
 			</div>
 		</>
