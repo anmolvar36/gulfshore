@@ -36,7 +36,9 @@ export function useTrackViewedProperty(propertyId: string) {
 		trackedRef.current = true;
 
 		trackPropertyView(propertyId).catch((error) => {
-			console.error("[trackViewedProperty]", error);
+			if (error?.name !== "LeadAuthRequiredError") {
+				console.error("[trackViewedProperty]", error);
+			}
 			trackedRef.current = false;
 		});
 	}, [isLoaded, isSignedIn, propertyId]);
