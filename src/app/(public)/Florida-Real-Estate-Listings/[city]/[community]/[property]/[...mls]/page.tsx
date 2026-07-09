@@ -385,25 +385,32 @@ export default async function Listing({
 					<div className="rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
 						<div className="flex flex-col items-center lg:flex-row">
 							{/* Image Section */}
-							<div className="lg:w-2/5 relative">
+							<Link
+								href={`/Florida-Real-Estate-Search/${capitalizeWords(
+									property.City || "Naples"
+								).replaceAll(" ", "-")}`}
+								className="lg:w-2/5 relative group cursor-pointer block overflow-hidden">
 								<div className="relative rounded-xl overflow-hidden lg:h-full">
 									<Image
-										className="w-full h-full rounded-2xl overflow-hidden object-cover"
+										className="w-full h-full rounded-2xl overflow-hidden object-cover group-hover:scale-105 transition-transform duration-500"
 										width={450}
 										height={400}
 										alt={`${Meta?.city || property.City || "Florida"} city view`}
 										src={Meta?.content?.Images?.[0] || "/map-bg.webp"}
 									/>
-									<div className="absolute h-full bottom-0 left-0 right-0 text-center bg-linear-to-t from-gray-800/60 via-black/70 to-gray-800/50 p-4">
-										<div className="flex flex-col items-center justify-center h-full">
-											<span className="text-xl lg:text-3xl font-bold text-white leading-tight">
+									<div className="absolute h-full bottom-0 left-0 right-0 text-center bg-linear-to-t from-gray-900/80 via-black/60 to-transparent p-4 flex flex-col justify-end">
+										<div className="flex flex-col items-center justify-end h-full pb-4">
+											<span className="text-xl lg:text-3xl font-bold text-white leading-tight drop-shadow-md">
 												{Meta?.community || development || property.Community || "Port Royal"}
 												{Meta?.city || property.City ? `, ${Meta?.city || property.City}` : ""}
+											</span>
+											<span className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-full text-xs font-semibold text-white transition-colors">
+												Explore Area Map & Listings →
 											</span>
 										</div>
 									</div>
 								</div>
-							</div>
+							</Link>
 
 							{/* Content Section */}
 							<div className="lg:w-3/5 p-6 sm:p-8 lg:p-10">
