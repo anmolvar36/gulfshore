@@ -115,7 +115,7 @@ export default async function RootLayout({
 							)}
 
 							<div>
-								{seoData.content && seoData.content.Images?.length ? (
+								{seoData.content && seoData.content.infoText && seoData.content.infoText.trim().length > 0 ? (
 									<section className="mt-14 container mx-auto md:mt-16 lg:mt-20">
 										<div className="mx-auto  lg:px-8 px-4 sm:px-6">
 											<div className="rounded-2xl w-full overflow-hidden">
@@ -130,17 +130,14 @@ export default async function RootLayout({
 																loading="lazy"
 																alt={`${filtersParams.city} Real Estate For Sale`}
 																src={
-																	seoData.content.defaultImage || ""
+																	seoData.content.defaultImage || "/map-bg.webp"
 																}
 															/>
 															<div className="absolute h-full bottom-0 left-0 right-0 text-center bg-linear-to-tr to-gray-800/60 via-black/50 from-black">
 																<div className="flex flex-col items-start justify-end h-full">
 																	<span className="text-xl px-5 pb-6 lg:text-3xl font-bold text-white inline-flex items-center leading-tight">
 																		<div className="w-1 h-8 bg-accent rounded-full mr-1"></div>
-																		{seoData.community}{" "}
-																		{seoData.city &&
-																			`${seoData.city}, `}{" "}
-																		FL
+																		{seoData.community || filtersParams.community || filtersParams.city || "Florida"} FL
 																	</span>
 																</div>
 															</div>
@@ -154,10 +151,7 @@ export default async function RootLayout({
 																<div className="flex items-center space-x-2">
 																	<div className="w-1 h-8 bg-accent rounded-full"></div>
 																	<h2 className="text-2xl lg:text-4xl font-bold text-primary leading-tight">
-																		{seoData.community}{" "}
-																		{seoData.city &&
-																			`${seoData.city}, `}{" "}
-																		FL
+																		{seoData.community || filtersParams.community || filtersParams.city || "Florida"} FL
 																	</h2>
 																</div>
 

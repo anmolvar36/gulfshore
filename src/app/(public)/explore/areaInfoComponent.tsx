@@ -28,6 +28,10 @@ export default async function AreaInfoComponent({
 		},
 	});
 
+	if (!seoData?.content?.infoText || seoData.content.infoText.trim().length === 0) {
+		return null;
+	}
+
 	return (
 		<div>
 			<section>
@@ -43,14 +47,13 @@ export default async function AreaInfoComponent({
 										height={800}
 										loading="lazy"
 										alt={`${city} Real Estate For Sale`}
-										src={seoData.content.defaultImage || ""}
+										src={seoData.content.defaultImage || "/map-bg.webp"}
 									/>
 									<div className="absolute h-full bottom-0 left-0 right-0 text-center bg-linear-to-tr to-gray-800/60 via-black/50 from-black">
 										<div className="flex flex-col items-center justify-center h-full">
 											<span className="text-xl px-5 pb-6 lg:text-3xl font-bold text-white inline-flex items-center leading-tight">
 												<div className="w-1 h-8 bg-accent rounded-full mr-1"></div>
-												{seoData.community}{" "}
-												{seoData.city && `${seoData.city}, `} FL
+												{seoData.community || community || city} FL
 											</span>
 										</div>
 									</div>
@@ -64,8 +67,7 @@ export default async function AreaInfoComponent({
 										<div className="flex items-center space-x-2">
 											<div className="w-1 h-8 bg-accent rounded-full"></div>
 											<h2 className="text-2xl lg:text-4xl font-bold text-primary leading-tight">
-												{seoData.community}{" "}
-												{seoData.city && `${seoData.city}, `} FL
+												{seoData.community || community || city} FL
 											</h2>
 										</div>
 
