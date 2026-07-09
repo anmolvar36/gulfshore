@@ -8,6 +8,7 @@ import AboutSection from "@/components/about-section";
 import type { Metadata } from "next";
 import PropertySection from "@/components/property/propertysection/propertySlider";
 import BlogSection from "@/components/blogs/blogSection";
+import CityFAQ from "@/components/city/city-faq";
 
 import ReviewsSection from "@/components/home/scrollingReviewSection";
 // Enhanced metadata generation with comprehensive SEO
@@ -146,6 +147,7 @@ export default async function Home() {
 				<AboutSection />
 			</div>
             <BlogSection/>
+			<CityFAQ city="Naples" />
 			<script
 				async
 				id="structured-data"
