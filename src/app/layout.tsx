@@ -72,6 +72,7 @@ export default function RootLayout({
 			}}>
 			<html
 				lang="en"
+				suppressHydrationWarning
 				className={`${inter.variable} ${poppins.variable}`}>
 				<body className="antialiased">
 					<script

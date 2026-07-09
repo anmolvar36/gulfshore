@@ -420,7 +420,6 @@ export async function GET(req: NextRequest) {
 					AllPixDownloaded: true,
 					images: true,
 					communityId: true,
-					raw: true,
 				  },
 				orderBy: [
 					{ [sortField]: sortOrder },
@@ -429,37 +428,11 @@ export async function GET(req: NextRequest) {
 			}),
 		]);
 
-		// ---- Wishlist ----
-		// let wishlistMap = new Set<string>();
-
-		// if (userId) {
-		// 	const wishlisted = await prisma.wishlist.findMany({
-		// 		where: {
-		// 			user: { clerkId: userId },
-		// 			propertyId: {
-		// 				in: properties.map((p: { id: any }) => p.id),
-		// 			},
-		// 		},
-		// 		select: { propertyId: true },
-		// 	});
-
-		// 	wishlistMap = new Set(
-		// 		wishlisted.map((w: { propertyId: any }) => w.propertyId)
-		// 	);
-		// }
-
 		const data = properties.map((p: any) => {
-			// Extract images from raw.Media if images field is null
-			let resolvedImages = p.images;
-			if (!resolvedImages && p.raw && (p.raw as any).Media) {
-				resolvedImages = (p.raw as any).Media;
-			}
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-			const { raw: _raw, ...rest } = p;
 			return {
-				...rest,
-				StandardStatus: isMockingClosed ? "Closed" : rest.StandardStatus,
-				images: resolvedImages,
+				...p,
+				StandardStatus: isMockingClosed ? "Closed" : p.StandardStatus,
+				images: p.images || [],
 				isWishlisted: false,
 			};
 		});

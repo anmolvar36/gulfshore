@@ -49,11 +49,16 @@ export async function GET(
 			res.images ?? (rawData?.Media ? rawData.Media : null);
 
 		// 🔥 Fetch similar properties
+		const communityValue = res.Community || res.MLSAreaMajor || "";
+		
 		const similarRaw: any[] = await prisma.property.findMany({
 			where: {
 				StandardStatus: "Active",
 				City: res.City,
-				Community: res.Community,
+				OR: [
+					{ Community: communityValue },
+					{ MLSAreaMajor: communityValue },
+				],
 				ListingId: {
 					not: res.ListingId,
 				},
