@@ -2,7 +2,8 @@
 const BASE_URL =
 	process.env.BRIDGE_BASE_URL ||
 	"https://api.bridgedataoutput.com/api/v2";
-const API_KEY = process.env.BRIDGE_API_KEY || "";
+const API_KEY =
+	process.env.BRIDGE_API_KEY || "cac17d1ac3cbf00980257de8c5902ea7";
 const SOURCE = process.env.BRIDGE_SOURCE || "nabor";
 
 export async function fetchBridgeBatch(
