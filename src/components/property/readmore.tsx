@@ -31,14 +31,18 @@ const ReadMore: React.FC<ReadMoreProps> = ({
 
 	const shouldTruncate = textContent.length > maxLength;
 
-	const toggleExpanded = () => {
+	const toggleExpanded = (e?: React.MouseEvent) => {
+		if (e) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
 		if (link && typeof link === "string" && link.trim()) {
 			router.push(link, {
 				scroll: true,
 			});
 			return;
 		}
-		setIsExpanded(!isExpanded);
+		setIsExpanded((prev) => !prev);
 	};
 
 	const getTruncatedText = (text: string, max: number) => {
@@ -71,14 +75,15 @@ const ReadMore: React.FC<ReadMoreProps> = ({
 					<Link
 						href={link}
 						aria-label="read-more"
-						className="text-blue-600 hover:underline"
+						className="inline-block mt-2 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 font-semibold rounded-lg transition-colors cursor-pointer"
 						target="_blank">
 						Read More
 					</Link>
 				) : (
 					<button
+						type="button"
 						onClick={toggleExpanded}
-						className="mt-2 text-blue-600 hover:underline focus:outline-none cursor-pointer"
+						className="inline-flex items-center mt-2.5 px-3.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 font-semibold text-sm rounded-lg transition-colors cursor-pointer select-none"
 						aria-label={
 							isExpanded ? "Collapse content" : "Expand content"
 						}>

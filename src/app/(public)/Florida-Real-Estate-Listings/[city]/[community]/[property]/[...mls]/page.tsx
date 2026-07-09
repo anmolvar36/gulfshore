@@ -380,58 +380,62 @@ export default async function Listing({
 					})(),
 				}}
 			/>
-			<section className="mt-14 md:mt-16 lg:mt-20">
-				<div className="mx-auto w-11/12">
-					<div className="rounded-2xl overflow-hidden ">
-						<div className="flex flex-col items-center lg:flex-row">
-							{/* Image Section */}
-							<div className="lg:w-2/5  relative">
-								<div className="relative rounded-xl overflow-hidden  lg:h-full">
-									<Image
-										className="w-full h-full rounded-2xl overflow-hidden object-cover"
-										width={450}
-										height={400}
-										alt={`${Meta.city} city view`}
-										src={Meta.content.Images?.[0] || "/map-bg.webp"}
-									/>
-									<div className="absolute h-full bottom-0 left-0 right-0 text-center bg-linear-to-t from-gray-800/60 via-black/70 to-gray-800/50 p-4">
-										<div className="flex flex-col items-center justify-center h-full">
-											<span className="text-xl lg:text-3xl font-bold text-white leading-tight">
-												{Meta.community}, {Meta.city}
-											</span>
+			{Meta && Meta.content && Meta.content.infoText && Meta.content.infoText.trim().length > 0 && (
+				<section className="mt-14 md:mt-16 lg:mt-20">
+					<div className="mx-auto w-11/12">
+						<div className="rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
+							<div className="flex flex-col items-center lg:flex-row">
+								{/* Image Section */}
+								<div className="lg:w-2/5 relative">
+									<div className="relative rounded-xl overflow-hidden lg:h-full">
+										<Image
+											className="w-full h-full rounded-2xl overflow-hidden object-cover"
+											width={450}
+											height={400}
+											alt={`${Meta.city || property.City || ""} city view`}
+											src={Meta.content.Images?.[0] || "/map-bg.webp"}
+										/>
+										<div className="absolute h-full bottom-0 left-0 right-0 text-center bg-linear-to-t from-gray-800/60 via-black/70 to-gray-800/50 p-4">
+											<div className="flex flex-col items-center justify-center h-full">
+												<span className="text-xl lg:text-3xl font-bold text-white leading-tight">
+													{Meta.community || development}
+													{Meta.city || property.City ? `, ${Meta.city || property.City}` : ""}
+												</span>
+											</div>
 										</div>
 									</div>
 								</div>
-							</div>
 
-							{/* Content Section */}
-							<div className=" lg:w-3/5 p-6 sm:p-8 lg:p-10">
-								<div className="flex flex-col h-full justify-center">
-									<div className="space-y-4">
-										<div className="flex items-center space-x-2">
-											<div className="w-1 h-8 bg-accent rounded-full"></div>
-											<h2 className="text-2xl lg:text-4xl font-bold text-primary leading-tight">
-												{Meta.community}, {Meta.city}
-											</h2>
-										</div>
+								{/* Content Section */}
+								<div className="lg:w-3/5 p-6 sm:p-8 lg:p-10">
+									<div className="flex flex-col h-full justify-center">
+										<div className="space-y-4">
+											<div className="flex items-center space-x-2">
+												<div className="w-1 h-8 bg-accent rounded-full"></div>
+												<h2 className="text-2xl lg:text-4xl font-bold text-primary leading-tight">
+													{Meta.community || development}
+													{Meta.city || property.City ? `, ${Meta.city || property.City}` : ""}
+												</h2>
+											</div>
 
-										<div className="prose prose-gray max-w-none lg:max-h-[480px] overflow-y-auto">
-											<ReadMore
-												className="text-gray-500 leading-relaxed ">
-												{Meta.content.infoText
-													?.replaceAll("*", "")
-													.replaceAll("###", "•")
-													.replaceAll("##", "•")
-													.replaceAll("#", "") || ""}
-											</ReadMore>
+											<div className="prose prose-gray max-w-none lg:max-h-[480px] overflow-y-auto">
+												<ReadMore
+													className="text-gray-500 leading-relaxed">
+													{Meta.content.infoText
+														?.replaceAll("*", "")
+														.replaceAll("###", "•")
+														.replaceAll("##", "•")
+														.replaceAll("#", "") || ""}
+												</ReadMore>
+											</div>
 										</div>
 									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-				</div>
-			</section>
+				</section>
+			)}
 			<div className="my-5 mx-auto w-11/12">
 				<span className="font-semibold text-sm">Disclaimer:</span>
 				<span className="text-xs font-light text-gray-600">
