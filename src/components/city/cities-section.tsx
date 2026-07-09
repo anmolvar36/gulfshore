@@ -25,11 +25,28 @@ export default function CitiesSection() {
 				const cities = await axios.get(
 					"/api/v2/cities?type=featured"
 				);
-				if (!cities.data || cities.data.data.length === 0) {
-		return [];
-				}else{
-                    console.log(cities.data.data);
-					setCities(cities.data.data);
+				if (!cities.data || !Array.isArray(cities.data.data)) {
+					return [];
+				} else {
+					const allowedSWFL = [
+						"naples",
+						"bonita springs",
+						"marco island",
+						"estero",
+						"fort myers",
+						"cape coral",
+						"ave maria",
+						"sanibel",
+						"captiva",
+						"fort myers beach",
+						"miromar lakes",
+					];
+					const filtered = cities.data.data.filter((c: any) =>
+						c?.name &&
+						allowedSWFL.includes(c.name.trim().toLowerCase()) &&
+						(c._count?.properties ?? c._count?.communities ?? 1) > 0
+					);
+					setCities(filtered);
 				}
 			} catch (error) {
 				return [];
