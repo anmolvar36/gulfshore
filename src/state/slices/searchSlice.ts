@@ -22,7 +22,7 @@ const initialState: UiState = {
 	listView: false,
 	list: [],
 	total: null,
-	limit: 18,
+	limit: 36,
 	totalPages: 0,
 	details: null,
 	loading: false,
@@ -76,7 +76,7 @@ const searchSlice = createSlice({
 	reducers: {
 		setMobileMapView: (state, action: PayloadAction<Boolean>) => {
 			state.mobileMapView = action.payload;
-			state.limit = 40;
+			state.limit = 80;
 		},
 		setListView: (state, action: PayloadAction<Boolean>) => {
 			state.listView = action.payload;

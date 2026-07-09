@@ -115,53 +115,50 @@ export default function PropertyDetail(property: Property) {
 					/>
 				</div>
 			)}
-			<div className="mt-1 w-11/12 mx-auto">
-				<div className="grid lg:grid-cols-2 grid-cols-1 items-start space-x-2 my-10 rounded-xl">
-					<div>
-						<Suspense
-							fallback={
-								<Skeleton className="h-[50vh] min-h-[400px] w-full" />
-							}>
-							<PropertyMap
-								Latitude={Latitude}
-								Longitude={Longitude}
-								property={property}
-							/>
-						</Suspense>
+			<div className="mt-4 w-11/12 mx-auto">
+				<div className="w-full my-6 rounded-xl">
+					<Suspense
+						fallback={
+							<Skeleton className="h-[55vh] min-h-[450px] w-full rounded-xl" />
+						}>
+						<PropertyMap
+							Latitude={Latitude}
+							Longitude={Longitude}
+							property={property}
+						/>
+					</Suspense>
+				</div>
+
+				<div className="grid lg:grid-cols-2 grid-cols-1 gap-6 my-6 items-start">
+					<div className="flex flex-col gap-2 px-2">
+						{!(property.raw as any)?.HighSchool &&
+						!(property.raw as any)?.MiddleSchool &&
+						!(property.raw as any)?.ElementarySchool ? null : (
+							<h4 className="text-lg lg:text-xl font-medium text-gray-900 my-2">
+								Nearby Schools
+							</h4>
+						)}
+						{(property.raw as any)?.MiddleSchool && (
+							<span>
+								<strong>Middle School</strong> :{" "}
+								{(property.raw as any)?.MiddleSchool}
+							</span>
+						)}
+						{(property.raw as any)?.HighSchool && (
+							<span>
+								<strong>High School </strong>:{" "}
+								{(property.raw as any)?.HighSchool}
+							</span>
+						)}
+						{(property.raw as any)?.ElementarySchool && (
+							<span>
+								<strong>Elementary School</strong> :{" "}
+								{(property.raw as any)?.ElementarySchool}
+							</span>
+						)}
 					</div>
 
-					<div className="flex flex-col gap-2">
-
-						<div className="flex-col flex gap-2 mt-5 px-2">
-							{!(property.raw as any)?.HighSchool &&
-							!(property.raw as any)?.MiddleSchool &&
-							!(property.raw as any)?.ElementarySchool ? (
-								<></>
-							) : (
-								<h4 className="text-lg lg:text-xl font-medium text-gray-900 my-2">
-									Nearby Schools
-								</h4>
-							)}
-							{(property.raw as any)?.MiddleSchool && (
-								<span>
-									<strong>Middle School</strong> :{" "}
-									{(property.raw as any)?.MiddleSchool}
-								</span>
-							)}
-							{(property.raw as any)?.HighSchool && (
-								<span>
-									<strong>High School </strong>:{" "}
-									{(property.raw as any)?.HighSchool}
-								</span>
-							)}
-							{(property.raw as any)?.ElementarySchool && (
-								<span>
-									<strong>Elementary School</strong> :{" "}
-									{(property.raw as any)?.ElementarySchool}
-								</span>
-							)}
-						</div>
-
+					<div>
 						<Suspense>
 							<WeatherWidget city={property.City} />
 						</Suspense>
