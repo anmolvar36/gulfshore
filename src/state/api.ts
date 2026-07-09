@@ -16,7 +16,9 @@ export async function fetchPropertiesApi({
 	limit: number;
 }) {
 	const baseUrl =
-		process.env.NEXT_PUBLIC_SERVER_URL || "";
+		typeof window !== "undefined"
+			? ""
+			: process.env.NEXT_PUBLIC_SERVER_URL || "";
 
 	try {
 		const res = await axios.get(`${baseUrl}/api/v2/properties`, {

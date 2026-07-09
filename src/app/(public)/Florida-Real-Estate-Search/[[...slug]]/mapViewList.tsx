@@ -57,7 +57,7 @@ export default function MapViewList({
 	const gridClass =
 		view === "map"
 			? "grid mx-2 xl:mx-4 gap-2 lg:grid-cols-1 xl:grid-cols-2 md:grid-cols-1"
-			: "grid w-11/12 mx-auto gap-2 lg:grid-cols-3 grid-cols-1 xl:grid-cols-3 md:grid-cols-2";
+			: "grid w-11/12 max-w-[1600px] mx-auto gap-4 lg:grid-cols-3 grid-cols-1 xl:grid-cols-3 md:grid-cols-2";
 
 	if (loading) {
 		return (
@@ -150,7 +150,7 @@ export default function MapViewList({
 	return (
 		<div>
 			{/* Status Tabs (Active / Sold) */}
-			<div className="w-11/12 mx-auto mb-6 flex border-b border-[#E8E4DC] gap-6 text-sm">
+			<div className="w-11/12 max-w-[1600px] mx-auto mb-6 flex border-b border-[#E8E4DC] gap-6 text-sm">
 				<button
 					onClick={() => handleStatusChange("Active")}
 					className={`pb-2.5 font-medium border-b-2 transition-all ${

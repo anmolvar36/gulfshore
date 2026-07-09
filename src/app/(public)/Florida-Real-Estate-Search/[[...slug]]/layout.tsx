@@ -100,13 +100,19 @@ export default async function RootLayout({
 						<div
 							id="container"
 							className="h-full flex-col flex overflow-y-auto overflow-x-hidden w-full gap-2">
-							<div className="w-11/12 pt-8 mx-auto mb-5 lg:mb-8 ">
+							<div className="w-11/12 max-w-[1600px] pt-6 mx-auto mb-4">
 								<h1 className="lg:text-xl text-lg font-medium text-primary">
 									{seoData?.heading ||
 										"Listings in Florida and Surrounding Area"}
 								</h1>
 							</div>
 							<div>{children}</div>
+
+							{seoData.city && (
+								<Suspense>
+									<LazyCommunitySection city={seoData.city} />
+								</Suspense>
+							)}
 
 							<div>
 								{seoData.content && seoData.content.Images?.length ? (
@@ -175,13 +181,7 @@ export default async function RootLayout({
 									<></>
 								)}
 
-								{seoData.city && (
-									<Suspense>
-										<LazyCommunitySection city={seoData.city} />
-									</Suspense>
-								)}
-
-								<div className="w-11/12 mt-20 mb-8 mx-auto px-4">
+								<div className="w-11/12 max-w-[1600px] mt-20 mb-8 mx-auto px-4">
 									<span className="font-semibold text-sm">
 										Disclaimer:
 									</span>
