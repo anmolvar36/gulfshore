@@ -307,14 +307,14 @@ export default function MapComponent({
 						
 						<div className="flex flex-col gap-3">
 							<div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Overlays & Features</div>
-							<label className="flex items-center gap-3 text-sm text-gray-800 cursor-pointer select-none">
+							<label className="flex items-center gap-3 text-sm font-medium text-gray-800 cursor-pointer select-none">
 								<input
 									type="checkbox"
 									checked={streetViewActive}
 									onChange={toggleStreetView}
 									className="w-4 h-4 rounded text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1 cursor-pointer"
 								/>
-								Street View
+								Street View (360° Walkthrough)
 							</label>
 							<label className="flex items-center gap-3 text-sm text-gray-800 cursor-pointer select-none">
 								<input
