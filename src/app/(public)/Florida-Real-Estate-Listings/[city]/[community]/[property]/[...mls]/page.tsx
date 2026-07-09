@@ -333,25 +333,17 @@ export default async function Listing({
 			<PropertySection
 				props={
 					<h2 className="py-4 px-2 font-semibold mt-10 lg:mt-12 text-lg lg:text-xl">
-						Similar Properties in{" "}
+						Other Properties For Sale in{" "}
 						<span className="text-primary">
-							{development}, {capitalizeWords(property.City)} Florida
+							{development || property.Community || property.City}, {capitalizeWords(property.City)} Florida
 						</span>
 					</h2>
 				}
 				queryParams={{
 					city: property.City,
-					propertyType: (() => {
-						const subType = property.PropertySubType || "";
-						const type = property.PropertyType || "";
-						if (subType === "Single Family Residence") return "Homes";
-						if (subType.includes("Rise") || subType === "Townhouse" || type.includes("Condominium")) return "Condos";
-						if (type === "Land" || type.includes("Lot")) return "Residential-Lots";
-						return "Homes";
-					})(),
-					developmentName: development,
-					sort: "CurrentPrice",
-					limit: "5",
+					developmentName: development || property.Community || "",
+					sort: "ListPrice",
+					limit: "12",
 					order: "desc",
 				}}
 			/>
