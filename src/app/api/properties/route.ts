@@ -232,3 +232,45 @@ export async function GET(req: NextRequest) {
 		);
 	}
 }
+
+export async function POST(req: NextRequest) {
+	try {
+		const data = await req.json();
+
+		if (!data.MLSNumber || !data.FullAddress || !data.City || !data.StandardStatus) {
+			return NextResponse.json(
+				{ success: false, error: "Missing required fields (MLSNumber, FullAddress, City, StandardStatus)" },
+				{ status: 400 }
+			);
+		}
+
+		const listingId = crypto.randomUUID();
+		const listingKey = crypto.randomUUID();
+
+		const property = await prisma.property.create({
+			data: {
+				ListingId: listingId,
+				ListingKey: listingKey,
+				MLSNumber: data.MLSNumber,
+				FullAddress: data.FullAddress,
+				City: data.City,
+				StandardStatus: data.StandardStatus,
+				ListPrice: data.ListPrice ? Number(data.ListPrice) : null,
+				PropertyType: data.PropertyType || null,
+				BedroomsTotal: data.BedroomsTotal ? Number(data.BedroomsTotal) : null,
+				BathroomsFull: data.BathroomsFull ? Number(data.BathroomsFull) : null,
+				LivingArea: data.LivingArea ? Number(data.LivingArea) : null,
+				images: data.ImageUrl ? [data.ImageUrl] : [],
+				raw: {},
+			},
+		});
+
+		return NextResponse.json({ success: true, data: property }, { status: 201 });
+	} catch (error: any) {
+		console.error("Error creating property:", error);
+		return NextResponse.json(
+			{ success: false, error: error.message || "Failed to create property" },
+			{ status: 500 }
+		);
+	}
+}

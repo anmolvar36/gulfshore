@@ -50,3 +50,74 @@ export async function GET(req: NextRequest) {
 		);
 	}
 }
+
+export async function POST(req: NextRequest) {
+	try {
+		const body = await req.json();
+
+		if (!body.City) {
+			return NextResponse.json(
+				{ error: "City name is required" },
+				{ status: 400 }
+			);
+		}
+
+		// Normalize city name
+		const cityName = body.City.trim().toUpperCase();
+		
+		// Create a slug
+		const slug = body.City.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-");
+
+		// Pack SEO and description fields into a JSON string
+		const descriptionPayload = JSON.stringify({
+			infoText: body.infoText || "",
+			title: body.title || "",
+			metaDescription: body.metaDescription || "",
+			keywords: body.keywords || ""
+		});
+
+		// Prepare images array if defaultImage exists
+		const images = body.defaultImage ? [body.defaultImage] : [];
+
+		const newCity = await prisma.city.create({
+			data: {
+				name: cityName,
+				slug: slug,
+				description: descriptionPayload,
+				isFeatured: body.isFeatured === true,
+				defaultImage: body.defaultImage || null,
+				images: images
+			}
+		});
+
+		const mappedData = {
+			...newCity,
+			_id: newCity.id,
+			City: newCity.name,
+			PropertyCount: 0,
+			Images: newCity.images || []
+		};
+
+		return NextResponse.json({
+			success: true,
+			message: "City created successfully",
+			data: mappedData
+		}, { status: 201 });
+
+	} catch (error: any) {
+		console.error("Error creating city:", error);
+		
+		// Handle unique constraint error
+		if (error.code === 'P2002') {
+			return NextResponse.json(
+				{ error: "A city with this name or slug already exists." },
+				{ status: 409 }
+			);
+		}
+
+		return NextResponse.json(
+			{ error: "Internal Server Error", details: error.message },
+			{ status: 500 }
+		);
+	}
+}

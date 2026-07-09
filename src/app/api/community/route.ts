@@ -62,3 +62,88 @@ export async function GET(req: NextRequest) {
 		);
 	}
 }
+
+export async function POST(req: NextRequest) {
+	try {
+		const body = await req.json();
+
+		if (!body.Development || !body.City) {
+			return NextResponse.json(
+				{ error: "Community Name and City Name are required" },
+				{ status: 400 }
+			);
+		}
+
+		// Normalize names
+		const communityName = body.Development.trim().toUpperCase();
+		const cityName = body.City.trim().toUpperCase();
+		
+		// Find city by name
+		const city = await prisma.city.findFirst({
+			where: { name: cityName }
+		});
+
+		if (!city) {
+			return NextResponse.json(
+				{ error: `City '${cityName}' not found. Please create the city first.` },
+				{ status: 404 }
+			);
+		}
+		
+		// Create a slug
+		const slug = body.Development.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-");
+
+		// Pack SEO and description fields into a JSON string
+		const descriptionPayload = JSON.stringify({
+			infoText: body.infoText || "",
+			title: body.title || "",
+			metaDescription: body.metaDescription || "",
+			keywords: body.keywords || ""
+		});
+
+		// Prepare images array if defaultImage exists
+		const images = body.defaultImage ? [body.defaultImage] : [];
+
+		const newCommunity = await prisma.community.create({
+			data: {
+				name: communityName,
+				slug: slug,
+				description: descriptionPayload,
+				defaultImage: body.defaultImage || null,
+				images: images,
+				cityId: city.id
+			}
+		});
+
+		const mappedData = {
+			...newCommunity,
+			_id: newCommunity.id,
+			Development: newCommunity.name,
+			City: city.name,
+			PropertyCount: 0,
+			Images: newCommunity.images || []
+		};
+
+		return NextResponse.json({
+			success: true,
+			message: "Community created successfully",
+			data: mappedData
+		}, { status: 201 });
+
+	} catch (error: any) {
+		console.error("Error creating community:", error);
+		
+		// Handle unique constraint error
+		if (error.code === 'P2002') {
+			return NextResponse.json(
+				{ error: "A community with this name or slug already exists." },
+				{ status: 409 }
+			);
+		}
+
+		return NextResponse.json(
+			{ error: "Internal Server Error", details: error.message },
+			{ status: 500 }
+		);
+	}
+}

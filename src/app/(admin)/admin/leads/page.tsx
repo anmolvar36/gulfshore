@@ -31,6 +31,12 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import {
+	DropdownMenu,
+	DropdownMenuCheckboxItem,
+	DropdownMenuContent,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // -------------------- CONFIG --------------------
 const statusOptions = [
@@ -116,26 +122,40 @@ export default function LeadsPage() {
 			toast.error("Failed to update tag");
 		}
 	};
-	const [formData, setFormData] = useState({
+	const [formData, setFormData] = useState<{
+		firstName: string;
+		lastName: string;
+		email: string;
+		phone: string;
+		status: string;
+		source: string;
+		tags: string[];
+		lastContactedAt: string;
+	}>({
 		firstName: "",
 		lastName: "",
 		email: "",
 		phone: "",
 		status: "New",
 		source: "General",
+		tags: [],
+		lastContactedAt: "",
 	});
 
 	const handleCreateLead = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!formData.firstName || !formData.lastName || !formData.email) {
-			alert("First Name, Last Name, and Email are required");
+			toast.error("First Name, Last Name, and Email are required");
 			return;
 		}
 		try {
 			const res = await fetch("/api/leads", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(formData),
+				body: JSON.stringify({
+					...formData,
+					lastContactedAt: formData.lastContactedAt ? new Date(formData.lastContactedAt).toISOString() : null,
+				}),
 			});
 			if (!res.ok) {
 				const errorData = await res.json().catch(() => ({}));
@@ -151,6 +171,8 @@ export default function LeadsPage() {
 				phone: "",
 				status: "New",
 				source: "General",
+				tags: [],
+				lastContactedAt: "",
 			});
 			toast.success("Lead created successfully!");
 		} catch (err: any) {
@@ -451,7 +473,7 @@ export default function LeadsPage() {
 			</Card>
 
 			<Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-				<DialogContent className="sm:max-w-[425px]">
+				<DialogContent className="sm:max-w-[500px] w-[95vw] rounded-xl">
 					<form onSubmit={handleCreateLead}>
 						<DialogHeader>
 							<DialogTitle>Add New Lead</DialogTitle>
@@ -459,9 +481,9 @@ export default function LeadsPage() {
 								Fill in the details below to add a new potential lead.
 							</DialogDescription>
 						</DialogHeader>
-						<div className="grid gap-4 py-4">
-							<div className="grid grid-cols-4 items-center gap-4">
-								<Label htmlFor="firstName" className="text-right">
+						<div className="grid gap-4 py-4 max-h-[65vh] overflow-y-auto px-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:rounded-full">
+							<div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+								<Label htmlFor="firstName" className="text-left sm:text-right">
 									First Name
 								</Label>
 								<Input
@@ -474,11 +496,11 @@ export default function LeadsPage() {
 											firstName: e.target.value,
 										}))
 									}
-									className="col-span-3"
+									className="sm:col-span-3"
 								/>
 							</div>
-							<div className="grid grid-cols-4 items-center gap-4">
-								<Label htmlFor="lastName" className="text-right">
+							<div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+								<Label htmlFor="lastName" className="text-left sm:text-right">
 									Last Name
 								</Label>
 								<Input
@@ -491,11 +513,11 @@ export default function LeadsPage() {
 											lastName: e.target.value,
 										}))
 									}
-									className="col-span-3"
+									className="sm:col-span-3"
 								/>
 							</div>
-							<div className="grid grid-cols-4 items-center gap-4">
-								<Label htmlFor="email" className="text-right">
+							<div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+								<Label htmlFor="email" className="text-left sm:text-right">
 									Email
 								</Label>
 								<Input
@@ -509,11 +531,11 @@ export default function LeadsPage() {
 											email: e.target.value,
 										}))
 									}
-									className="col-span-3"
+									className="sm:col-span-3"
 								/>
 							</div>
-							<div className="grid grid-cols-4 items-center gap-4">
-								<Label htmlFor="phone" className="text-right">
+							<div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+								<Label htmlFor="phone" className="text-left sm:text-right">
 									Phone
 								</Label>
 								<Input
@@ -525,11 +547,11 @@ export default function LeadsPage() {
 											phone: e.target.value,
 										}))
 									}
-									className="col-span-3"
+									className="sm:col-span-3"
 								/>
 							</div>
-							<div className="grid grid-cols-4 items-center gap-4">
-								<Label htmlFor="status" className="text-right">
+							<div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+								<Label htmlFor="status" className="text-left sm:text-right">
 									Status
 								</Label>
 								<Select
@@ -538,7 +560,7 @@ export default function LeadsPage() {
 										setFormData((prev) => ({ ...prev, status: v }))
 									}
 								>
-									<SelectTrigger className="col-span-3">
+									<SelectTrigger className="sm:col-span-3">
 										<SelectValue />
 									</SelectTrigger>
 									<SelectContent>
@@ -549,8 +571,8 @@ export default function LeadsPage() {
 									</SelectContent>
 								</Select>
 							</div>
-							<div className="grid grid-cols-4 items-center gap-4">
-								<Label htmlFor="source" className="text-right">
+							<div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+								<Label htmlFor="source" className="text-left sm:text-right">
 									Source
 								</Label>
 								<Select
@@ -559,7 +581,7 @@ export default function LeadsPage() {
 										setFormData((prev) => ({ ...prev, source: v }))
 									}
 								>
-									<SelectTrigger className="col-span-3">
+									<SelectTrigger className="sm:col-span-3">
 										<SelectValue />
 									</SelectTrigger>
 									<SelectContent>
@@ -570,6 +592,58 @@ export default function LeadsPage() {
 										<SelectItem value="Other">Other</SelectItem>
 									</SelectContent>
 								</Select>
+							</div>
+							<div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+								<Label className="text-left sm:text-right">Tags</Label>
+								<div className="sm:col-span-3">
+									<DropdownMenu>
+										<DropdownMenuTrigger asChild>
+											<Button variant="outline" className="w-full justify-start text-left font-normal h-auto py-2 whitespace-normal min-h-10">
+												{formData.tags.length > 0 
+													? formData.tags.join(", ") 
+													: "Select tags..."}
+											</Button>
+										</DropdownMenuTrigger>
+										<DropdownMenuContent className="w-[85vw] sm:w-[325px]">
+											{TAG_OPTIONS.map((tag) => {
+												const isSelected = formData.tags.includes(tag);
+												return (
+													<DropdownMenuCheckboxItem
+														key={tag}
+														checked={isSelected}
+														onCheckedChange={(checked) => {
+															setFormData((prev) => ({
+																...prev,
+																tags: checked
+																	? [...prev.tags, tag]
+																	: prev.tags.filter((t) => t !== tag),
+															}));
+														}}
+													>
+														{tag}
+													</DropdownMenuCheckboxItem>
+												);
+											})}
+										</DropdownMenuContent>
+									</DropdownMenu>
+								</div>
+							</div>
+							<div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+								<Label htmlFor="lastContactedAt" className="text-left sm:text-right">
+									Last Contact
+								</Label>
+								<Input
+									id="lastContactedAt"
+									type="date"
+									value={formData.lastContactedAt}
+									onChange={(e) =>
+										setFormData((prev) => ({
+											...prev,
+											lastContactedAt: e.target.value,
+										}))
+									}
+									className="col-span-3"
+								/>
 							</div>
 						</div>
 						<DialogFooter>
