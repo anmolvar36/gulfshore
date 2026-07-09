@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
 		const { userId } = await auth();
 
 		const shouldCache = !userId;
-		const cacheKey = "search:" + query.toString();
+		const cacheKey = "search:v2:" + query.toString();
 
 		if (shouldCache) {
 			const cached = await redisGet(cacheKey);
@@ -49,10 +49,8 @@ export async function GET(req: NextRequest) {
 		const statusVal = query.get("status") || query.get("Status") || "Active";
 		if (statusVal && statusVal !== "All") {
 			if (statusVal === "Sold" || statusVal === "Closed") {
-				// Since we only have Active properties in the DB, we query Active ones
-				// and mark them as Closed in the API response for client-side demo.
-				where.StandardStatus = "Active";
-				isMockingClosed = true;
+				where.StandardStatus = { in: ["Closed", "Sold"] };
+				isMockingClosed = false;
 			} else if (statusVal === "Short Sale" || statusVal === "Foreclosure") {
 				// Short sale / foreclosure fall back to Active or check description/raw if they exist in active listings
 				where.StandardStatus = "Active";

@@ -45,7 +45,7 @@ function CommunitiesSection({ city }: { city: any }) {
 	}
 
 	return (
-		<div className="w-full mx-auto p-6 mt-12 lg:mt-18">
+		<div className="w-11/12 max-w-[1600px] mx-auto py-6 mt-8 lg:mt-12">
 			<div className="mb-6">
 				<h2 className="text-xl lg:text-2xl font-medium text-slate-900 mb-2">
 					<span className="text-primary">{city} Florida</span> Real
