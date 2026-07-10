@@ -71,10 +71,8 @@ const Navbar = () => {
 	}, []);
 
 	const navBgClass = isHomePage
-		? `text-white  absolute top-0 left-0 right-0 z-50 transition-all duration-300  backdrop-blur-md bg-white/95`
-		: isSearchPage
-		? "md:block bg-white/95 backdrop-blur-md  text-black shadow-sm border-b border-gray-200/50 min-h-[40px] md:min-h-[70px] h-14"
-		: "bg-white/95 backdrop-blur-md  text-black shadow-sm border-b border-gray-200/50";
+		? `text-white absolute top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-md bg-white/95`
+		: "bg-white/95 backdrop-blur-md text-black shadow-sm border-b border-gray-200/50";
 
 	const logoTextClass = isHomePage && "text-black";
 
@@ -97,7 +95,7 @@ const Navbar = () => {
 						href="/"
 						className={`text-sm md:text-xl md:font-bold font-semibold tracking-tight hover:scale-105 transition-transform duration-200 ${logoTextClass}`}
 						aria-label="Gulfshore Group Home">
-						<div className="flex flex-row item-center justify-center gap-2">
+						<div className="flex flex-row items-center justify-center gap-2">
 							<Image
 								src={"/logored.svg"}
 								alt="Gulfshoregroup"
@@ -109,13 +107,12 @@ const Navbar = () => {
 							<div className="flex flex-col">
 								<span className="text-primary">GULFSHORE GROUP</span>
 								<span
-									className={`text-gray-600 md:font-medium font-normal text-center md:text-sm text-[10px]`}>
+									className={`text-gray-600 md:font-medium font-normal text-start md:text-sm text-[10px]`}>
 									London Forster Realty
 								</span>
 							</div>
 						</div>
 					</Link>
-
 					<div className="hidden lg:block">
 						<NavigationMenuList
 							className={`space-x-3 text-black ${navLinksClass}`}>
@@ -123,12 +120,12 @@ const Navbar = () => {
 								{ path: "/", label: "Home" },
 								{
 									path: "/Florida-Real-Estate-Search",
-									label: "Search Properties",
+									label: "Search",
 								},
 							].map(({ path: navPath, label }) => (
 								<NavigationMenuItem key={navPath}>
 									<NavigationMenuLink
-										className="relative px-5 py-3 rounded-xl font-medium text-black hover:bg-gray-100 hover:text-black transition-all duration-200"
+										className="relative px-4 py-3 rounded-xl font-medium text-black hover:bg-gray-100 hover:text-black transition-all duration-200"
 										href={navPath}>
 										{label}
 										{path === navPath && (
@@ -139,23 +136,30 @@ const Navbar = () => {
 							))}
 							<NavigationMenuItem key={"call"}>
 								<NavigationMenuLink
-									className="relative inline-flex text-center items-center gap-2 px-5 py-3 rounded-xl font-medium hover:bg-gray-100 hover:text-black transition-all duration-200"
+									className="relative inline-flex flex-row whitespace-nowrap items-center gap-2 px-4 py-3 rounded-xl font-medium hover:bg-gray-100 hover:text-black transition-all duration-200"
 									aria-label="Call us at 239-992-9119"
 									href={"tel:+1 239-992-9119"}>
-									<Phone size={20} />
+									<Phone size={20} className="shrink-0" />
 									+1 (239) 992-9119
 								</NavigationMenuLink>
 							</NavigationMenuItem>
 							<NavigationMenuItem key={"mail"}>
 								<NavigationMenuLink
-									className="relative inline-flex text-center items-center gap-2 px-5 py-3 rounded-xl font-medium hover:bg-gray-100 hover:text-black transition-all duration-200"
+									className="relative inline-flex flex-row whitespace-nowrap items-center gap-2 px-4 py-3 rounded-xl font-medium hover:bg-gray-100 hover:text-black transition-all duration-200"
 									aria-label="Email us"
 									href={"mailto:mailbox@gulfshoregroup.com"}>
-									<Mail size={20} />
+									<Mail size={20} className="shrink-0" />
 									E-mail Us
 								</NavigationMenuLink>
 							</NavigationMenuItem>
 							<SignedOut>
+								<NavigationMenuItem>
+									<SignUpButton mode="modal">
+										<Button className="rounded-full font-bold cursor-pointer bg-primary hover:bg-accent text-white px-6">
+											Sign Up
+										</Button>
+									</SignUpButton>
+								</NavigationMenuItem>
 								<NavigationMenuItem>
 									<Link href="/admin/dashboard">
 										<Button variant="outline" className="rounded-lg font-bold cursor-pointer border-[#B89A6A] text-[#B89A6A] hover:bg-[#B89A6A]/10 hover:text-[#B89A6A]">
@@ -165,6 +169,20 @@ const Navbar = () => {
 								</NavigationMenuItem>
 							</SignedOut>
 							<SignedIn>
+								<NavigationMenuItem>
+									<NavigationMenuLink
+										className="relative px-4 py-3 rounded-xl font-medium text-black hover:bg-gray-100 hover:text-black transition-all duration-200"
+										href="/favorites">
+										Saved Properties
+									</NavigationMenuLink>
+								</NavigationMenuItem>
+								<NavigationMenuItem>
+									<NavigationMenuLink
+										className="relative px-4 py-3 rounded-xl font-medium text-black hover:bg-gray-100 hover:text-black transition-all duration-200"
+										href="/user/saved-searches">
+										Saved Searches
+									</NavigationMenuLink>
+								</NavigationMenuItem>
 								<NavigationMenuItem>
 									<div className="flex items-center gap-4">
 										{user?.publicMetadata?.role === "admin" && (
@@ -243,10 +261,10 @@ export const DrawerMenu = ({
 							{ path: "/", label: "Home" },
 							{
 								path: "/Florida-Real-Estate-Search",
-								label: "Search Properties",
+								label: "Search",
 							},
-							{ path: "/contact", label: "Contact Us" },
-							{ path: "/about", label: "About Us" },
+							{ path: "/contact", label: "Contact" },
+							{ path: "/about", label: "About" },
 						].map(({ path: navPath, label }) => (
 							<Link
 								key={navPath}
@@ -259,6 +277,16 @@ export const DrawerMenu = ({
 							</Link>
 						))}
 						<SignedOut>
+							<SignUpButton mode="modal">
+								<button className="w-full text-left relative px-4 py-3 rounded-xl hover:bg-linear-to-r hover:from-blue-50 hover:to-purple-50 hover:text-black text-gray-800 transition-all duration-200 font-medium text-base cursor-pointer">
+									Sign Up
+								</button>
+							</SignUpButton>
+							<SignInButton mode="modal">
+								<button className="w-full text-left relative px-4 py-3 rounded-xl hover:bg-linear-to-r hover:from-blue-50 hover:to-purple-50 hover:text-black text-gray-800 transition-all duration-200 font-medium text-base cursor-pointer">
+									Sign In
+								</button>
+							</SignInButton>
 							<Link
 								href="/admin/dashboard"
 								className="relative block w-full px-4 py-3 rounded-xl text-[#B89A6A] hover:bg-[#B89A6A]/10 hover:text-[#B89A6A] transition-all duration-200 font-bold text-base">
@@ -275,12 +303,12 @@ export const DrawerMenu = ({
 								</Link>
 							)}
 							<Link
-								href="https://gulfshoregroup.com/favorites"
+								href="/favorites"
 								className="relative block w-full px-4 py-3 rounded-xl hover:bg-linear-to-r hover:from-blue-50 hover:to-purple-50 hover:text-black text-gray-800 transition-all duration-200 font-medium text-base">
 								<span>Saved Properties</span>
 							</Link>
 							<Link
-								href="https://gulfshoregroup.com/user/saved-searches"
+								href="/user/saved-searches"
 								className="relative block w-full px-4 py-3 rounded-xl hover:bg-linear-to-r hover:from-blue-50 hover:to-purple-50 hover:text-black text-gray-800 transition-all duration-200 font-medium text-base">
 								<span>Saved Searches</span>
 							</Link>

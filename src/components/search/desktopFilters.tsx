@@ -122,26 +122,26 @@ export const Filters = ({
 	useEffect(() => {
 		const parsed = parseFiltersFromSearchParams(searchParams);
 		const location = parseLocationFromPathname(pathname);
-		setCity(location.city || "");
+		setCity(location.city || reduxFilters.city || "");
 		setCommunityInput(location.developmentName || parsed.developmentName || reduxFilters.developmentName || "");
-		setSubdivision(parsed.subdivision || "");
-		setSchool(parsed.school || "");
-		setAddress(parsed.address || "");
-		setGeneralQuery(parsed.q || searchParams.get("search") || "");
-		setBedrooms(parsed.beds || "");
-		setBathrooms(parsed.baths || "");
-		setMinPrice(parsed.minPrice || "Minimum");
-		setMaxPrice(parsed.maxPrice || "Maximum");
-		setMinYearBuilt(parsed.builtYearMin || "");
-		setMaxYearBuilt(parsed.builtYearMax || "");
-		setPostalCode(parsed.postalCode || "");
-		setPropertyType(parsed.propertyTypes || []);
-		setKeywords(parsed.features || []);
-		setHoa((searchParams.get("hoa") as string) || "Any");
-		setMinAcres(searchParams.get("minAcres") || "");
-		setMaxAcres(searchParams.get("maxAcres") || "");
-		setStatusFilter(searchParams.get("status") || "Active");
-	}, [searchParams, pathname]);
+		setSubdivision(parsed.subdivision || reduxFilters.subdivision || "");
+		setSchool(parsed.school || reduxFilters.school || "");
+		setAddress(parsed.address || reduxFilters.address || "");
+		setGeneralQuery(parsed.q || searchParams.get("search") || reduxFilters.q || "");
+		setBedrooms(parsed.beds || reduxFilters.beds || "");
+		setBathrooms(parsed.baths || reduxFilters.baths || "");
+		setMinPrice(parsed.minPrice || reduxFilters.minPrice || "Minimum");
+		setMaxPrice(parsed.maxPrice || reduxFilters.maxPrice || "Maximum");
+		setMinYearBuilt(parsed.builtYearMin || reduxFilters.builtYearMin || "");
+		setMaxYearBuilt(parsed.builtYearMax || reduxFilters.builtYearMax || "");
+		setPostalCode(parsed.postalCode || reduxFilters.postalCode || "");
+		setPropertyType(parsed.propertyTypes || reduxFilters.propertyTypes || []);
+		setKeywords(parsed.features || reduxFilters.features || []);
+		setHoa((searchParams.get("hoa") as string) || reduxFilters.hoa || "Any");
+		setMinAcres(searchParams.get("minAcres") || reduxFilters.minAcres || "");
+		setMaxAcres(searchParams.get("maxAcres") || reduxFilters.maxAcres || "");
+		setStatusFilter(searchParams.get("status") || reduxFilters.status || "Active");
+	}, [searchParams, pathname, reduxFilters, open]);
 
 	const scrollResultsToTop = () => {
 		if (typeof window !== "undefined") {

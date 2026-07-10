@@ -141,6 +141,28 @@ const normalizePathToken = (value: string) =>
 		.trim()
 		.toLowerCase();
 
+const isFilterSlug = (segment: string) => {
+	const lower = segment.toLowerCase();
+	const filters = [
+		"-beds",
+		"-baths",
+		"-minprice",
+		"-maxprice",
+		"-minbuiltyear",
+		"-maxbuiltyear",
+		"sort=",
+		"propertytypes=",
+		"postalcode-",
+		"page-",
+		"keyword-",
+	];
+	const propertyTypes = ["homes", "residential-lots", "condos"];
+	return (
+		filters.some((f) => lower.startsWith(f) || lower.endsWith(f) || lower === f) ||
+		propertyTypes.includes(lower)
+	);
+};
+
 export const parseLocationFromPathname = (pathname: string) => {
 	const segments = pathname.split("/").filter(Boolean);
 	const baseIndex = segments.indexOf("Florida-Real-Estate-Search");
@@ -158,9 +180,10 @@ export const parseLocationFromPathname = (pathname: string) => {
 	const secondNormalized = normalizePathToken(second || "");
 
 	if (knownCities.has(firstNormalized)) {
+		const devName = second && !isFilterSlug(second) ? second : "";
 		return {
 			city: capitalizeWords(first.replaceAll("-", " ")),
-			developmentName: second ? capitalizeWords(second.replaceAll("-", " ")) : "",
+			developmentName: devName ? capitalizeWords(devName.replaceAll("-", " ")) : "",
 		};
 	}
 

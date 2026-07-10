@@ -44,6 +44,18 @@ export default function PropertyDetail(property: Property) {
 	const { isLoaded, isSignedIn } = useUser();
 	const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 	useTrackViewedProperty(property.id);
+
+	if (isLoaded && !isSignedIn) {
+		return (
+			<div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+				<SignIn
+					signUpUrl="/signup"
+					forceRedirectUrl={typeof window !== "undefined" ? window.location.pathname : "/"}
+				/>
+			</div>
+		);
+	}
+
 	const handleSendEmail = () => {
 		const subject = `Inquiry about ${property.MLSNumber}`;
 		const body = `Hello,\n\nI am interested in ${

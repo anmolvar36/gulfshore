@@ -109,7 +109,36 @@ const SearchBox = ({
 		}
 
 		if (activeQuery) {
-			setQuery(activeQuery);
+			const knownCitiesList = [
+				"naples",
+				"bonita springs",
+				"estero",
+				"ave maria",
+				"marco island",
+				"fort myers",
+				"fort myers beach",
+				"cape coral",
+				"sanibel",
+				"captiva",
+				"lehigh acres",
+				"babcock ranch",
+				"immokalee",
+				"golden gate",
+				"goodland",
+				"everglades city",
+				"north fort myers",
+				"alva",
+				"miromar lakes",
+				"pine island",
+				"pineland",
+				"sanibel island",
+			];
+			const normalized = activeQuery.toLowerCase().trim();
+			if (knownCitiesList.includes(normalized)) {
+				setQuery(`${capitalizeWords(normalized)}, FL`);
+			} else {
+				setQuery(activeQuery);
+			}
 		} else if (
 			pathname === "/Florida-Real-Estate-Search" &&
 			(!searchParams || !searchParams.toString())
