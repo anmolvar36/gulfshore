@@ -170,20 +170,6 @@ const Navbar = () => {
 							</SignedOut>
 							<SignedIn>
 								<NavigationMenuItem>
-									<NavigationMenuLink
-										className="relative px-4 py-3 rounded-xl font-medium text-black hover:bg-gray-100 hover:text-black transition-all duration-200"
-										href="/favorites">
-										Saved Properties
-									</NavigationMenuLink>
-								</NavigationMenuItem>
-								<NavigationMenuItem>
-									<NavigationMenuLink
-										className="relative px-4 py-3 rounded-xl font-medium text-black hover:bg-gray-100 hover:text-black transition-all duration-200"
-										href="/user/saved-searches">
-										Saved Searches
-									</NavigationMenuLink>
-								</NavigationMenuItem>
-								<NavigationMenuItem>
 									<div className="flex items-center gap-4">
 										{user?.publicMetadata?.role === "admin" && (
 											<Link href="/admin/dashboard">
