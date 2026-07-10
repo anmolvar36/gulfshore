@@ -107,6 +107,13 @@ export default async function Listing({
 		property.City || "",
 		development,
 	]);
+
+	const formattedCommunity = capitalizeWords(Meta?.community || development || property.Community || "").trim();
+	const formattedCity = capitalizeWords(Meta?.city || property.City || "").trim();
+	const headerTitle = formattedCommunity.toLowerCase() === formattedCity.toLowerCase() || !formattedCommunity
+		? `${formattedCity}, FL`
+		: `${formattedCommunity} ${formattedCity}, FL`;
+
 	const jsonLd = createRealEstateJsonLd(property);
 	return (
 		<>
@@ -393,7 +400,7 @@ export default async function Listing({
 									<div className="absolute h-full bottom-0 left-0 right-0 text-center bg-linear-to-t from-gray-900/80 via-black/60 to-transparent p-4 flex flex-col justify-end">
 										<div className="flex flex-col items-center justify-end h-full pb-4">
 											<span className="text-xl lg:text-3xl font-bold text-white leading-tight drop-shadow-md">
-												{capitalizeWords(Meta?.community || development || property.Community || "Port Royal")} {capitalizeWords(Meta?.city || property.City || "Naples")}, FL
+												{headerTitle}
 											</span>
 											<span className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-full text-xs font-semibold text-white transition-colors">
 												Explore Area Map & Listings →
@@ -410,7 +417,7 @@ export default async function Listing({
 										<div className="flex items-center space-x-2">
 											<div className="w-1 h-8 bg-accent rounded-full"></div>
 											<h2 className="text-2xl lg:text-4xl font-bold text-primary leading-tight">
-												{capitalizeWords(Meta?.community || development || property.Community || "Port Royal")} {capitalizeWords(Meta?.city || property.City || "Naples")}, FL
+												{headerTitle}
 											</h2>
 										</div>
 
