@@ -116,12 +116,14 @@ export default function RootLayout({
 						dangerouslySetInnerHTML={{
 							__html: `
 							window.OneSignalDeferred = window.OneSignalDeferred || [];
-							OneSignalDeferred.push(function(OneSignal) {
-								OneSignal.init({
-									appId: "3d518653-fe92-44ae-8e74-882e36c738a5",
-									safari_web_id: "web.onesignal.auto.5abdae74-1423-41c2-a45a-5cf3c8870ffd",
+							if (window.location.hostname === "gulfshoregroup.com" || window.location.hostname === "www.gulfshoregroup.com") {
+								OneSignalDeferred.push(function(OneSignal) {
+									OneSignal.init({
+										appId: "3d518653-fe92-44ae-8e74-882e36c738a5",
+										safari_web_id: "web.onesignal.auto.5abdae74-1423-41c2-a45a-5cf3c8870ffd",
+									});
 								});
-							});
+							}
 						`,
 						}}
 					/>
