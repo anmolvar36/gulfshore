@@ -10,7 +10,16 @@ export function ClerkProvider({ children }: { children: React.ReactNode }) {
 
 	React.useEffect(() => {
 		const check = () => {
-			setSignedIn(getCookie("mock_signed_in") === "true");
+			const isSignedIn = getCookie("mock_signed_in") === "true";
+			setSignedIn(isSignedIn);
+			if (isSignedIn) {
+				const mockUserId = getCookie("mock_user_id");
+				const mockEmail = getCookie("mock_user_email");
+				if (!mockUserId || mockUserId === "false") {
+					const isAdmin = mockEmail && mockEmail !== "false" && mockEmail.toLowerCase().includes("admin@gulfshore.com");
+					setCookie("mock_user_id", isAdmin ? "admin_dummy_123" : "user_dummy_123");
+				}
+			}
 		};
 		check();
 		const interval = setInterval(check, 1000);
