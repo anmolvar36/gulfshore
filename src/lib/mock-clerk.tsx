@@ -47,6 +47,7 @@ export function ClerkProvider({ children }: { children: React.ReactNode }) {
 			if (data.success) {
 				setCookie("mock_signed_in", "true");
 				setCookie("mock_user_email", data.email);
+				setCookie("mock_user_id", "admin_dummy_123");
 				if (typeof sessionStorage !== "undefined") {
 					sessionStorage.setItem("just_signed_in", "true");
 				}
