@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Home, Eye, EyeOff, MapPin, Map, Search } from "lucide-react";
+import { Home, Eye, EyeOff, MapPin, Map, Search, ArrowLeft } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
 	Select,
@@ -47,11 +47,9 @@ export default function SignUpForm() {
 	useEffect(() => {
 		const mode = query.get("mode");
 		if (mode === "signin") {
-			setIsLoginMode(true);
-		} else {
-			setIsLoginMode(false);
+			router.push("/signin");
 		}
-	}, [query]);
+	}, [query, router]);
 
 	const handleInputChange = (e: any) => {
 		const { name, value, type, checked } = e.target;
@@ -198,7 +196,14 @@ export default function SignUpForm() {
 	};
 
 	return (
-		<div className="min-h-screen bg-gray-50">
+		<div className="min-h-screen bg-gray-50 relative">
+			{/* Back Button */}
+			<div className="absolute top-6 left-8 z-20">
+				<a href="/" className="flex items-center gap-2 text-sm font-semibold text-[#d90429] hover:underline cursor-pointer">
+					<ArrowLeft size={16} />
+					<span>Back to Home</span>
+				</a>
+			</div>
 			{/* Background Pattern */}
 			<div className="absolute inset-0 opacity-5 pointer-events-none">
 				<div className="absolute top-20 left-20 w-32 h-32 text-[#d90429]">
@@ -360,16 +365,12 @@ export default function SignUpForm() {
 
 							<div className="text-center text-sm text-gray-600 space-y-3 pt-2">
 								<span>
-									{isLoginMode ? "Don't have an account?" : "Already have an account?"}{" "}
-									<button
-										type="button"
-										onClick={() => {
-											setError("");
-											setIsLoginMode(!isLoginMode);
-										}}
+									Already have an account?{" "}
+									<a
+										href="/signin"
 										className="text-[#d90429] font-semibold underline ml-1 hover:text-[#bf0022]">
-										{isLoginMode ? "Create Account" : "Sign In"}
-									</button>
+										Sign In
+									</a>
 								</span>
 							</div>
 

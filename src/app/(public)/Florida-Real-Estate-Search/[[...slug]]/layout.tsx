@@ -14,6 +14,7 @@ import { formatPrice } from "@/hooks/formatPrice";
 import UrlMaker from "@/hooks/url-maker";
 import Script from "next/script";
 import CityLinksSection from "@/components/search/links-section/cityLinksSection";
+import capitalizeWords from "@/hooks/capitalize-letter";
 
 type Props = {
 	params: Promise<{ slug?: string[] }>;

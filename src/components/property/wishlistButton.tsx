@@ -32,6 +32,22 @@ export const WishListButton = ({
 			.catch(() => {});
 	}, [isLoaded, isSignedIn, propertyId]);
 
+	useEffect(() => {
+		if (typeof window === "undefined" || !propertyId) return;
+
+		const handleWishlistUpdate = (e: Event) => {
+			const customEvent = e as CustomEvent;
+			if (customEvent.detail && customEvent.detail.propertyId === propertyId) {
+				setSaved(customEvent.detail.saved);
+			}
+		};
+
+		window.addEventListener("wishlist-updated", handleWishlistUpdate);
+		return () => {
+			window.removeEventListener("wishlist-updated", handleWishlistUpdate);
+		};
+	}, [propertyId]);
+
 	const handleWishlist = async (event: React.MouseEvent) => {
 		event.preventDefault();
 		event.stopPropagation();
@@ -56,9 +72,23 @@ export const WishListButton = ({
 			if (nextSaved) {
 				await addToWishlist(propertyId);
 				toast.success("Saved to favorites");
+				if (typeof window !== "undefined") {
+					window.dispatchEvent(
+						new CustomEvent("wishlist-updated", {
+							detail: { propertyId, saved: true },
+						})
+					);
+				}
 			} else {
 				await removeFromWishlist(propertyId);
 				toast.success("Removed from favorites");
+				if (typeof window !== "undefined") {
+					window.dispatchEvent(
+						new CustomEvent("wishlist-updated", {
+							detail: { propertyId, saved: false },
+						})
+					);
+				}
 			}
 		} catch (error) {
 			setSaved(!nextSaved);

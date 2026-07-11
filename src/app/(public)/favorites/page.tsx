@@ -56,6 +56,23 @@ export default function FavoritesPage() {
 		loadFavorites();
 	}, [isLoaded, isSignedIn]);
 
+	useEffect(() => {
+		if (typeof window === "undefined") return;
+
+		const handleWishlistUpdate = (e: Event) => {
+			const customEvent = e as CustomEvent;
+			const { propertyId, saved } = customEvent.detail || {};
+			if (propertyId && !saved) {
+				setFavorites((prev) => prev.filter((item) => item.id !== propertyId));
+			}
+		};
+
+		window.addEventListener("wishlist-updated", handleWishlistUpdate);
+		return () => {
+			window.removeEventListener("wishlist-updated", handleWishlistUpdate);
+		};
+	}, []);
+
 	if (!isLoaded) {
 		return (
 			<div className="container mx-auto p-8 text-center">

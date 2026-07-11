@@ -18,6 +18,8 @@ import debounce from "@/hooks/useDebounce";
 import { SearchParamsResult } from "@/hooks/extractSearchParams";
 import { EMPTY_FILTERS } from "@/lib/search-filters";
 import { PropertyCard2 } from "@/components/cards/property/property-card";
+import { useUser } from "@clerk/nextjs";
+import { toast } from "sonner";
 
 const mapContainerStyle = {
 	width: "100%",
@@ -43,6 +45,7 @@ export default function MapComponent({
 }: {
 	filterParams: SearchParamsResult;
 }) {
+	const { user, isSignedIn, isLoaded: isUserLoaded } = useUser();
 	const [center, setCenter] = useState({
 		lat: 26.142,
 		lng: -81.7948,
@@ -264,6 +267,65 @@ export default function MapComponent({
 		mapRef.current = null;
 	}, []);
 
+	// Group properties by lat/lng to detect duplicates and offset them
+	const processedProperties = React.useMemo(() => {
+		const coordinateCounts: Record<string, number> = {};
+		
+		return properties.map((item) => {
+			const lat = parseFloat(item.Latitude);
+			const lng = parseFloat(item.Longitude);
+			if (isNaN(lat) || isNaN(lng)) return item;
+			
+			// Round to 5 decimal places to catch very close or identical coordinates
+			const key = `${lat.toFixed(5)},${lng.toFixed(5)}`;
+			
+			if (coordinateCounts[key] !== undefined) {
+				coordinateCounts[key] += 1;
+				const count = coordinateCounts[key];
+				// Apply a tiny offset (approx 6-10 meters) using circle distribution
+				const angle = (count * 2 * Math.PI) / 8;
+				const radius = 0.00006 * Math.ceil(count / 8);
+				
+				const newLat = lat + radius * Math.sin(angle);
+				const newLng = lng + radius * Math.cos(angle);
+				
+				return {
+					...item,
+					Latitude: newLat.toString(),
+					Longitude: newLng.toString(),
+				};
+			} else {
+				coordinateCounts[key] = 0;
+				return item;
+			}
+		});
+	}, [properties]);
+
+	// Handle right-click on the map to zoom out
+	const handleRightClick = useCallback(() => {
+		if (mapRef.current) {
+			const currentZoom = mapRef.current.getZoom();
+			if (currentZoom !== undefined) {
+				mapRef.current.setZoom(currentZoom - 1);
+			}
+		}
+	}, []);
+
+	// Show map controls tip for first-time logged-in users
+	React.useEffect(() => {
+		if (isUserLoaded && isSignedIn && user) {
+			const key = `gulfshore_map_tip_${user.id}`;
+			const hasSeen = localStorage.getItem(key);
+			if (!hasSeen) {
+				toast.info("Map Navigation Tip", {
+					description: "Left mouse button double click to zoom in. Right mouse button click to zoom out.",
+					duration: 10000,
+				});
+				localStorage.setItem(key, "true");
+			}
+		}
+	}, [isUserLoaded, isSignedIn, user]);
+
 	return (
 		<div className="h-full w-full grow relative rounded-xl">
 			{/* Unified Map controls dropdown card */}
@@ -353,6 +415,7 @@ export default function MapComponent({
 					zoom={10}
 					mapTypeId={mapTypeId}
 					mapContainerStyle={mapContainerStyle}
+					onRightClick={handleRightClick}
 					options={{
 						clickableIcons: false,
 						mapTypeControl: false,
@@ -363,7 +426,7 @@ export default function MapComponent({
 					<MarkerClustererF>
 						{(clusterer) => (
 							<>
-								{properties.map((item) => (
+								{processedProperties.map((item) => (
 									<MarkerItem
 										key={item.MLSNumber}
 										item={item}
@@ -371,7 +434,7 @@ export default function MapComponent({
 										clusterer={clusterer}
 									/>
 								))}
-								{ui.details && !properties.includes(ui.details) && (
+								{ui.details && !processedProperties.some(p => p.MLSNumber === ui.details?.MLSNumber) && (
 									<MarkerItem
 										key={ui.details.MLSNumber}
 										item={ui.details}

@@ -1,12 +1,23 @@
+"use client";
 import AboutSection from "@/components/about-section";
 import Footer from "@/components/global/footer";
 import Link from "next/link";
 import React from "react";
+import { ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const TermsPage = () => {
+	const router = useRouter();
 	return (
 		<>
-			<div className="mx-auto px-12 py-12 text-gray-800">
+			<div className="max-w-4xl mx-auto px-6 py-12 text-gray-800">
+				<button
+					onClick={() => router.back()}
+					className="flex items-center gap-2 text-sm font-semibold text-[#d90429] hover:underline mb-6 cursor-pointer focus:outline-hidden"
+				>
+					<ArrowLeft size={16} />
+					<span>Go Back</span>
+				</button>
 				<h1 className="text-3xl font-bold mb-6">
 					Terms and Conditions
 				</h1>

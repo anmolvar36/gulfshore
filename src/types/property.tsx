@@ -136,4 +136,6 @@ interface Property {
 	PreviousPptyPrice: string;
 	LastChangeDate: Date;
 	DateAdded: Date;
+	VirtualTourURLBranded?: string;
+	VirtualTourURLUnbranded?: string;
 }

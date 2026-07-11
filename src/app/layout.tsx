@@ -67,7 +67,10 @@ export default function RootLayout({
 			appearance={{
 				layout: {
 					termsPageUrl: "/terms",
-					privacyPageUrl: "/privacy",
+					privacyPageUrl: "/policy",
+				},
+				variables: {
+					colorPrimary: "#d90429",
 				},
 			}}>
 			<html
