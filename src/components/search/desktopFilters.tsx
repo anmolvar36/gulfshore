@@ -154,6 +154,47 @@ export const Filters = ({
 	// ------------------------------
 	// Apply Filters
 	// ------------------------------
+	const saveSearchSilently = async (url: string) => {
+		try {
+			const filters = {
+				...reduxFilters,
+				city,
+				developmentName: communityInput || community || "",
+				beds: bedrooms,
+				baths: bathrooms,
+				minPrice: minPrice === "Minimum" ? "" : minPrice,
+				maxPrice: maxPrice === "Maximum" ? "" : maxPrice,
+				builtYearMin: minYearBuilt,
+				builtYearMax: maxYearBuilt,
+				postalCode,
+				propertyTypes: propertyType,
+				features: keywords,
+				page: "1",
+			};
+			let name;
+			const link = `https://gulfshoregroup.com${url}`;
+			if (
+				filters.city ||
+				(filters.propertyTypes && filters.propertyTypes.length > 0)
+			) {
+				name = `${filters.city || ""} ${
+					filters.propertyTypes
+						? filters.propertyTypes.join(", ")
+						: ""
+				}`;
+			} else {
+				name = "My Saved Search";
+			}
+			await axios.post("/api/v2/saved-searches", {
+				filters,
+				link,
+				name,
+			});
+		} catch (error) {
+			console.error("Silent background search save failed:", error);
+		}
+	};
+
 	const handleApplyFilters = () => {
 		setLoading(true);
 
@@ -196,8 +237,14 @@ export const Filters = ({
 			city,
 			developmentName: communityInput || community || "",
 		});
+		const nextUrl = `${nextPath}?${nextQuery.toString()}`;
+
+		if (isLoaded && isSignedIn) {
+			saveSearchSilently(nextUrl);
+		}
+
 		dispatch(setFilters(nextFilters));
-		router.replace(`${nextPath}?${nextQuery.toString()}`, {
+		router.replace(nextUrl, {
 			scroll: false,
 		});
 		dispatch(fetchProperties());
@@ -732,7 +779,7 @@ export const Filters = ({
 					</div>
 				</div>
 
-				<div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+				<div className="flex justify-center w-full">
 					{/* Apply Button */}
 					<Button
 						onClick={() => handleApplyFilters()}
@@ -745,22 +792,6 @@ export const Filters = ({
 								<LoaderIcon className="h-4 w-4 animate-spin text-primary-600" />
 								<span className="text-sm text-white font-medium">
 									Applying filters...
-								</span>
-							</div>
-						)}
-					</Button>
-					{/* Save And Apply Button */}
-					<Button
-						onClick={() => handleSaveAndApplyFilters()}
-						disabled={loading}
-						className="w-full bg-blue-500 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-colors duration-200 ease-in-out shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
-						{!loading ? (
-							"Save Search And Apply"
-						) : (
-							<div className="flex items-center space-x-2">
-								<LoaderIcon className="h-4 w-4 animate-spin text-primary-600" />
-								<span className="text-sm text-white font-medium">
-									Saving Search Filters...
 								</span>
 							</div>
 						)}

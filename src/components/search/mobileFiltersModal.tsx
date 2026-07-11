@@ -96,6 +96,33 @@ export default function MobileFiltersModal({
 		}
 	};
 
+	const saveSearchSilently = async (url: string) => {
+		try {
+			const filters = await ExtractSearchParams(url.split("/"));
+			let name;
+			const link = `https://gulfshoregroup.com${url}`;
+			if (
+				filters.city ||
+				(filters.propertyTypes && filters.propertyTypes.length > 0)
+			) {
+				name = `${filters.city || ""} ${
+					filters.propertyTypes
+						? filters.propertyTypes.join(", ")
+						: ""
+				}`;
+			} else {
+				name = "My Saved Search";
+			}
+			await axios.post("/api/v2/saved-searches", {
+				filters,
+				link,
+				name,
+			});
+		} catch (error) {
+			console.error("Silent background search save failed (mobile):", error);
+		}
+	};
+
 	const handleApplyFilters = () => {
 		setLoading(true);
 		const beds = bedrooms;
@@ -195,6 +222,10 @@ export default function MobileFiltersModal({
 		const queryString = queryParams.toString();
 		if (queryString) {
 			url += "?" + queryString;
+		}
+
+		if (isLoaded && isSignedIn) {
+			saveSearchSilently(url);
 		}
 
 		router.replace(url);
@@ -833,18 +864,12 @@ export default function MobileFiltersModal({
 							</span>
 						</div>
 					) : (
-						<div className="grid grid-cols-2 gap-3">
+						<div className="flex justify-center w-full">
 							<Button
 								onClick={handleApplyFilters}
-								className="flex-1 h-12 rounded-2xl">
+								className="w-full h-12 rounded-2xl">
 								<Search className="w-4 h-4 mr-2" />
 								Apply Filters
-							</Button>
-							<Button
-								onClick={handleSaveAndApplyFilters}
-								className="w-full bg-blue-500 h-12 rounded-2xl">
-								<Search className="w-4 h-4 mr-2" />
-								Save & Apply
 							</Button>
 						</div>
 					)}
