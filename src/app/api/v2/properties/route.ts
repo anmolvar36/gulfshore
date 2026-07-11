@@ -67,13 +67,9 @@ export async function GET(req: NextRequest) {
 			where.ListPrice = {
 				...(minPrice && { gte: minPrice }),
 				...(maxPrice && { lte: maxPrice }),
-				...(!minPrice && {
-					not: null,
-					gte: 0,
-				}),
+				not: null,
 			};
-		}
-		if (!minPrice) {
+		} else {
 			where.ListPrice = {
 				not: null,
 				gte: 1000,

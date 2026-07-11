@@ -203,7 +203,11 @@ export default function PropertyDetailsTable({
 					<h2 className="lg:text-xl text-lg font-medium mb-4">
 						Property Overview
 					</h2>
-					<ReadMore className="text-sm lg:text-base md:font-normal font-light">
+					<ReadMore
+						maxLength={250}
+						readMoreText="Read More"
+						readLessText="Read Less"
+						className="text-sm lg:text-base md:font-normal font-light">
 						{description}
 					</ReadMore>
 				</div>

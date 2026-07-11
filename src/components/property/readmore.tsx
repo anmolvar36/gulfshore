@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 interface ReadMoreProps {
 	children: any;
@@ -14,7 +15,7 @@ interface ReadMoreProps {
 
 const ReadMore: React.FC<ReadMoreProps> = ({
 	children,
-	maxLength = 400,
+	maxLength = 280,
 	readMoreText = "Read More",
 	readLessText = "Read Less",
 	className = "",
@@ -27,6 +28,10 @@ const ReadMore: React.FC<ReadMoreProps> = ({
 		? children.join("")
 		: typeof children === "string"
 		? children
+		: typeof children === "number"
+		? String(children)
+		: children
+		? String(children)
 		: "";
 
 	const shouldTruncate = textContent.length > maxLength;
@@ -54,40 +59,43 @@ const ReadMore: React.FC<ReadMoreProps> = ({
 
 	return (
 		<div className={className}>
-			<p
-				className="whitespace-pre-wrap break-words text-black font-normal"
+			<div
+				className="whitespace-pre-wrap break-words text-gray-700 leading-relaxed font-normal"
 				aria-expanded={isExpanded}>
-				<span
-					style={{ display: isExpanded ? "inline" : "none" }}
-					suppressHydrationWarning>
-					{textContent}
-				</span>
-				<span
-					style={{ display: isExpanded ? "none" : "inline" }}
-					suppressHydrationWarning>
-					{getTruncatedText(textContent, maxLength)}
-					{shouldTruncate && "..."}
-				</span>
-			</p>
+				{isExpanded ? (
+					<span>{textContent}</span>
+				) : (
+					<span>
+						{getTruncatedText(textContent, maxLength)}
+						{shouldTruncate && "..."}
+					</span>
+				)}
+			</div>
 
 			{shouldTruncate &&
 				(link ? (
 					<Link
 						href={link}
 						aria-label="read-more"
-						className="inline-block mt-2 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 font-semibold rounded-lg transition-colors cursor-pointer"
+						className="inline-flex items-center gap-1.5 mt-3 px-3.5 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary font-semibold text-sm rounded-lg transition-colors cursor-pointer"
 						target="_blank">
-						Read More
+						<span>Read More</span>
+						<ChevronDown size={15} />
 					</Link>
 				) : (
 					<button
 						type="button"
 						onClick={toggleExpanded}
-						className="inline-flex items-center mt-2.5 px-3.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 font-semibold text-sm rounded-lg transition-colors cursor-pointer select-none"
+						className="inline-flex items-center gap-1.5 mt-3 px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary font-semibold text-sm rounded-lg transition-all duration-200 cursor-pointer select-none"
 						aria-label={
 							isExpanded ? "Collapse content" : "Expand content"
 						}>
-						{isExpanded ? readLessText : readMoreText}
+						<span>{isExpanded ? readLessText : readMoreText}</span>
+						{isExpanded ? (
+							<ChevronUp size={16} />
+						) : (
+							<ChevronDown size={16} />
+						)}
 					</button>
 				))}
 		</div>

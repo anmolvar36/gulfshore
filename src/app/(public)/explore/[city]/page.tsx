@@ -8,6 +8,7 @@ import { Search } from "lucide-react";
 import Script from "next/script";
 import { formatPrice } from "@/hooks/formatPrice";
 import UrlMaker from "@/hooks/url-maker";
+import CityLinksSection from "@/components/search/links-section/cityLinksSection";
 
 import type { Metadata } from "next";
 
@@ -296,6 +297,8 @@ async function ExploreCity({
 					</a>
 				</div>
 			</section>
+
+			<CityLinksSection city={seoData.city} />
 
 			<Script
 				id="jsonld-realestate"
