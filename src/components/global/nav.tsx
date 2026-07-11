@@ -154,11 +154,11 @@ const Navbar = () => {
 							</NavigationMenuItem>
 							<SignedOut>
 								<NavigationMenuItem>
-									<SignUpButton mode="modal">
+									<Link href="/signup">
 										<Button className="rounded-full font-bold cursor-pointer bg-primary hover:bg-accent text-white px-6">
 											Sign Up
 										</Button>
-									</SignUpButton>
+									</Link>
 								</NavigationMenuItem>
 								<NavigationMenuItem>
 									<Link href="/admin/dashboard">
@@ -263,16 +263,16 @@ export const DrawerMenu = ({
 							</Link>
 						))}
 						<SignedOut>
-							<SignUpButton mode="modal">
+							<Link href="/signup" className="w-full block">
 								<button className="w-full text-left relative px-4 py-3 rounded-xl hover:bg-linear-to-r hover:from-blue-50 hover:to-purple-50 hover:text-black text-gray-800 transition-all duration-200 font-medium text-base cursor-pointer">
 									Sign Up
 								</button>
-							</SignUpButton>
-							<SignInButton mode="modal">
+							</Link>
+							<Link href="/signin" className="w-full block">
 								<button className="w-full text-left relative px-4 py-3 rounded-xl hover:bg-linear-to-r hover:from-blue-50 hover:to-purple-50 hover:text-black text-gray-800 transition-all duration-200 font-medium text-base cursor-pointer">
 									Sign In
 								</button>
-							</SignInButton>
+							</Link>
 							<Link
 								href="/admin/dashboard"
 								className="relative block w-full px-4 py-3 rounded-xl text-[#B89A6A] hover:bg-[#B89A6A]/10 hover:text-[#B89A6A] transition-all duration-200 font-bold text-base">

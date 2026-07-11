@@ -389,19 +389,193 @@ export function GoogleOneTap() {
 }
 
 export function SignIn() {
-	return (
-		<div style={{ padding: "20px", textAlign: "center" }}>
-			<h3>Sign In (Mocked)</h3>
-			<button 
-				onClick={() => {
-					if (typeof window !== "undefined") {
-						window.dispatchEvent(new Event("open-mock-signin"));
+	const [email, setEmail] = React.useState("");
+	const [password, setPassword] = React.useState("");
+	const [showPasswordStep, setShowPasswordStep] = React.useState(false);
+	const [error, setError] = React.useState("");
+	const [isLoading, setIsLoading] = React.useState(false);
+
+	const handleGoogleLogin = async () => {
+		setIsLoading(true);
+		setError("");
+		try {
+			// Google login automatically logs in as admin for mock testing convenience
+			setCookie("mock_signed_in", "true");
+			setCookie("mock_user_email", "admin@gulfshore.com");
+			setCookie("mock_user_id", "admin_dummy_123");
+			if (typeof sessionStorage !== "undefined") {
+				sessionStorage.setItem("just_signed_in", "true");
+			}
+			window.location.href = "/";
+		} catch (err) {
+			setError("Failed to sign in with Google.");
+			setIsLoading(false);
+		}
+	};
+
+	const handleContinue = (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!email) {
+			setError("Email is required.");
+			return;
+		}
+		setError("");
+		setShowPasswordStep(true);
+	};
+
+	const handleLogin = async (e: React.FormEvent) => {
+		e.preventDefault();
+		setError("");
+		setIsLoading(true);
+
+		try {
+			// If it is admin, log in via admin api, else use general user signin api
+			const isAdmin = email.toLowerCase().includes("admin@gulfshore.com");
+			if (isAdmin) {
+				const res = await fetch("/api/admin/auth", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ action: "login", email, password })
+				});
+				const data = await res.json();
+				if (data.success) {
+					setCookie("mock_signed_in", "true");
+					setCookie("mock_user_email", data.email);
+					setCookie("mock_user_id", "admin_dummy_123");
+					if (typeof sessionStorage !== "undefined") {
+						sessionStorage.setItem("just_signed_in", "true");
 					}
-				}}
-				style={{ padding: "8px 16px", cursor: "pointer" }}
-			>
-				Open Sign In Form
-			</button>
+					window.location.href = "/";
+				} else {
+					setError(data.error || "Invalid credentials");
+				}
+			} else {
+				const res = await fetch("/api/v2/user/signin", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ email, password })
+				});
+				const data = await res.json();
+				if (data.success) {
+					setCookie("mock_signed_in", "true");
+					setCookie("mock_user_email", data.user.email);
+					setCookie("mock_user_id", data.user.clerkId);
+					window.location.href = "/";
+				} else {
+					setError(data.error || "Invalid credentials");
+				}
+			}
+		} catch (err) {
+			setError("Failed to sign in. Please check your credentials.");
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	return (
+		<div className="w-full max-w-[400px] bg-white border border-gray-200 rounded-2xl shadow-xl p-8 flex flex-col items-center font-sans text-[#1f2937] mx-auto my-12">
+			{/* Logo */}
+			<div className="w-12 h-12 mb-4 relative flex items-center justify-center">
+				<img src="/logo.svg" alt="Gulfshore Group Logo" className="w-full h-full object-contain" />
+			</div>
+
+			<h2 className="text-xl font-bold text-gray-900 text-center mb-1">Sign in to Gulfshore Group</h2>
+			<p className="text-sm text-gray-500 text-center mb-6">Welcome back! Please sign in to continue</p>
+
+			{error && (
+				<div className="w-full bg-red-50 border border-red-200 text-red-600 rounded-lg p-3 text-xs mb-4">
+					{error}
+				</div>
+			)}
+
+			{!showPasswordStep ? (
+				<form onSubmit={handleContinue} className="w-full flex flex-col">
+					{/* Google Button */}
+					<button
+						type="button"
+						onClick={handleGoogleLogin}
+						disabled={isLoading}
+						className="w-full flex items-center justify-center gap-3 px-4 py-2.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-sm font-semibold text-gray-700 shadow-sm cursor-pointer transition-colors duration-200"
+					>
+						{/* Google SVG Icon */}
+						<svg className="w-4 h-4" viewBox="0 0 24 24">
+							<path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.9h6.69c-.29 1.5-.14 3.01-.97 4.14l3.12 2.42c1.83-1.69 2.9-4.18 2.9-6.39z"/>
+							<path fill="#34A853" d="M12 24c3.24 0 5.97-1.08 7.96-2.91l-3.12-2.42c-.86.58-1.97.92-3.12.92-3.1 0-5.74-2.1-6.68-4.92L3.81 18.2C5.79 22.14 9.87 24 12 24z"/>
+							<path fill="#FBBC05" d="M5.32 14.67c-.24-.7-.38-1.4-.38-2.17s.14-1.47.38-2.17L3.81 7.91C2.97 9.6 2.5 11.5 2.5 13.5s.47 3.9 1.31 5.59l1.51-2.42z"/>
+							<path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.43-3.43C17.96 1.19 15.24 0 12 0 9.87 0 5.79 1.86 3.81 5.8l1.51 2.42c.94-2.82 3.58-4.92 6.68-4.92z"/>
+						</svg>
+						<span>Continue with Google</span>
+					</button>
+
+					{/* Divider */}
+					<div className="flex items-center my-6">
+						<div className="flex-grow h-px bg-gray-100" />
+						<span className="px-3 text-xs text-gray-400 font-medium bg-white">or</span>
+						<div className="flex-grow h-px bg-gray-100" />
+					</div>
+
+					{/* Email Input */}
+					<label className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Email address</label>
+					<input
+						type="email"
+						placeholder="Enter your email address"
+						value={email}
+						onChange={(e) => setEmail(e.target.value)}
+						className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#d90429] focus:border-transparent transition-all mb-4"
+						required
+					/>
+
+					{/* Continue Button */}
+					<button
+						type="submit"
+						disabled={isLoading}
+						className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 bg-[#d90429] hover:bg-[#bf0022] text-white text-sm font-semibold rounded-lg shadow-md cursor-pointer transition-colors duration-200"
+					>
+						<span>Continue</span>
+						<span className="text-xs">▶</span>
+					</button>
+				</form>
+			) : (
+				<form onSubmit={handleLogin} className="w-full flex flex-col">
+					{/* Password Input */}
+					<label className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Password</label>
+					<input
+						type="password"
+						placeholder="Enter your password"
+						value={password}
+						onChange={(e) => setPassword(e.target.value)}
+						className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#d90429] focus:border-transparent transition-all mb-4"
+						required
+					/>
+
+					<div className="flex gap-2">
+						{/* Back Button */}
+						<button
+							type="button"
+							onClick={() => setShowPasswordStep(false)}
+							className="w-1/3 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold rounded-lg cursor-pointer transition-colors duration-200"
+						>
+							Back
+						</button>
+						{/* Sign In Button */}
+						<button
+							type="submit"
+							disabled={isLoading}
+							className="w-2/3 px-4 py-2.5 bg-[#d90429] hover:bg-[#bf0022] text-white text-sm font-semibold rounded-lg shadow-md cursor-pointer transition-colors duration-200"
+						>
+							{isLoading ? "Signing In..." : "Sign In"}
+						</button>
+					</div>
+				</form>
+			)}
+
+			{/* Footer Sign Up Link */}
+			<div className="mt-8 text-sm text-gray-600 text-center">
+				Don't have an account?{" "}
+				<a href="/signup" className="text-[#d90429] hover:underline font-medium">Sign up</a>
+			</div>
+
+		
 		</div>
 	);
 }

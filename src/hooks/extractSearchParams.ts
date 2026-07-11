@@ -19,6 +19,7 @@ export interface SearchParamsResult {
 	postalCode: string;
 	page: string;
 	features: string[];
+	community?: string | null;
 }
 
 export default async function ExtractSearchParams(
