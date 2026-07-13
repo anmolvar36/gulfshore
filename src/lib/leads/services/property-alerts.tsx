@@ -828,7 +828,7 @@ import {
     const resend = new Resend(apiKey);
   
     const { data, error } = await resend.emails.send({
-      from: options.from ?? "Gulfshore Group <noreply@updates.gulfshoregroup.com>",
+      from: options.from ?? process.env.RESEND_FROM_EMAIL!,
       to: Array.isArray(options.to) ? options.to : [options.to],
       replyTo: options.replyTo,
       subject:

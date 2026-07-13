@@ -116,8 +116,7 @@ export async function sendAdminLeadAlertEmail(
 	payload: AdminLeadAlertPayload
 ): Promise<{ ok: boolean; id?: string; error?: string }> {
 	const to = process.env.ADMIN_ALERT_EMAIL;
-	const from =
-		process.env.RESEND_FROM_EMAIL ?? "Gulfshore Group <noreply@updates.gulfshoregroup.com>";
+	const from = process.env.RESEND_FROM_EMAIL!;
 
 	if (!to) {
 		console.warn("[Resend] ADMIN_ALERT_EMAIL is not configured");
