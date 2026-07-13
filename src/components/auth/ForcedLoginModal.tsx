@@ -50,8 +50,12 @@ export default function ForcedLoginModal() {
 	if (!isOpen || isSignedIn) return null;
 
 	return (
-		<Dialog open={isOpen} onOpenChange={setIsOpen}>
-			<DialogContent className="sm:max-w-[480px] p-0 overflow-hidden bg-white rounded-3xl border-0 shadow-2xl">
+		<Dialog open={isOpen}>
+			<DialogContent 
+				onInteractOutside={(e) => e.preventDefault()}
+				onEscapeKeyDown={(e) => e.preventDefault()}
+				className="sm:max-w-[480px] p-0 overflow-hidden bg-white rounded-3xl border-0 shadow-2xl [&>button]:hidden"
+			>
 				{/* Top Header Banner */}
 				<div className="relative bg-gradient-to-br from-red-600 via-red-700 to-rose-900 p-8 text-white text-center">
 					<div className="mx-auto w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center mb-4 border border-white/20 shadow-inner">
