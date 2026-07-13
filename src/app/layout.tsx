@@ -18,6 +18,7 @@ const poppins = Poppins({
 });
 
 import UtmTracker from "../components/global/utmTracker";
+import ForcedLoginModal from "../components/auth/ForcedLoginModal";
 
 export const metadata: Metadata = {
 	title: "Naples Florida Real Estate Office - GULFSHORE GROUP",
@@ -108,6 +109,7 @@ export default function RootLayout({
 					/>
 					<StoreProvider>
 						<UtmTracker />
+						<ForcedLoginModal />
 						{children}
 					</StoreProvider>
 

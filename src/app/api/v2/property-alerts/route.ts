@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { sendPropertyAlert } from "@/lib/leads/services/property-alerts";
+import { sendSMS } from "@/lib/twilio";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -98,10 +99,23 @@ async function runPropertyAlertSend(overrides: AlertOverrides = {}) {
     };
   }
 
+  // Optionally send SMS notification if phone number is configured
+  const alertPhone = process.env.PROPERTY_ALERT_PHONE;
+  if (alertPhone) {
+    try {
+      await sendSMS(
+        alertPhone,
+        `Gulfshore Group Alert: New luxury listings match your saved criteria. Check your email or portal dashboard for details!`
+      );
+    } catch (err) {
+      console.error("Failed to send property alert SMS:", err);
+    }
+  }
+
   return {
     ok: true as const,
     status: 200,
-    body: { ok: true, id: result.id, sentTo: to },
+    body: { ok: true, id: result.id, sentTo: to, smsSent: Boolean(alertPhone) },
   };
 }
 
