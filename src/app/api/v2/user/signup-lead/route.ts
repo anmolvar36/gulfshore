@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { hashPassword } from "@/lib/auth-crypto";
 import { cookies } from "next/headers";
+import { sendSMS } from "@/lib/twilio";
+import { sendAdminLeadAlertEmail } from "@/lib/email/admin-lead-alert";
+import { sendPropertyAlert } from "@/lib/leads/services/property-alerts";
 
 export async function POST(req: Request) {
 	try {
@@ -86,6 +89,43 @@ export async function POST(req: Request) {
 			...lead,
 			_id: lead.id,
 		};
+
+		// 7. Fire SMS & Email Notifications asynchronously
+		(async () => {
+			try {
+				if (phone) {
+					await sendSMS(
+						phone,
+						`Welcome to Gulfshore Group! Your VIP MLS account is active. Discover luxury Florida real estate today at https://gulfshoregroup.com`
+					);
+				}
+			} catch (err) {
+				console.error("Signup SMS trigger failed:", err);
+			}
+
+			try {
+				await sendAdminLeadAlertEmail({
+					firstName: firstName || "New",
+					lastName: lastName || "User",
+					email: normalizedEmail,
+					phone: phone || "N/A",
+					source: "VIP Modal Signup",
+				});
+			} catch (err) {
+				console.error("Signup Admin Email trigger failed:", err);
+			}
+
+			try {
+				await sendPropertyAlert({
+					to: normalizedEmail,
+					recipientName: firstName || "VIP Client",
+					alertTitle: "Welcome to Gulfshore Group VIP Access",
+					alertSubtitle: "Here is your first curated selection of Naples luxury properties",
+				});
+			} catch (err) {
+				console.error("Signup User Welcome Email trigger failed:", err);
+			}
+		})();
 
 		return NextResponse.json({
 			success: true,
