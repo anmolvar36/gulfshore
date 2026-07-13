@@ -21,10 +21,13 @@ export default function ForcedLoginModal() {
 
 		// Don't show on auth pages or admin pages
 		if (
-			pathname.startsWith("/signup") ||
-			pathname.startsWith("/signin") ||
+			pathname.includes("/signup") ||
+			pathname.includes("/signin") ||
+			pathname.includes("/sign-up") ||
+			pathname.includes("/sign-in") ||
 			pathname.startsWith("/admin")
 		) {
+			setIsOpen(false);
 			return;
 		}
 
@@ -104,17 +107,17 @@ export default function ForcedLoginModal() {
 
 					{/* Action Buttons */}
 					<div className="pt-2 space-y-3">
-						<Link href="/signup" className="w-full block">
-							<Button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 text-base">
+						<Link href="/signup" onClick={() => setIsOpen(false)} className="w-full block">
+							<Button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 text-base cursor-pointer">
 								Create Free Account
 								<ArrowRight className="w-5 h-5" />
 							</Button>
 						</Link>
 
-						<Link href="/signin" className="w-full block">
+						<Link href="/signin" onClick={() => setIsOpen(false)} className="w-full block">
 							<Button
 								variant="outline"
-								className="w-full border-gray-200 text-gray-700 hover:bg-gray-50 font-semibold py-5 rounded-xl text-sm">
+								className="w-full border-gray-200 text-gray-700 hover:bg-gray-50 font-semibold py-5 rounded-xl text-sm cursor-pointer">
 								Already have an account? Sign In
 							</Button>
 						</Link>
