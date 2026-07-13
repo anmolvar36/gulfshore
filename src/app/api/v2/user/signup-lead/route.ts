@@ -105,11 +105,11 @@ export async function POST(req: Request) {
 
 			try {
 				await sendAdminLeadAlertEmail({
-					firstName: firstName || "New",
-					lastName: lastName || "User",
-					email: normalizedEmail,
-					phone: phone || "N/A",
-					source: "VIP Modal Signup",
+					action: "signup",
+					leadName: `${firstName || ""} ${lastName || ""}`.trim() || "New VIP User",
+					leadEmail: normalizedEmail,
+					timestamp: new Date(),
+					message: `New VIP Modal signup via portal (${phone || "No phone"})`,
 				});
 			} catch (err) {
 				console.error("Signup Admin Email trigger failed:", err);
