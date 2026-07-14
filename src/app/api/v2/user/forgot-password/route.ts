@@ -53,7 +53,7 @@ export async function POST(req: Request) {
 
 		if (resend) {
 			try {
-				const fromEmail = "Gulfshore Group <onboarding@resend.dev>";
+				const fromEmail = "Gulfshore Group <noreply@updates.gulfshoregroup.com>";
 				const { error } = await resend.emails.send({
 					from: fromEmail,
 					to: [user.email],
