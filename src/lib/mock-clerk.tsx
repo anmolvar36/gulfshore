@@ -393,6 +393,8 @@ export function SignIn() {
 	const [password, setPassword] = React.useState("");
 	const [showPasswordStep, setShowPasswordStep] = React.useState(false);
 	const [showResetPassword, setShowResetPassword] = React.useState(false);
+	const [resetStep, setResetStep] = React.useState<"request" | "verify">("request");
+	const [otp, setOtp] = React.useState("");
 	const [newPassword, setNewPassword] = React.useState("");
 	const [confirmPassword, setConfirmPassword] = React.useState("");
 	const [resetSuccess, setResetSuccess] = React.useState("");
@@ -478,11 +480,48 @@ export function SignIn() {
 		}
 	};
 
+	const handleSendOtp = async (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!email) {
+			setError("Email is required.");
+			return;
+		}
+		setError("");
+		setResetSuccess("");
+		setIsLoading(true);
+
+		try {
+			const res = await fetch("/api/v2/user/forgot-password", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email })
+			});
+			const data = await res.json();
+			if (data.success) {
+				setResetStep("verify");
+				setResetSuccess(data.message || "Verification code sent successfully.");
+				if (data.mockOtp && typeof window !== "undefined") {
+					alert(`Gulfshore Mock Clerk Mode:\nYour password reset verification code is: ${data.mockOtp}`);
+				}
+			} else {
+				setError(data.error || "Failed to request password reset");
+			}
+		} catch (err) {
+			setError("Failed to request password reset. Please try again.");
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
 	const handleResetPassword = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setError("");
 		setResetSuccess("");
 
+		if (!otp) {
+			setError("Verification code is required");
+			return;
+		}
 		if (newPassword.length < 6) {
 			setError("Password must be at least 6 characters long");
 			return;
@@ -497,13 +536,15 @@ export function SignIn() {
 			const res = await fetch("/api/v2/user/reset-password", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ email, newPassword })
+				body: JSON.stringify({ email, otp, newPassword })
 			});
 			const data = await res.json();
 			if (data.success) {
 				setResetSuccess("Password reset successfully! Please sign in with your new password.");
 				setShowResetPassword(false);
+				setResetStep("request");
 				setPassword("");
+				setOtp("");
 				setNewPassword("");
 				setConfirmPassword("");
 			} else {
@@ -539,54 +580,106 @@ export function SignIn() {
 			)}
 
 			{showResetPassword ? (
-				<form onSubmit={handleResetPassword} className="w-full flex flex-col">
-					<h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-4 text-center">Reset Password for {email}</h3>
-					
-					{/* New Password Input */}
-					<label className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">New Password</label>
-					<input
-						type="password"
-						placeholder="Minimum 6 characters"
-						value={newPassword}
-						onChange={(e) => setNewPassword(e.target.value)}
-						className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#d90429] focus:border-transparent transition-all mb-4"
-						required
-					/>
+				resetStep === "request" ? (
+					<form onSubmit={handleSendOtp} className="w-full flex flex-col">
+						<h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-4 text-center">Reset Password</h3>
+						
+						{/* Email Input */}
+						<label className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Email address</label>
+						<input
+							type="email"
+							placeholder="Enter your email address"
+							value={email}
+							onChange={(e) => setEmail(e.target.value)}
+							className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#d90429] focus:border-transparent transition-all mb-4"
+							required
+						/>
 
-					{/* Confirm Password Input */}
-					<label className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Confirm New Password</label>
-					<input
-						type="password"
-						placeholder="Re-enter new password"
-						value={confirmPassword}
-						onChange={(e) => setConfirmPassword(e.target.value)}
-						className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#d90429] focus:border-transparent transition-all mb-4"
-						required
-					/>
+						<div className="flex gap-2">
+							{/* Back Button */}
+							<button
+								type="button"
+								onClick={() => {
+									setShowResetPassword(false);
+									setError("");
+									setResetSuccess("");
+								}}
+								className="w-1/3 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold rounded-lg cursor-pointer transition-colors duration-200"
+							>
+								Cancel
+							</button>
+							{/* Send Code Button */}
+							<button
+								type="submit"
+								disabled={isLoading}
+								className="w-2/3 px-4 py-2.5 bg-[#d90429] hover:bg-[#bf0022] text-white text-sm font-semibold rounded-lg shadow-md cursor-pointer transition-colors duration-200"
+							>
+								{isLoading ? "Sending..." : "Send Code"}
+							</button>
+						</div>
+					</form>
+				) : (
+					<form onSubmit={handleResetPassword} className="w-full flex flex-col">
+						<h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-4 text-center">Reset Password for {email}</h3>
+						
+						{/* OTP Input */}
+						<label className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Verification Code (OTP)</label>
+						<input
+							type="text"
+							placeholder="Enter 6-digit code"
+							value={otp}
+							onChange={(e) => setOtp(e.target.value)}
+							className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#d90429] focus:border-transparent transition-all mb-4"
+							required
+						/>
 
-					<div className="flex gap-2">
-						{/* Back Button */}
-						<button
-							type="button"
-							onClick={() => {
-								setShowResetPassword(false);
-								setError("");
-							}}
-							className="w-1/3 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold rounded-lg cursor-pointer transition-colors duration-200"
-						>
-							Cancel
-						</button>
-						{/* Reset Button */}
-						<button
-							type="submit"
-							disabled={isLoading}
-							className="w-2/3 px-4 py-2.5 bg-[#d90429] hover:bg-[#bf0022] text-white text-sm font-semibold rounded-lg shadow-md cursor-pointer transition-colors duration-200"
-						>
-							{isLoading ? "Resetting..." : "Reset"}
-						</button>
-					</div>
-				</form>
-			) : !showPasswordStep ? (
+						{/* New Password Input */}
+						<label className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">New Password</label>
+						<input
+							type="password"
+							placeholder="Minimum 6 characters"
+							value={newPassword}
+							onChange={(e) => setNewPassword(e.target.value)}
+							className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#d90429] focus:border-transparent transition-all mb-4"
+							required
+						/>
+
+						{/* Confirm Password Input */}
+						<label className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Confirm New Password</label>
+						<input
+							type="password"
+							placeholder="Re-enter new password"
+							value={confirmPassword}
+							onChange={(e) => setConfirmPassword(e.target.value)}
+							className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#d90429] focus:border-transparent transition-all mb-4"
+							required
+						/>
+
+						<div className="flex gap-2">
+							{/* Back Button */}
+							<button
+								type="button"
+								onClick={() => {
+									setResetStep("request");
+									setError("");
+									setResetSuccess("");
+									setOtp("");
+								}}
+								className="w-1/3 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold rounded-lg cursor-pointer transition-colors duration-200"
+							>
+								Back
+							</button>
+							{/* Reset Button */}
+							<button
+								type="submit"
+								disabled={isLoading}
+								className="w-2/3 px-4 py-2.5 bg-[#d90429] hover:bg-[#bf0022] text-white text-sm font-semibold rounded-lg shadow-md cursor-pointer transition-colors duration-200"
+							>
+								{isLoading ? "Resetting..." : "Reset"}
+							</button>
+						</div>
+					</form>
+				) ) : !showPasswordStep ? (
 				<form onSubmit={handleContinue} className="w-full flex flex-col">
 					{/* Email Input */}
 					<label className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Email address</label>
