@@ -66,9 +66,8 @@ const channels = [
 ];
 
 const segments = [
-	{ value: "users", label: "Users" },
-
-	{ value: "user", label: "User" },
+	{ value: "users", label: "All Users" },
+	{ value: "user", label: "Specific User" },
 ];
 
 const locationOptions = [
@@ -97,6 +96,22 @@ function ScheduleNotificationContent() {
 	const [time, setTime] = useState("");
 	const [userId, setUserId] = useState("");
 	const [propertyId, setPropertyId] = useState("");
+	const [usersList, setUsersList] = useState<any[]>([]);
+
+	useEffect(() => {
+		const fetchUsers = async () => {
+			try {
+				const response = await fetch("/api/leads");
+				if (response.ok) {
+					const data = await response.json();
+					setUsersList(data);
+				}
+			} catch (error) {
+				console.error("Error fetching users:", error);
+			}
+		};
+		fetchUsers();
+	}, []);
 
 	const [selectedType, setSelectedType] = useState("");
 	const [selectedChannel, setSelectedChannel] = useState("");
@@ -392,13 +407,19 @@ function ScheduleNotificationContent() {
 								</div>
 								{selectedSegment === "user" && (
 									<div className="space-y-2">
-										<Label htmlFor="userId">User ID</Label>
-										<Input
-											id="userId"
-											placeholder="Enter user ID"
-											value={userId}
-											onChange={(e) => setUserId(e.target.value)}
-										/>
+										<Label>Select User</Label>
+										<Select value={userId} onValueChange={setUserId}>
+											<SelectTrigger>
+												<SelectValue placeholder="Select a user" />
+											</SelectTrigger>
+											<SelectContent>
+												{usersList.map((u) => (
+													<SelectItem key={u.id} value={u.id}>
+														{u.firstName || u.lastName ? `${u.firstName || ""} ${u.lastName || ""}`.trim() : "Unknown"} ({u.email || "No Email"})
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
 									</div>
 								)}
 
