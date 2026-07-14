@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Input } from "../ui/input";
 import { AutocompleteInput } from "../ui/autocomplete";
 import { Button } from "../ui/button";
-import { ChevronDown, LoaderIcon, Settings2 } from "lucide-react";
+import { ChevronDown, LoaderIcon, Settings2, ChevronsRightIcon } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import {
@@ -83,9 +83,11 @@ const formatPrice = (price: number) => {
 export const Filters = ({
 	community,
 	classname,
+	asLink = false,
 }: {
 	community?: string;
 	classname?: string;
+	asLink?: boolean;
 }) => {
 	const router = useRouter();
 	const dispatch = useDispatch<AppDispatch>();
@@ -377,10 +379,21 @@ export const Filters = ({
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger
 				className={
-					"px-4 py-2 border h-9 md:h-12 border-gray-200 w-full rounded-md hidden md:inline-flex justify-center text-center items-center gap-1 text-gray-700 hover:text-primary hover:border-primary hover:bg-white data-[state=open]:border-primary data-[state=open]:text-primary data-[state=open]:bg-white transition-colors" +
-					` ${classname}`
+					asLink
+						? "text-blue-700 font-medium items-center text-sm md:text-md hover:underline inline-flex gap-0.5 cursor-pointer"
+						: "px-4 py-2 border h-9 md:h-12 border-gray-200 w-full rounded-md hidden md:inline-flex justify-center text-center items-center gap-1 text-gray-700 hover:text-primary hover:border-primary hover:bg-white data-[state=open]:border-primary data-[state=open]:text-primary data-[state=open]:bg-white transition-colors" +
+						` ${classname}`
 				}>
-				<Settings2 size={16} /> <span>Filters</span>
+				{asLink ? (
+					<>
+						<span>Filter Properties</span>
+						<ChevronsRightIcon size={20} />
+					</>
+				) : (
+					<>
+						<Settings2 size={16} /> <span>Filters</span>
+					</>
+				)}
 			</DialogTrigger>
 
 			<DialogContent className="max-w-3xl max-h-[99dvh] md:max-h-[90vh] overflow-y-auto sm:rounded-2xl rounded-2xl">
@@ -744,7 +757,7 @@ export const Filters = ({
 							value={minAcres}
 							onChange={(e) => setMinAcres(e.target.value)}
 							className="text-sm"
-							placeholder="Type 2+ letters..."
+							placeholder="e.g. 0.5"
 						/>
 					</div>
 

@@ -262,7 +262,15 @@ export const DrawerMenu = ({
 							{ path: "/", label: "Home" },
 							{
 								path: "/Florida-Real-Estate-Search",
-								label: "Search",
+								label: "Advanced Search (Filters)",
+							},
+							{
+								path: "/Florida-Real-Estate-Search?view=map",
+								label: "Interactive Map Search",
+							},
+							{
+								path: "/mortgage-calculator",
+								label: "Mortgage Calculator",
 							},
 							{ path: "/contact", label: "Contact" },
 							{ path: "/about", label: "About" },
