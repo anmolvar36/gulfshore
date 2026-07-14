@@ -73,8 +73,18 @@ export default function MapComponent({
 
 	const filterParamsRef = useRef(filterParams);
 	React.useEffect(() => {
+		const prev = filterParamsRef.current;
+		const locationChanged =
+			prev.city !== filterParams.city ||
+			prev.community !== filterParams.community ||
+			prev.postalCode !== filterParams.postalCode ||
+			prev.developmentName !== filterParams.developmentName;
+
 		filterParamsRef.current = filterParams;
-		hasCenteredRef.current = false; // Reset centering flag when search query / city parameters change
+
+		if (locationChanged) {
+			hasCenteredRef.current = false; // Reset centering flag when search query / city parameters change
+		}
 	}, [filterParams]);
 
 	// Close dropdown when clicking outside
