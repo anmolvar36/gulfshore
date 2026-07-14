@@ -757,7 +757,7 @@ export const Filters = ({
 							value={minAcres}
 							onChange={(e) => setMinAcres(e.target.value)}
 							className="text-sm"
-							placeholder="Type 2+ letters..."
+							placeholder="e.g. 0.5"
 						/>
 					</div>
 
