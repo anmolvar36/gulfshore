@@ -42,16 +42,14 @@ const FeaturesSection = () => {
 										property type, and more.
 									</p>
 
-									<span className=" font-medium text-start text-sm md:text-md hover:underline inline-flex">
-										<Suspense
-											fallback={
-												<span className="text-gray-500">
-													Loading filters…
-												</span>
-											}>
-											<Filters classname="!inline-flex" />
-										</Suspense>
-									</span>
+									<Suspense
+										fallback={
+											<span className="text-gray-500">
+												Loading filters…
+											</span>
+										}>
+										<Filters asLink={true} />
+									</Suspense>
 								</div>
 							</div>
 						</div>
