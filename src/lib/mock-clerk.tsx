@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { createPortal } from "react-dom";
 
 export function ClerkProvider({ children }: { children: React.ReactNode }) {
 	const [signedIn, setSignedIn] = React.useState(false);
@@ -226,6 +227,8 @@ export function SignedOut({ children }: { children: React.ReactNode }) {
 export function UserButton() {
 	const [email, setEmail] = React.useState("user@gulfshore.com");
 	const [isOpen, setIsOpen] = React.useState(false);
+	const [btnRect, setBtnRect] = React.useState<DOMRect | null>(null);
+	const btnRef = React.useRef<HTMLButtonElement>(null);
 	const dropdownRef = React.useRef<HTMLDivElement>(null);
 
 	React.useEffect(() => {
@@ -235,13 +238,23 @@ export function UserButton() {
 		}
 
 		const handleClickOutside = (event: MouseEvent) => {
-			if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+			if (
+				dropdownRef.current && !dropdownRef.current.contains(event.target as Node) &&
+				btnRef.current && !btnRef.current.contains(event.target as Node)
+			) {
 				setIsOpen(false);
 			}
 		};
 		document.addEventListener("mousedown", handleClickOutside);
 		return () => document.removeEventListener("mousedown", handleClickOutside);
 	}, []);
+
+	const handleToggle = () => {
+		if (!isOpen && btnRef.current) {
+			setBtnRect(btnRef.current.getBoundingClientRect());
+		}
+		setIsOpen(prev => !prev);
+	};
 
 	const initials = email.toLowerCase().includes("admin@gulfshore.com") ? "AD" : email.substring(0, 2).toUpperCase();
 
@@ -252,49 +265,61 @@ export function UserButton() {
 		window.location.href = "/";
 	};
 
+	// Dropdown rendered via portal to escape any stacking context
+	const dropdown = isOpen && btnRect ? (
+		<div
+			ref={dropdownRef}
+			style={{
+				position: "fixed",
+				top: btnRect.bottom + 8,
+				right: window.innerWidth - btnRect.right,
+				width: "224px",
+				zIndex: 99999,
+			}}
+			className="rounded-xl bg-white border border-gray-200 shadow-xl py-2 text-left"
+		>
+			<div className="px-4 py-2 border-b border-gray-100">
+				<p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">Logged in as</p>
+				<p className="text-xs font-semibold text-gray-800 truncate mt-0.5">{email}</p>
+			</div>
+			<div className="py-1">
+				<a
+					href="/favorites"
+					className="flex items-center px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+				>
+					Saved Properties
+				</a>
+				<a
+					href="/user/saved-searches"
+					className="flex items-center px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+				>
+					Saved Searches
+				</a>
+			</div>
+			<div className="border-t border-gray-100 pt-1">
+				<button
+					onClick={handleSignOut}
+					className="w-full text-left flex items-center px-4 py-2 text-xs text-red-600 hover:bg-red-50 font-semibold transition-colors cursor-pointer"
+				>
+					Sign Out
+				</button>
+			</div>
+		</div>
+	) : null;
+
 	return (
-		<div className="relative" ref={dropdownRef}>
-			<button 
-				onClick={() => setIsOpen(!isOpen)}
+		<>
+			<button
+				ref={btnRef}
+				onClick={handleToggle}
 				className="w-9 h-9 rounded-full bg-[#d90429] hover:bg-[#bf0022] text-white flex items-center justify-center text-sm font-bold shadow-xs transition-all focus:outline-hidden cursor-pointer"
 			>
 				{initials}
 			</button>
-
-			{isOpen && (
-				<div 
-					className="absolute right-0 mt-2 w-56 rounded-xl bg-white border border-gray-200 shadow-xl py-2 z-50 text-left"
-					style={{ top: "100%" }}
-				>
-					<div className="px-4 py-2 border-b border-gray-100">
-						<p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">Logged in as</p>
-						<p className="text-xs font-semibold text-gray-800 truncate mt-0.5">{email}</p>
-					</div>
-					<div className="py-1">
-						<a 
-							href="/favorites"
-							className="flex items-center px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
-						>
-							Saved Properties
-						</a>
-						<a 
-							href="/user/saved-searches"
-							className="flex items-center px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
-						>
-							Saved Searches
-						</a>
-					</div>
-					<div className="border-t border-gray-100 pt-1">
-						<button 
-							onClick={handleSignOut}
-							className="w-full text-left flex items-center px-4 py-2 text-xs text-red-600 hover:bg-red-50 font-semibold transition-colors cursor-pointer"
-						>
-							Sign Out
-						</button>
-					</div>
-				</div>
-			)}
-		</div>
+			{typeof document !== "undefined" && dropdown &&
+				createPortal(dropdown, document.body)
+			}
+		</>
 	);
 }
 

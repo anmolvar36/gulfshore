@@ -34,8 +34,8 @@ export async function GET() {
 					},
 				},
 			}),
-			prisma.wishlist.count(),
-			prisma.userViewedProperty.count()
+			prisma.savedProperty.count(),
+			prisma.viewedProperty.count()
 		]);
 
 		const res = {

@@ -96,7 +96,7 @@ export default async function RootLayout({
 	return (
 		<>
 			<StickySearchBar />
-			<div className="overflow-hidden h-[calc(100vh-160px)] md:h-[calc(100vh-134px)]">
+			<div className="h-[calc(100vh-160px)] md:h-[calc(100vh-134px)]">
 				<SearchLayoutClient filterParams={filtersParams}>
 						<div
 							id="container"

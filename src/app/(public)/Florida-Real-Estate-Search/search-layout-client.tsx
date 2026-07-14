@@ -32,7 +32,7 @@ export default function SearchLayoutClient({
 				className={`${
 					isMapView
 						? "hidden"
-						: "w-full relative bg-white mx-auto overflow-hidden flex flex-col"
+						: "w-full relative bg-white mx-auto overflow-y-auto flex flex-col"
 				}`}
 			>
 				{children}
