@@ -22,6 +22,13 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import {
+	Dialog,
+	DialogContent,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
+import {
 	ArrowLeft,
 	Mail,
 	Phone,
@@ -29,6 +36,7 @@ import {
 	MapPin,
 	Plus,
 	Trash2,
+	Edit2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
@@ -63,6 +71,13 @@ export default function LeadProfilePage() {
 	const [newNote, setNewNote] = useState("");
 	const [selectedStatus, setSelectedStatus] = useState("");
 	const [selectedTags, setSelectedTags] = useState<string[]>([]);
+	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+	const [editData, setEditData] = useState({
+		firstName: "",
+		lastName: "",
+		email: "",
+		phone: "",
+	});
 
 	// -------------------- FETCH LEAD --------------------
 	useEffect(() => {
@@ -75,6 +90,12 @@ export default function LeadProfilePage() {
 				setLead(data);
 				setSelectedStatus(data.status || "");
 				setSelectedTags(data.tags || []);
+				setEditData({
+					firstName: data.firstName || "",
+					lastName: data.lastName || "",
+					email: data.email || "",
+					phone: data.phone || "",
+				});
 			} catch (err: any) {
 				setError(err.message);
 			} finally {
@@ -153,8 +174,35 @@ export default function LeadProfilePage() {
 		try {
 			const res = await axios.get(`/api/leads/${id}`);
 			setLead(res.data);
+			setEditData({
+				firstName: res.data.firstName || "",
+				lastName: res.data.lastName || "",
+				email: res.data.email || "",
+				phone: res.data.phone || "",
+			});
 		} catch (err) {
 			console.error("Failed to refresh lead:", err);
+		}
+	};
+
+	const handleUpdateProfile = async (e: React.FormEvent) => {
+		e.preventDefault();
+		try {
+			const res = await fetch(`/api/leads/${id}`, {
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					...editData,
+					fullName: `${editData.firstName} ${editData.lastName}`.trim(),
+				}),
+			});
+			if (!res.ok) throw new Error("Failed to update profile");
+			const updated = await res.json();
+			setLead(updated);
+			setIsEditModalOpen(false);
+			toast.success("Profile updated successfully!");
+		} catch (err: any) {
+			toast.error(err.message);
 		}
 	};
 
@@ -241,11 +289,16 @@ export default function LeadProfilePage() {
 				<div className="lg:col-span-2 space-y-6">
 					{/* Lead Info */}
 					<Card>
-						<CardHeader>
-							<CardTitle>Lead Information</CardTitle>
-							<CardDescription>
-								Contact details & inquiry info
-							</CardDescription>
+						<CardHeader className="flex flex-row items-start justify-between pb-2">
+							<div>
+								<CardTitle>Lead Information</CardTitle>
+								<CardDescription>
+									Contact details & inquiry info
+								</CardDescription>
+							</div>
+							<Button variant="ghost" size="sm" onClick={() => setIsEditModalOpen(true)}>
+								<Edit2 className="h-4 w-4 mr-1" /> Edit
+							</Button>
 						</CardHeader>
 						<CardContent className="space-y-4">
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -428,6 +481,56 @@ export default function LeadProfilePage() {
 					</Card>
 				</div>
 			</div>
+
+			<Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+				<DialogContent className="sm:max-w-[425px]">
+					<form onSubmit={handleUpdateProfile}>
+						<DialogHeader>
+							<DialogTitle>Edit Lead Details</DialogTitle>
+						</DialogHeader>
+						<div className="grid gap-4 py-4">
+							<div className="space-y-2">
+								<Label htmlFor="firstName">First Name</Label>
+								<Input
+									id="firstName"
+									value={editData.firstName}
+									onChange={(e) => setEditData({ ...editData, firstName: e.target.value })}
+								/>
+							</div>
+							<div className="space-y-2">
+								<Label htmlFor="lastName">Last Name</Label>
+								<Input
+									id="lastName"
+									value={editData.lastName}
+									onChange={(e) => setEditData({ ...editData, lastName: e.target.value })}
+								/>
+							</div>
+							<div className="space-y-2">
+								<Label htmlFor="email">Email</Label>
+								<Input
+									id="email"
+									type="email"
+									value={editData.email}
+									onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+								/>
+							</div>
+							<div className="space-y-2">
+								<Label htmlFor="phone">Phone</Label>
+								<Input
+									id="phone"
+									value={editData.phone}
+									onChange={(e) => setEditData({ ...editData, phone: e.target.value })}
+								/>
+							</div>
+						</div>
+						<DialogFooter>
+							<Button type="button" variant="outline" onClick={() => setIsEditModalOpen(false)}>Cancel</Button>
+							<Button type="submit">Save Changes</Button>
+						</DialogFooter>
+					</form>
+				</DialogContent>
+			</Dialog>
+
 		</div>
 	);
 }

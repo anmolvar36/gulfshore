@@ -70,6 +70,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 		if (body.tags !== undefined) updateData.tags = body.tags;
 		if (body.firstName !== undefined) updateData.firstName = body.firstName;
 		if (body.lastName !== undefined) updateData.lastName = body.lastName;
+		if (body.email !== undefined) updateData.email = body.email;
 		if (body.phone !== undefined) updateData.phone = body.phone;
 		if (body.fullName !== undefined) updateData.fullName = body.fullName;
 
