@@ -59,7 +59,10 @@ export async function GET() {
 						.replace(/{{name}}/g, lead.firstName || "there")
 						.replace(/{{email}}/g, lead.email || "");
 
-					if (campaign.channel === "Email" && lead.email) {
+					const isEmail = campaign.channel === "Email" || campaign.channel === "email" || campaign.channel === "Both";
+					const isSMS = campaign.channel === "SMS" || campaign.channel === "text" || campaign.channel === "Both";
+
+					if (isEmail && lead.email) {
 						try {
 							await resend.emails.send({
 								from: process.env.RESEND_FROM_EMAIL || "Gulfshore Group <onboarding@resend.dev>",
@@ -71,7 +74,9 @@ export async function GET() {
 						} catch (e) {
 							console.error("Email send failed:", e);
 						}
-					} else if (campaign.channel === "SMS" && lead.phone) {
+					} 
+					
+					if (isSMS && lead.phone) {
 						try {
 							const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
 							await client.messages.create({

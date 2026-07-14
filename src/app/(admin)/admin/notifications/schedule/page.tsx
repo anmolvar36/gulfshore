@@ -60,9 +60,9 @@ const notificationTypes = [
 ];
 
 const channels = [
-	{ value: "email", label: "Email", icon: Mail },
-	{ value: "whatsapp", label: "WhatsApp", icon: Phone },
-	{ value: "text", label: "Text", icon: MessageSquare },
+	{ value: "Email", label: "Email", icon: Mail },
+	{ value: "SMS", label: "Text (SMS)", icon: MessageSquare },
+	{ value: "Both", label: "Both (Email & Text)", icon: Bell },
 ];
 
 const segments = [
