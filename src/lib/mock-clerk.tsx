@@ -392,6 +392,10 @@ export function SignIn() {
 	const [email, setEmail] = React.useState("");
 	const [password, setPassword] = React.useState("");
 	const [showPasswordStep, setShowPasswordStep] = React.useState(false);
+	const [showResetPassword, setShowResetPassword] = React.useState(false);
+	const [newPassword, setNewPassword] = React.useState("");
+	const [confirmPassword, setConfirmPassword] = React.useState("");
+	const [resetSuccess, setResetSuccess] = React.useState("");
 	const [error, setError] = React.useState("");
 	const [isLoading, setIsLoading] = React.useState(false);
 
@@ -420,12 +424,14 @@ export function SignIn() {
 			return;
 		}
 		setError("");
+		setResetSuccess("");
 		setShowPasswordStep(true);
 	};
 
 	const handleLogin = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setError("");
+		setResetSuccess("");
 		setIsLoading(true);
 
 		try {
@@ -472,6 +478,44 @@ export function SignIn() {
 		}
 	};
 
+	const handleResetPassword = async (e: React.FormEvent) => {
+		e.preventDefault();
+		setError("");
+		setResetSuccess("");
+
+		if (newPassword.length < 6) {
+			setError("Password must be at least 6 characters long");
+			return;
+		}
+		if (newPassword !== confirmPassword) {
+			setError("Passwords do not match");
+			return;
+		}
+
+		setIsLoading(true);
+		try {
+			const res = await fetch("/api/v2/user/reset-password", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email, newPassword })
+			});
+			const data = await res.json();
+			if (data.success) {
+				setResetSuccess("Password reset successfully! Please sign in with your new password.");
+				setShowResetPassword(false);
+				setPassword("");
+				setNewPassword("");
+				setConfirmPassword("");
+			} else {
+				setError(data.error || "Failed to reset password");
+			}
+		} catch (err) {
+			setError("Failed to reset password. Please try again.");
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
 	return (
 		<div className="w-full max-w-[400px] bg-white border border-gray-200 rounded-2xl shadow-xl p-8 flex flex-col items-center font-sans text-[#1f2937] mx-auto my-12">
 			{/* Logo */}
@@ -488,9 +532,62 @@ export function SignIn() {
 				</div>
 			)}
 
-			{!showPasswordStep ? (
-				<form onSubmit={handleContinue} className="w-full flex flex-col">
+			{resetSuccess && (
+				<div className="w-full bg-green-50 border border-green-200 text-green-700 rounded-lg p-3 text-xs mb-4">
+					{resetSuccess}
+				</div>
+			)}
 
+			{showResetPassword ? (
+				<form onSubmit={handleResetPassword} className="w-full flex flex-col">
+					<h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-4 text-center">Reset Password for {email}</h3>
+					
+					{/* New Password Input */}
+					<label className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">New Password</label>
+					<input
+						type="password"
+						placeholder="Minimum 6 characters"
+						value={newPassword}
+						onChange={(e) => setNewPassword(e.target.value)}
+						className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#d90429] focus:border-transparent transition-all mb-4"
+						required
+					/>
+
+					{/* Confirm Password Input */}
+					<label className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Confirm New Password</label>
+					<input
+						type="password"
+						placeholder="Re-enter new password"
+						value={confirmPassword}
+						onChange={(e) => setConfirmPassword(e.target.value)}
+						className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#d90429] focus:border-transparent transition-all mb-4"
+						required
+					/>
+
+					<div className="flex gap-2">
+						{/* Back Button */}
+						<button
+							type="button"
+							onClick={() => {
+								setShowResetPassword(false);
+								setError("");
+							}}
+							className="w-1/3 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold rounded-lg cursor-pointer transition-colors duration-200"
+						>
+							Cancel
+						</button>
+						{/* Reset Button */}
+						<button
+							type="submit"
+							disabled={isLoading}
+							className="w-2/3 px-4 py-2.5 bg-[#d90429] hover:bg-[#bf0022] text-white text-sm font-semibold rounded-lg shadow-md cursor-pointer transition-colors duration-200"
+						>
+							{isLoading ? "Resetting..." : "Reset"}
+						</button>
+					</div>
+				</form>
+			) : !showPasswordStep ? (
+				<form onSubmit={handleContinue} className="w-full flex flex-col">
 					{/* Email Input */}
 					<label className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Email address</label>
 					<input
@@ -515,7 +612,20 @@ export function SignIn() {
 			) : (
 				<form onSubmit={handleLogin} className="w-full flex flex-col">
 					{/* Password Input */}
-					<label className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Password</label>
+					<div className="flex justify-between items-center mb-2">
+						<label className="text-xs font-bold text-gray-700 uppercase tracking-wider">Password</label>
+						<button
+							type="button"
+							onClick={() => {
+								setShowResetPassword(true);
+								setError("");
+								setResetSuccess("");
+							}}
+							className="text-xs text-[#d90429] hover:underline font-medium focus:outline-none cursor-pointer"
+						>
+							Forgot password?
+						</button>
+					</div>
 					<input
 						type="password"
 						placeholder="Enter your password"
