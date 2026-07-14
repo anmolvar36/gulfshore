@@ -64,9 +64,45 @@ export async function GET(req: NextRequest) {
 			take: limit,
 		});
 
-		// Filter out cities with zero active listings (communities count as proxy)
+		// Get active property count grouped by City
+		const propertyCounts = await prisma.property.groupBy({
+			by: ["City"],
+			where: {
+				StandardStatus: "Active",
+				PropertyType: {
+					not: "Residential Lease",
+				},
+			},
+			_count: {
+				id: true,
+			},
+		});
+
+		const countMap = new Map<string, number>();
+		propertyCounts.forEach((group) => {
+			const cityName = (group.City || "").trim().toLowerCase();
+			if (cityName) {
+				const count = group._count.id || 0;
+				countMap.set(cityName, (countMap.get(cityName) || 0) + count);
+			}
+		});
+
+		// Attach actual active listing count to each city
+		data = data.map((city: any) => {
+			const cityNameKey = (city.name || "").trim().toLowerCase();
+			const activePropertiesCount = countMap.get(cityNameKey) || 0;
+			return {
+				...city,
+				_count: {
+					...city._count,
+					properties: activePropertiesCount,
+				},
+			};
+		});
+
+		// Filter out cities with zero active listings
 		data = data.filter((city: any) => {
-			const count = city._count?.communities ?? city._count?.properties ?? 0;
+			const count = city._count?.properties ?? 0;
 			return count > 0;
 		});
 

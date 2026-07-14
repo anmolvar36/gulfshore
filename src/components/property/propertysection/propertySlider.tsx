@@ -87,9 +87,7 @@ export default function PropertySection({
 			const fetchData = async () => {
 				try {
 					setLoading(true);
-					const baseUrl =
-						process.env.NEXT_PUBLIC_SERVER_URL ||
-						"https://gulfshoregroup.com";
+					const baseUrl = typeof window === "undefined" ? (process.env.NEXT_PUBLIC_SERVER_URL || "https://gulfshoregroup.com") : "";
 					const response = await axios.get(
 						`${baseUrl}/api/v2/properties`,
 						{

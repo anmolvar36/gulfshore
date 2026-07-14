@@ -22,10 +22,12 @@ export default function CitiesSection() {
 	useEffect(() => {
 		const fetchCities = async () => {
 			try {
+				console.log("Fetching cities...");
 				const cities = await axios.get(
-					"/api/v2/cities?type=featured"
+					`/api/v2/cities?type=featured&t=${Date.now()}`
 				);
 				if (!cities.data || !Array.isArray(cities.data.data)) {
+					console.log("No city data found or not an array");
 					return [];
 				} else {
 					const allowedSWFL = [
@@ -46,9 +48,11 @@ export default function CitiesSection() {
 						allowedSWFL.includes(c.name.trim().toLowerCase()) &&
 						(c._count?.properties ?? c._count?.communities ?? 1) > 0
 					);
+					console.log("Filtered cities count:", filtered.length);
 					setCities(filtered);
 				}
 			} catch (error) {
+				console.error("Error fetching cities:", error);
 				return [];
 			}
 		};
