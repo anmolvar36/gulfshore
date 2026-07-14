@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+// @ts-ignore
 import { createPortal } from "react-dom";
 
 export function ClerkProvider({ children }: { children: React.ReactNode }) {
