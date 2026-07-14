@@ -38,7 +38,9 @@ export default function PropertyMap({ property, Latitude, Longitude }: PropertyM
 	// close dropdown on click outside
 	React.useEffect(() => {
 		function handleClickOutside(event: MouseEvent) {
-			if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+			const target = event.target as Node;
+			if (!document.body.contains(target)) return;
+			if (dropdownRef.current && !dropdownRef.current.contains(target)) {
 				setDropdownOpen(false);
 			}
 		}
@@ -136,7 +138,7 @@ export default function PropertyMap({ property, Latitude, Longitude }: PropertyM
 			</h4>
 			<div className="relative" style={mapContainerStyle}>
 				
-				<div className="absolute top-4 left-4 z-50" ref={dropdownRef}>
+				<div className="absolute top-4 right-4 z-50" ref={dropdownRef}>
 					<button
 						onClick={() => setDropdownOpen(!dropdownOpen)}
 						className="flex items-center gap-1.5 px-3 py-2 bg-white text-gray-800 border border-gray-200 rounded-lg shadow-md font-medium text-xs hover:bg-gray-50 transition-colors cursor-pointer"
@@ -147,14 +149,18 @@ export default function PropertyMap({ property, Latitude, Longitude }: PropertyM
 					</button>
 					
 					{dropdownOpen && (
-						<div className="absolute left-0 mt-1.5 w-48 bg-white border border-gray-200 rounded-xl shadow-xl p-3 z-50 flex flex-col gap-2.5">
+						<div className="absolute right-0 mt-1.5 w-48 bg-white border border-gray-200 rounded-xl shadow-xl p-3 z-50 flex flex-col gap-2.5">
 							<div className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Map Style</div>
 							<label className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer select-none">
 								<input
 									type="radio"
 									name="propMapStyle"
 									checked={mapTypeId === "roadmap" && !showDrone}
-									onChange={() => { setMapTypeId("roadmap"); setShowDrone(false); }}
+									onChange={() => {
+										setMapTypeId("roadmap");
+										setShowDrone(false);
+										if (mapRef.current) mapRef.current.setMapTypeId("roadmap");
+									}}
 									className="text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1 cursor-pointer"
 								/>
 								Standard Map
@@ -164,7 +170,11 @@ export default function PropertyMap({ property, Latitude, Longitude }: PropertyM
 									type="radio"
 									name="propMapStyle"
 									checked={mapTypeId === "hybrid" && !showDrone}
-									onChange={() => { setMapTypeId("hybrid"); setShowDrone(false); }}
+									onChange={() => {
+										setMapTypeId("hybrid");
+										setShowDrone(false);
+										if (mapRef.current) mapRef.current.setMapTypeId("hybrid");
+									}}
 									className="text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1 cursor-pointer"
 								/>
 								Satellite View

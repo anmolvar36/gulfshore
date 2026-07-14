@@ -80,7 +80,9 @@ export default function MapComponent({
 	// Close dropdown when clicking outside
 	React.useEffect(() => {
 		function handleClickOutside(event: MouseEvent) {
-			if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+			const target = event.target as Node;
+			if (!document.body.contains(target)) return;
+			if (dropdownRef.current && !dropdownRef.current.contains(target)) {
 				setDropdownOpen(false);
 			}
 		}
@@ -329,7 +331,7 @@ export default function MapComponent({
 	return (
 		<div className="h-full w-full grow relative rounded-xl">
 			{/* Unified Map controls dropdown card */}
-			<div className="absolute top-4 left-4 z-50" ref={dropdownRef}>
+			<div className="absolute top-4 right-4 z-50" ref={dropdownRef}>
 				<button
 					onClick={() => setDropdownOpen(!dropdownOpen)}
 					className="flex items-center gap-2 px-4 py-2.5 bg-white text-gray-800 border border-gray-200 rounded-lg shadow-md font-medium text-sm hover:bg-gray-50 transition-colors cursor-pointer"
@@ -340,7 +342,7 @@ export default function MapComponent({
 				</button>
 				
 				{dropdownOpen && (
-					<div className="absolute left-0 mt-2 w-56 bg-white border border-gray-200 rounded-xl shadow-xl p-4 z-50 flex flex-col gap-4">
+					<div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-xl shadow-xl p-4 z-50 flex flex-col gap-4">
 						<div className="flex flex-col gap-3">
 							<div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Map Style</div>
 							<label className="flex items-center gap-3 text-sm text-gray-800 cursor-pointer select-none">
@@ -348,7 +350,11 @@ export default function MapComponent({
 									type="radio"
 									name="mapStyle"
 									checked={mapTypeId === "roadmap" && !showDrone}
-									onChange={() => { setMapTypeId("roadmap"); setShowDrone(false); }}
+									onChange={() => {
+										setMapTypeId("roadmap");
+										setShowDrone(false);
+										if (mapRef.current) mapRef.current.setMapTypeId("roadmap");
+									}}
 									className="w-4 h-4 text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1"
 								/>
 								Standard Map
@@ -358,7 +364,11 @@ export default function MapComponent({
 									type="radio"
 									name="mapStyle"
 									checked={mapTypeId === "hybrid" && !showDrone}
-									onChange={() => { setMapTypeId("hybrid"); setShowDrone(false); }}
+									onChange={() => {
+										setMapTypeId("hybrid");
+										setShowDrone(false);
+										if (mapRef.current) mapRef.current.setMapTypeId("hybrid");
+									}}
 									className="w-4 h-4 text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1"
 								/>
 								Satellite View
