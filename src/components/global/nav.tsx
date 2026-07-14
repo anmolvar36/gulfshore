@@ -185,29 +185,44 @@ const Navbar = () => {
 						</NavigationMenuList>
 					</div>
 					{/* Mobile Actions */}
-					<div className="flex items-center gap-3">
+					<div className="flex items-center gap-2 md:gap-3">
 						<NavigationMenu className="lg:hidden flex items-center">
-							<NavigationMenuList>
+							<NavigationMenuList className="flex items-center">
 								<NavigationMenuItem key={"call"}>
 									<NavigationMenuLink
-										className="relative inline-flex text-center items-center gap-2 p-3 rounded-xl font-medium hover:bg-gray-100 hover:text-black transition-all duration-200"
+										className="relative inline-flex text-center items-center gap-1.5 p-2 rounded-xl font-medium hover:bg-gray-100 hover:text-black transition-all duration-200"
 										href={"tel:+1 239-992-9119"}
 										aria-label="Call us">
-										<Phone size={22} />
-										<span className="text-sm font-medium">Call</span>
+										<Phone size={20} />
+										<span className="text-xs font-medium hidden sm:inline">Call</span>
 									</NavigationMenuLink>
 								</NavigationMenuItem>
 								<NavigationMenuItem key={"mail"}>
 									<NavigationMenuLink
-										className="relative inline-flex text-center items-center gap-2 p-3 rounded-xl font-medium hover:bg-gray-100 hover:text-black transition-all duration-200"
+										className="relative inline-flex text-center items-center gap-1.5 p-2 rounded-xl font-medium hover:bg-gray-100 hover:text-black transition-all duration-200"
 										href={"mailto:mailbox@gulfshoregroup.com"}
 										aria-label="Email us">
-										<Mail size={22} />
-										<span className="text-sm font-medium">Email</span>
+										<Mail size={20} />
+										<span className="text-xs font-medium hidden sm:inline">Email</span>
 									</NavigationMenuLink>
 								</NavigationMenuItem>
 							</NavigationMenuList>
 						</NavigationMenu>
+
+						{/* User status buttons for mobile */}
+						<div className="lg:hidden flex items-center">
+							<SignedIn>
+								<UserButton />
+							</SignedIn>
+							<SignedOut>
+								<Link href="/signup">
+									<Button className="rounded-full font-bold cursor-pointer bg-primary hover:bg-accent text-white px-4 py-2 text-xs h-9">
+										Sign Up
+									</Button>
+								</Link>
+							</SignedOut>
+						</div>
+
 						<DrawerMenu menuIconClass={menuIconClass} />
 					</div>
 				</div>

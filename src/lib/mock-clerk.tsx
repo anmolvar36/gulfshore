@@ -490,29 +490,6 @@ export function SignIn() {
 
 			{!showPasswordStep ? (
 				<form onSubmit={handleContinue} className="w-full flex flex-col">
-					{/* Google Button */}
-					<button
-						type="button"
-						onClick={handleGoogleLogin}
-						disabled={isLoading}
-						className="w-full flex items-center justify-center gap-3 px-4 py-2.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-sm font-semibold text-gray-700 shadow-sm cursor-pointer transition-colors duration-200"
-					>
-						{/* Google SVG Icon */}
-						<svg className="w-4 h-4" viewBox="0 0 24 24">
-							<path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.9h6.69c-.29 1.5-.14 3.01-.97 4.14l3.12 2.42c1.83-1.69 2.9-4.18 2.9-6.39z"/>
-							<path fill="#34A853" d="M12 24c3.24 0 5.97-1.08 7.96-2.91l-3.12-2.42c-.86.58-1.97.92-3.12.92-3.1 0-5.74-2.1-6.68-4.92L3.81 18.2C5.79 22.14 9.87 24 12 24z"/>
-							<path fill="#FBBC05" d="M5.32 14.67c-.24-.7-.38-1.4-.38-2.17s.14-1.47.38-2.17L3.81 7.91C2.97 9.6 2.5 11.5 2.5 13.5s.47 3.9 1.31 5.59l1.51-2.42z"/>
-							<path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.43-3.43C17.96 1.19 15.24 0 12 0 9.87 0 5.79 1.86 3.81 5.8l1.51 2.42c.94-2.82 3.58-4.92 6.68-4.92z"/>
-						</svg>
-						<span>Continue with Google</span>
-					</button>
-
-					{/* Divider */}
-					<div className="flex items-center my-6">
-						<div className="flex-grow h-px bg-gray-100" />
-						<span className="px-3 text-xs text-gray-400 font-medium bg-white">or</span>
-						<div className="flex-grow h-px bg-gray-100" />
-					</div>
 
 					{/* Email Input */}
 					<label className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Email address</label>

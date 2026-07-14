@@ -17,7 +17,7 @@ type WishlistItem = {
 
 export default function FavoritesPage() {
 	const { isLoaded, isSignedIn } = useAuth();
-	const [favorites, setFavorites] = useState<Property[]>([]);
+	const [favorites, setFavorites] = useState<any[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
@@ -34,7 +34,7 @@ export default function FavoritesPage() {
 				setLoading(true);
 				const response = await getWishlist(1, 100);
 				const items = (response.data as WishlistItem[]).map(
-					(item) => item.property
+					(item) => ({ ...item.property, isWishlisted: true })
 				);
 				setFavorites(items);
 				setError(null);

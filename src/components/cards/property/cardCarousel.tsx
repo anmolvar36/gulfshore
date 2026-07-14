@@ -141,7 +141,10 @@ export default function CardCarousel({
 							<Tooltip>
 								<TooltipTrigger asChild>
 									<div className="hover:scale-110 transition-all duration-200">
-										<WishListButton propertyId={property.id} />
+										<WishListButton
+											propertyId={property.id}
+											isWishlisted={(property as any).isWishlisted}
+										/>
 									</div>
 								</TooltipTrigger>
 								<TooltipContent className="bg-gray-900 text-white border-0">

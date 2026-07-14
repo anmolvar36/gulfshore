@@ -63,7 +63,7 @@ export function mapFiltersToLeadSearch(
 }
 
 export async function trackPropertyView(propertyId: string) {
-	if (typeof document !== "undefined" && !document.cookie.includes("__session")) {
+	if (typeof document !== "undefined" && !document.cookie.includes("__session") && !document.cookie.includes("mock_signed_in=true")) {
 		throw new LeadAuthRequiredError();
 	}
 	return leadRequest<unknown>("/api/leads/viewed-property", {
@@ -76,7 +76,7 @@ export async function saveSearchHistory(
 	filters: Record<string, unknown>,
 	resultCount?: number
 ) {
-	if (typeof document !== "undefined" && !document.cookie.includes("__session")) {
+	if (typeof document !== "undefined" && !document.cookie.includes("__session") && !document.cookie.includes("mock_signed_in=true")) {
 		throw new LeadAuthRequiredError();
 	}
 	return leadRequest<unknown>("/api/leads/search-history", {
@@ -102,7 +102,7 @@ export async function removeFromWishlist(propertyId: string) {
 }
 
 export async function checkWishlist(propertyId: string) {
-	if (typeof document !== "undefined" && !document.cookie.includes("__session")) {
+	if (typeof document !== "undefined" && !document.cookie.includes("__session") && !document.cookie.includes("mock_signed_in=true")) {
 		return { success: true as const, data: { saved: false } };
 	}
 	return leadRequest<{ saved: boolean }>(

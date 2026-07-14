@@ -19,17 +19,7 @@ export default function middleware(req: NextRequest) {
 		}
 	}
 
-	const response = NextResponse.next();
-
-	// Add CORS headers to all API responses
-	if (pathname.startsWith("/api")) {
-		response.headers.set("Access-Control-Allow-Origin", origin);
-		response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-		response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, x-requested-with");
-		response.headers.set("Access-Control-Allow-Credentials", "true");
-	}
-
-	return response;
+	return NextResponse.next();
 }
 
 export const config = {

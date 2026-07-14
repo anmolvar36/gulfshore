@@ -51,9 +51,9 @@ const priceList = [
 ];
 
 export const propertyTypeOptions = [
-	{ value: "Single Family", label: "Homes" },
-	{ value: "Condo", label: "Condos" },
-	{ value: "Land", label: "Residential Lots" },
+	{ value: "Homes", label: "Homes" },
+	{ value: "Condos", label: "Condos" },
+	{ value: "Residential-Lots", label: "Residential Lots" },
 ];
 
 const formatPrice = (price: number) => {
@@ -83,20 +83,6 @@ export const Filters = ({
 	const [city, setCity] = useState("");
 	const [postalCode, setPostalCode] = useState("");
 
-	// Map internal values
-	const typeMap: Record<string, string> = useMemo(
-		() => ({
-			"Single Family": "Homes",
-			Condo: "Condos",
-			Land: "Residential-Lots",
-		}),
-		[]
-	);
-	const mappedTypes = useMemo(
-		() => propertyType.map((t) => typeMap[t]).filter(Boolean),
-		[propertyType, typeMap]
-	);
-
 	// Initialize states from savedSearch
 	useEffect(() => {
 		if (!savedSearch?.filters) return;
@@ -124,10 +110,10 @@ export const Filters = ({
 				? encodeURIComponent(city.toLowerCase().replaceAll(" ", "-"))
 				: "";
 
-			if (mappedTypes.length === 1) {
-				url += `/${mappedTypes[0]}/${citySlug}`;
-			} else if (mappedTypes.length > 1) {
-				const typesString = mappedTypes.join(",");
+			if (propertyType.length === 1) {
+				url += `/${propertyType[0]}/${citySlug}`;
+			} else if (propertyType.length > 1) {
+				const typesString = propertyType.join(",");
 				url += `/${citySlug}/propertyTypes=${typesString}`;
 			} else {
 				url += `/${citySlug}`;
