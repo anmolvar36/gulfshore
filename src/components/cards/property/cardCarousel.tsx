@@ -21,17 +21,20 @@ import {
 } from "@/components/ui/tooltip";
 import UrlMaker from "@/hooks/url-maker";
 import Image from "next/image";
+import { useState } from "react";
 
 export default function CardCarousel({
 	property,
 }: {
 	property: Property;
 }) {
+	const [imageErrors, setImageErrors] = useState<Record<number, boolean>>({});
+
 	const media = property.images as any;
 	let images: string[] = [];
-	if (media && media.length > 0) {
+	if (Array.isArray(media) && media.length > 0) {
 		images = media
-			.filter((item: any) => item.MediaCategory === "Photo")
+			.filter((item: any) => item?.MediaCategory === "Photo" && typeof item?.MediaURL === "string" && item.MediaURL.trim() !== "")
 			.map((item: any) => item.MediaURL);
 	}
 	const imageArray = images;
@@ -50,16 +53,26 @@ export default function CardCarousel({
 									<AspectRatio
 										ratio={16 / 9}
 										className="w-full max-w-[456px]">
-										<Image
-											src={img}
-											alt={`${property.FullAddress}-${index}`}
-											width={456}
-											height={Math.round((426 * 9) / 16)}
-											loading={index === 0 ? "eager" : "lazy"}
-											priority={index === 0}
-											unoptimized
-											className="object-cover group-hover:scale-105 transition duration-700 ease-in-out"
-										/>
+										{imageErrors[index] ? (
+											<div className="w-full h-full bg-gradient-to-br from-[#F5F2EB] to-[#EBE6DC] flex flex-col items-center justify-center gap-2 border border-[#E8E4DC] rounded-t-2xl">
+												<Landmark size={36} className="text-[#B89A6A] stroke-[1.25]" />
+												<span className="text-[10px] tracking-[0.15em] uppercase font-semibold text-[#8C8270]">
+													No Image Available
+												</span>
+											</div>
+										) : (
+											<Image
+												src={img}
+												alt={`${property.FullAddress}-${index}`}
+												width={456}
+												height={Math.round((426 * 9) / 16)}
+												loading={index === 0 ? "eager" : "lazy"}
+												priority={index === 0}
+												unoptimized
+												onError={() => setImageErrors(prev => ({ ...prev, [index]: true }))}
+												className="object-cover group-hover:scale-105 transition duration-700 ease-in-out"
+											/>
+										)}
 									</AspectRatio>
 								</CarouselItem>
 							))}

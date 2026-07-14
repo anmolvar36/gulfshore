@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Card } from "../../ui/card";
@@ -166,11 +167,12 @@ export const PropertyCard2 = ({
 	property: any;
 	onCardClose: any;
 }) => {
+	const [imageError, setImageError] = useState(false);
 	const media = property.images as any;
 	let images: string[] = [];
-	if (media && media.length > 0) {
+	if (Array.isArray(media) && media.length > 0) {
 		images = media
-			.filter((item: any) => item.MediaCategory === "Photo")
+			.filter((item: any) => item?.MediaCategory === "Photo" && typeof item?.MediaURL === "string" && item.MediaURL.trim() !== "")
 			.map((item: any) => item.MediaURL);
 	}
 
@@ -210,7 +212,7 @@ export const PropertyCard2 = ({
 
 				{/* Thumbnail */}
 				<div className="relative shrink-0 w-36 sm:w-44 md:w-48">
-					{images.length && images[0] ? (
+					{images.length && images[0] && !imageError ? (
 						<Image
 							width={200}
 							height={420}
@@ -219,6 +221,7 @@ export const PropertyCard2 = ({
 							loading="eager"
 							alt={property.FullAddress}
 							unoptimized
+							onError={() => setImageError(true)}
 							className="w-full h-full object-cover"
 						/>
 					) : (
