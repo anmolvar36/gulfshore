@@ -8,20 +8,41 @@ export async function GET() {
 			},
 		});
 
+		const drips = await prisma.dripCampaign.findMany({
+			orderBy: { createdAt: "desc" },
+		});
+
 		// Map to Mongoose shape
-		const mappedNotifications = notifications.map((n) => ({
-			_id: n.id,
-			type: n.notificationType,
-			channel: n.channel,
-			segment: n.segment,
-			title: n.name,
-			message: n.messageTemplate,
-			scheduledFor: n.scheduledTime,
-			status: n.status,
-			propertyCriteria: n.propertyCriteria,
-			createdAt: n.createdAt,
-			updatedAt: n.updatedAt,
-		}));
+		const mappedNotifications = [
+			...notifications.map((n) => ({
+				_id: n.id,
+				type: n.notificationType,
+				channel: n.channel,
+				segment: n.segment,
+				title: n.name,
+				message: n.messageTemplate,
+				scheduledFor: n.scheduledTime,
+				status: n.status,
+				propertyCriteria: n.propertyCriteria,
+				createdAt: n.createdAt,
+				updatedAt: n.updatedAt,
+			})),
+			...drips.map((d) => ({
+				_id: d.id,
+				type: "welcome",
+				channel: d.channel,
+				segment: "Users (Automated Drip)",
+				title: d.name,
+				message: d.messageTemplate,
+				scheduledFor: null,
+				dripLabel: `Automated: ${d.daysAfterSignup} Days After`,
+				isDrip: true,
+				status: d.status === "active" ? "Scheduled" : "Draft",
+				propertyCriteria: {},
+				createdAt: d.createdAt,
+				updatedAt: d.createdAt,
+			}))
+		].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
 		return Response.json(mappedNotifications);
 	} catch (error: any) {

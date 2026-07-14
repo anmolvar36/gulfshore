@@ -249,10 +249,10 @@ export default function NotificationsPage() {
 											{notification.segment}
 										</TableCell>
 										<TableCell>
-											{notification.scheduledFor
-												? new Date(
-														notification.scheduledFor
-												  ).toLocaleString()
+											{notification.isDrip
+												? <span className="font-medium text-emerald-600">{notification.dripLabel}</span>
+												: notification.scheduledFor
+												? new Date(notification.scheduledFor).toLocaleString()
 												: "Not scheduled"}
 										</TableCell>
 										<TableCell>
@@ -338,7 +338,9 @@ export default function NotificationsPage() {
 								<div className="col-span-2">
 									<p className="text-xs text-muted-foreground font-semibold">Scheduled For</p>
 									<p className="text-sm font-medium text-foreground">
-										{viewingNotification.scheduledFor
+										{viewingNotification.isDrip
+											? viewingNotification.dripLabel
+											: viewingNotification.scheduledFor
 											? new Date(viewingNotification.scheduledFor).toLocaleString()
 											: "Not Scheduled"}
 									</p>

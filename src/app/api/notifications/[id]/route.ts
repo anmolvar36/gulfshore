@@ -96,6 +96,12 @@ export async function DELETE(
 	try {
 		const { id } = await params;
 
+		const drip = await prisma.dripCampaign.findUnique({ where: { id } });
+		if (drip) {
+			await prisma.dripCampaign.delete({ where: { id } });
+			return Response.json({ message: "Drip campaign deleted", _id: drip.id });
+		}
+
 		const notification = await prisma.scheduledNotification.delete({
 			where: { id },
 		});
