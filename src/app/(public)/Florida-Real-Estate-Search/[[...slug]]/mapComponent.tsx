@@ -458,7 +458,7 @@ export default function MapComponent({
 				</GoogleMap>
 			)}
 			{ui.details && !showDrone && (
-				<div className=" absolute md:bottom-1 bottom-0 left-1 right-1 z-50">
+				<div className=" absolute md:bottom-2 bottom-14 left-2 right-2 z-40">
 					<PropertyCard2
 						property={ui.details}
 						onCardClose={() => dispatch(setMapCard(null))}
