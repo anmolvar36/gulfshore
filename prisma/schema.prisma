@@ -610,5 +610,29 @@ model CampaignClick {
   @@map("campaignclick")
 }
 
+model DripCampaign {
+  id               String    @id @default(cuid())
+  name             String
+  channel          String    // "Email" or "SMS"
+  daysAfterSignup  Int       // 0 = Immediate, 1 = 1 day, 3 = 3 days, 5 = 5 days, 10 = 10 days
+  messageTemplate  String    @db.Text
+  status           String    @default("active")
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@map("dripcampaign")
+}
+
+model DripCampaignLog {
+  id               String    @id @default(cuid())
+  campaignId       String
+  userId           String
+  sentAt           DateTime  @default(now())
+  status           String    @default("sent")
+
+  @@unique([campaignId, userId])
+  @@map("dripcampaignlog")
+}
+
 
 

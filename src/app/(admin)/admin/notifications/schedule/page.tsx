@@ -100,6 +100,8 @@ function ScheduleNotificationContent() {
 
 	const [selectedType, setSelectedType] = useState("");
 	const [selectedChannel, setSelectedChannel] = useState("");
+	const [scheduleType, setScheduleType] = useState("fixed");
+	const [daysAfterSignup, setDaysAfterSignup] = useState("");
 	const [selectedSegment, setSelectedSegment] = useState("");
 	const [title, setTitle] = useState("");
 	const [message, setMessage] = useState("");
@@ -185,6 +187,35 @@ function ScheduleNotificationContent() {
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
+
+		if (scheduleType === "drip") {
+			if (!daysAfterSignup) {
+				alert("Please select days after signup");
+				return;
+			}
+			try {
+				const response = await fetch("/api/v2/drip-campaigns", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+						name: title,
+						channel: selectedChannel,
+						daysAfterSignup: parseInt(daysAfterSignup, 10),
+						messageTemplate: message,
+					}),
+				});
+				if (response.ok) {
+					alert("Automated campaign created successfully!");
+					router.push("/admin/notifications");
+				} else {
+					alert("Failed to create automated campaign");
+				}
+			} catch (error) {
+				console.error("Error saving campaign:", error);
+				alert("Error saving campaign");
+			}
+			return;
+		}
 
 		const scheduledDateTime =
 			date && time
@@ -590,40 +621,74 @@ function ScheduleNotificationContent() {
 								</div>
 
 								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-									<div className="space-y-2">
-										<Label>Schedule Date</Label>
-										<Popover>
-											<PopoverTrigger asChild>
-												<Button
-													variant="outline"
-													className={cn(
-														"w-full justify-start text-left font-normal",
-														!date && "text-muted-foreground"
-													)}>
-													<CalendarIcon className="mr-2 h-4 w-4" />
-													{date ? format(date, "PPP") : "Pick a date"}
-												</Button>
-											</PopoverTrigger>
-											<PopoverContent className="w-auto p-0">
-												<Calendar
-													mode="single"
-													selected={date}
-													onSelect={setDate}
-													initialFocus
-												/>
-											</PopoverContent>
-										</Popover>
+									<div className="space-y-2 md:col-span-2">
+										<Label>Schedule Type</Label>
+										<Select value={scheduleType} onValueChange={setScheduleType}>
+											<SelectTrigger>
+												<SelectValue placeholder="Select schedule type" />
+											</SelectTrigger>
+											<SelectContent>
+												<SelectItem value="fixed">Fixed Date & Time</SelectItem>
+												<SelectItem value="drip">Automated (Days After Signup)</SelectItem>
+											</SelectContent>
+										</Select>
 									</div>
 
-									<div className="space-y-2">
-										<Label htmlFor="time">Schedule Time</Label>
-										<Input
-											id="time"
-											type="time"
-											value={time}
-											onChange={(e) => setTime(e.target.value)}
-										/>
-									</div>
+									{scheduleType === "fixed" ? (
+										<>
+											<div className="space-y-2">
+												<Label>Schedule Date</Label>
+												<Popover>
+													<PopoverTrigger asChild>
+														<Button
+															variant="outline"
+															className={cn(
+																"w-full justify-start text-left font-normal",
+																!date && "text-muted-foreground"
+															)}>
+															<CalendarIcon className="mr-2 h-4 w-4" />
+															{date ? format(date, "PPP") : "Pick a date"}
+														</Button>
+													</PopoverTrigger>
+													<PopoverContent className="w-auto p-0">
+														<Calendar
+															mode="single"
+															selected={date}
+															onSelect={setDate}
+															initialFocus
+														/>
+													</PopoverContent>
+												</Popover>
+											</div>
+
+											<div className="space-y-2">
+												<Label htmlFor="time">Schedule Time</Label>
+												<Input
+													id="time"
+													type="time"
+													value={time}
+													onChange={(e) => setTime(e.target.value)}
+												/>
+											</div>
+										</>
+									) : (
+										<div className="space-y-2 md:col-span-2">
+											<Label>Days After Signup</Label>
+											<Select value={daysAfterSignup} onValueChange={setDaysAfterSignup}>
+												<SelectTrigger>
+													<SelectValue placeholder="Select when to send" />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="0">Immediately</SelectItem>
+													<SelectItem value="1">1 Day After</SelectItem>
+													<SelectItem value="3">3 Days After</SelectItem>
+													<SelectItem value="5">5 Days After</SelectItem>
+													<SelectItem value="7">7 Days After</SelectItem>
+													<SelectItem value="10">10 Days After</SelectItem>
+												</SelectContent>
+											</Select>
+										</div>
+									)}
 								</div>
 
 								<div className="flex gap-3 pt-4">
