@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { cookies } from "next/headers";
+import { auth } from "@clerk/nextjs/server";
 
 export async function GET(req: NextRequest) {
 	try {
@@ -9,8 +9,7 @@ export async function GET(req: NextRequest) {
 		const limit = parseInt(query.get("limit") || "10");
 		const sortField = query.get("sort") || "ListPrice";
 		const sortOrder = query.get("order") === "asc" ? "asc" : "desc";
-		const cookieStore = await cookies();
-		const userId = cookieStore.get("user_id")?.value || null;
+		const { userId } = await auth();
 
 		// Status: default Active for public.
 		const statusParam = query.get("status") || query.get("Status") || "Active";
@@ -55,13 +54,13 @@ export async function GET(req: NextRequest) {
 
 		// Features
 		const featuresRaw = query.get("features") || "";
-		const features = featuresRaw ? featuresRaw.split(",").map(f => f.trim().toLowerCase()) : query.getAll("features[]").map(f => f.toLowerCase());
+		const features = featuresRaw ? featuresRaw.split(",").map((f: string) => f.trim().toLowerCase()) : query.getAll("features[]").map((f: string) => f.toLowerCase());
 		if (features.length > 0) {
-			if (features.some(f => f.includes("spa"))) where.SpaYN = true;
-			if (features.some(f => f.includes("waterfront"))) where.WaterfrontYN = true;
-			if (features.some(f => f.includes("pool"))) where.PoolPrivateYN = true;
-			if (features.some(f => f.includes("gulf"))) where.GulfAccessYN = true;
-			if (features.some(f => f.includes("garage"))) where.GarageYN = true;
+			if (features.some((f: string) => f.includes("spa"))) where.SpaYN = true;
+			if (features.some((f: string) => f.includes("waterfront"))) where.WaterfrontYN = true;
+			if (features.some((f: string) => f.includes("pool"))) where.PoolPrivateYN = true;
+			if (features.some((f: string) => f.includes("gulf"))) where.GulfAccessYN = true;
+			if (features.some((f: string) => f.includes("garage"))) where.GarageYN = true;
 		}
 
 		// HOA Filter
@@ -166,11 +165,17 @@ export async function GET(req: NextRequest) {
 		// User Wishlist logic
 		let userWishlistedIds = new Set<string>();
 		if (userId) {
-			const wishlists = await prisma.wishlist.findMany({
+			const lead = await prisma.lead.findUnique({
 				where: { userId },
-				select: { propertyId: true },
+				select: { id: true },
 			});
-			userWishlistedIds = new Set(wishlists.map((w) => w.propertyId));
+			if (lead) {
+				const wishlists = await prisma.savedProperty.findMany({
+					where: { leadId: lead.id },
+					select: { propertyId: true },
+				});
+				userWishlistedIds = new Set(wishlists.map((w: any) => w.propertyId));
+			}
 		}
 
 		// Map properties back to Mongoose representation for Frontend compatibility

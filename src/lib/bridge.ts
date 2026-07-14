@@ -19,7 +19,8 @@ export async function fetchBridgeBatch(
 		`?access_token=${API_KEY}` +
 		`&limit=${limit}` +
 		`&offset=${offset}` +
-		`&${filter}`;
+		`&${filter}` +
+		`&$expand=Media`;
 
 	const res = await fetch(url);
 

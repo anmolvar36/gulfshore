@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import {
 	Accordion,
@@ -57,6 +58,9 @@ export default function CityFAQ({ city }: { city?: string | null }) {
 		},
 	];
 
+	const [expanded, setExpanded] = React.useState(false);
+	const displayedFaqs = expanded ? faqs : faqs.slice(0, 5);
+
 	const faqSchema = {
 		"@context": "https://schema.org",
 		"@type": "FAQPage",
@@ -80,7 +84,7 @@ export default function CityFAQ({ city }: { city?: string | null }) {
 				Frequently Asked Questions About {displayCity} Real Estate and Surrounding Areas
 			</h2>
 			<Accordion type="single" collapsible className="w-full">
-				{faqs.map((faq, index) => (
+				{displayedFaqs.map((faq, index) => (
 					<AccordionItem key={index} value={`item-${index}`}>
 						<AccordionTrigger className="text-left font-medium text-gray-800 hover:text-(--primary-color)">
 							{faq.question}
@@ -91,6 +95,16 @@ export default function CityFAQ({ city }: { city?: string | null }) {
 					</AccordionItem>
 				))}
 			</Accordion>
+			{faqs.length > 5 && (
+				<div className="flex justify-center mt-6">
+					<button
+						onClick={() => setExpanded(!expanded)}
+						className="px-6 py-2.5 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-(--primary-color) hover:border-(--primary-color) transition-all cursor-pointer"
+					>
+						{expanded ? "Show Less" : "Show More"}
+					</button>
+				</div>
+			)}
 		</div>
 	);
 }

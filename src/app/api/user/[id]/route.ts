@@ -28,18 +28,18 @@ export async function GET(
 				wishlist,
 				savedSearch,
 			] = await Promise.all([
-				prisma.userSearchQuery.findMany({
+				prisma.searchHistory.findMany({
 					where: { userId: id },
-					orderBy: { lastSearched: "desc" },
+					orderBy: { updatedAt: "desc" },
 				}),
 
-				prisma.userViewedProperty.findMany({
+				prisma.viewedProperty.findMany({
 					where: { userId: id },
-					orderBy: { lastViewed: "desc" },
+					orderBy: { lastViewedAt: "desc" },
 				}),
 
-				prisma.wishlist.findMany({
-					where: { userId: id },
+				prisma.savedProperty.findMany({
+					where: { leadId: id },
 					orderBy: { createdAt: "desc" },
 				}),
 
@@ -70,9 +70,8 @@ export async function GET(
 					userId: v.userId,
 					propertyId: v.propertyId,
 					viewCount: v.viewCount,
-					lastViewed: v.lastViewed,
-					createdAt: v.createdAt,
-					updatedAt: v.updatedAt,
+					lastViewed: v.lastViewedAt,
+					createdAt: v.viewedAt,
 					property: prop
 						? {
 								_id: prop.id,
@@ -104,10 +103,9 @@ export async function GET(
 				const prop = wishlistPropertiesData.find((p) => p.id === w.propertyId);
 				return {
 					id: w.id,
-					userId: w.userId,
+					userId: w.leadId,
 					propertyId: w.propertyId,
 					createdAt: w.createdAt,
-					updatedAt: w.updatedAt,
 					property: prop
 						? {
 								_id: prop.id,
@@ -121,11 +119,19 @@ export async function GET(
 				};
 			});
 
+			// Map SearchHistory to the format frontend expects
+			const mappedSearchHistory = searchHistory.map((s) => ({
+				_id: s.id,
+				searchCount: s.resultCount || 1,
+				searchQuery: s.filters || {},
+				lastSearched: s.updatedAt,
+			}));
+
 			return NextResponse.json({
 				success: true,
 				data: {
 					user,
-					searchHistory,
+					searchHistory: mappedSearchHistory,
 					viewedProperties,
 					wishlistProperties,
 					savedSearch,
