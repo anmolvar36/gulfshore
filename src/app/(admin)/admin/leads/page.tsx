@@ -19,7 +19,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Search, Plus, Phone, Mail, Calendar } from "lucide-react";
+import { Search, Plus, Phone, Mail, Calendar, Eye, Trash2, Edit } from "lucide-react";
 import { IPrismaLead } from "@/models/leads";
 import { toast } from "sonner";
 import {
@@ -452,9 +452,39 @@ export default function LeadsPage() {
 											</div>
 										</td>
 										<td className="py-3 px-4">
-											<Link href={`/admin/leads/${lead.id || lead._id}`}>
-												<Button size="sm">View</Button>
-											</Link>
+											<div className="flex items-center gap-1">
+												<Link href={`/admin/leads/${lead.id || lead._id}`} title="View">
+													<Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50">
+														<Eye className="h-4 w-4" />
+													</Button>
+												</Link>
+												<Link href={`/admin/leads/${lead.id || lead._id}`} title="Edit">
+													<Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+														<Edit className="h-4 w-4" />
+													</Button>
+												</Link>
+												<Button 
+													title="Delete"
+													variant="ghost" 
+													size="icon" 
+													className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+													onClick={() => {
+														if (confirm("Are you sure you want to delete this lead?")) {
+															fetch(`/api/leads/${lead.id || lead._id}`, { method: "DELETE" })
+																.then(res => {
+																	if (res.ok) {
+																		setLeads(prev => prev.filter(l => (l.id || l._id) !== (lead.id || lead._id)));
+																		toast.success("Lead deleted");
+																	} else {
+																		toast.error("Failed to delete lead");
+																	}
+																});
+														}
+													}}
+												>
+													<Trash2 className="h-4 w-4" />
+												</Button>
+											</div>
 										</td>
 									</tr>
 								))}
