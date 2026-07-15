@@ -20,7 +20,6 @@ export async function GET(req: Request) {
 					{ MLSNumber: { contains: q } },
 					{ ListingId: { contains: q } },
 					{ FullAddress: { contains: q } },
-					{ Description: { contains: q } },
 				],
 			},
 			select: {
@@ -137,6 +136,7 @@ export async function GET(req: Request) {
 					type: "address",
 					city: p.City ?? undefined,
 					community: p.Community ?? undefined,
+					zip: p.PostalCode ?? undefined,
 				});
 			}
 

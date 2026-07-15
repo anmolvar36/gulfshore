@@ -122,6 +122,7 @@ const Navbar = () => {
 									path: "/Florida-Real-Estate-Search",
 									label: "Search",
 								},
+								{ path: "/sell", label: "Sell" },
 							].map(({ path: navPath, label }) => (
 								<NavigationMenuItem key={navPath}>
 									<NavigationMenuLink
@@ -272,6 +273,7 @@ export const DrawerMenu = ({
 								path: "/mortgage-calculator",
 								label: "Mortgage Calculator",
 							},
+							{ path: "/sell", label: "Home Valuation" },
 							{ path: "/contact", label: "Contact" },
 							{ path: "/about", label: "About" },
 						].map(({ path: navPath, label }) => (

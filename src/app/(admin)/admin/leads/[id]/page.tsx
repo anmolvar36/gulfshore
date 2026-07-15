@@ -77,6 +77,7 @@ export default function LeadProfilePage() {
 		lastName: "",
 		email: "",
 		phone: "",
+		tags: [] as string[],
 	});
 
 	// -------------------- FETCH LEAD --------------------
@@ -95,6 +96,7 @@ export default function LeadProfilePage() {
 					lastName: data.lastName || "",
 					email: data.email || "",
 					phone: data.phone || "",
+					tags: data.tags || [],
 				});
 			} catch (err: any) {
 				setError(err.message);
@@ -179,7 +181,9 @@ export default function LeadProfilePage() {
 				lastName: res.data.lastName || "",
 				email: res.data.email || "",
 				phone: res.data.phone || "",
+				tags: res.data.tags || [],
 			});
+			setSelectedTags(res.data.tags || []);
 		} catch (err) {
 			console.error("Failed to refresh lead:", err);
 		}
@@ -199,6 +203,7 @@ export default function LeadProfilePage() {
 			if (!res.ok) throw new Error("Failed to update profile");
 			const updated = await res.json();
 			setLead(updated);
+			setSelectedTags(updated.tags || []);
 			setIsEditModalOpen(false);
 			toast.success("Profile updated successfully!");
 		} catch (err: any) {
@@ -303,14 +308,28 @@ export default function LeadProfilePage() {
 						<CardContent className="space-y-4">
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								{[
-									{ label: "Email", value: lead.email, icon: Mail },
-									{ label: "Phone", value: lead.phone, icon: Phone },
-									{ label: "Source", value: lead.source },
+									{ label: "Email", value: <span>{lead.email}</span>, icon: Mail },
+									{ label: "Phone", value: <span>{lead.phone}</span>, icon: Phone },
+									{ label: "Source", value: <span>{lead.source}</span> },
 									{
 										label: "Created",
-										value: new Date(lead.createdAt).toLocaleString(),
+										value: <span>{new Date(lead.createdAt).toLocaleString()}</span>,
 										icon: Calendar,
 									},
+									{
+										label: "Tags",
+										value: lead.tags?.length ? (
+											<div className="flex gap-1.5 flex-wrap mt-0.5">
+												{lead.tags.map((tag: string) => (
+													<Badge key={tag} className="text-xs px-2 py-0.5 font-semibold bg-[#d90429]/10 text-[#d90429] border-0 hover:bg-[#d90429]/10">
+														{tag}
+													</Badge>
+												))}
+											</div>
+										) : (
+											<span className="text-muted-foreground text-xs italic">No tags</span>
+										)
+									}
 								].map((f) => (
 									<div key={f.label}>
 										<Label className="text-xs text-muted-foreground">
@@ -318,9 +337,9 @@ export default function LeadProfilePage() {
 										</Label>
 										<div className="flex items-center gap-2 mt-1">
 											{f.icon && (
-												<f.icon className="h-4 w-4 text-muted-foreground" />
+												<f.icon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
 											)}
-											<span>{f.value || "—"}</span>
+											<div className="text-sm font-medium text-foreground">{f.value || "—"}</div>
 										</div>
 									</div>
 								))}
@@ -344,18 +363,20 @@ export default function LeadProfilePage() {
 										<div
 											key={inquiry._id}
 											className="p-3 border border-border rounded-lg">
-											<div className="flex items-start justify-between">
-												<div>
-													<p className="font-medium text-foreground">
-														{inquiry.propertyAddress}
-													</p>
-													<p className="text-sm text-muted-foreground mt-1">
-														{inquiry.inquiryType}
-													</p>
+											<div className="flex flex-col gap-2">
+												<div className="flex items-center justify-between">
+													<Badge variant="outline" className="text-xs font-semibold uppercase tracking-wider">
+														{String(inquiry.type).replaceAll("_", " ")}
+													</Badge>
+													<span className="text-xs text-muted-foreground">
+														{new Date(inquiry.createdAt).toLocaleString()}
+													</span>
 												</div>
-												<span className="text-xs text-muted-foreground">
-													{inquiry.createdAt.toLocaleString()}
-												</span>
+												{inquiry.message && (
+													<p className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-100 whitespace-pre-wrap leading-relaxed">
+														{inquiry.message}
+													</p>
+												)}
 											</div>
 										</div>
 									))
@@ -521,6 +542,32 @@ export default function LeadProfilePage() {
 									value={editData.phone}
 									onChange={(e) => setEditData({ ...editData, phone: e.target.value })}
 								/>
+							</div>
+							<div className="space-y-2">
+								<Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Select Tags</Label>
+								<div className="flex gap-4 flex-wrap mt-1 p-2 bg-muted/30 rounded-lg border border-border/50">
+									{tagOptions.map((tag) => (
+										<div key={tag} className="flex items-center gap-2">
+											<input
+												type="checkbox"
+												id={`modal-tag-${tag}`}
+												checked={editData.tags.includes(tag)}
+												onChange={() => {
+													setEditData(prev => ({
+														...prev,
+														tags: prev.tags.includes(tag)
+															? prev.tags.filter((t) => t !== tag)
+															: [...prev.tags, tag],
+													}));
+												}}
+												className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+											/>
+											<label htmlFor={`modal-tag-${tag}`} className="text-sm font-medium leading-none cursor-pointer text-gray-700">
+												{tag}
+											</label>
+										</div>
+									))}
+								</div>
 							</div>
 						</div>
 						<DialogFooter>

@@ -50,7 +50,7 @@ export default function MapComponent({
 		lat: 26.142,
 		lng: -81.7948,
 	});
-	const [mapTypeId, setMapTypeId] = useState<"roadmap" | "hybrid">("roadmap");
+	const [mapTypeId, setMapTypeId] = useState<"roadmap" | "satellite" | "hybrid" | "terrain">("roadmap");
 
 	const [showDrone, setShowDrone] = useState(false);
 	const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -373,6 +373,20 @@ export default function MapComponent({
 								<input
 									type="radio"
 									name="mapStyle"
+									checked={mapTypeId === "satellite" && !showDrone}
+									onChange={() => {
+										setMapTypeId("satellite");
+										setShowDrone(false);
+										if (mapRef.current) mapRef.current.setMapTypeId("satellite");
+									}}
+									className="w-4 h-4 text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1"
+								/>
+								Satellite View
+							</label>
+							<label className="flex items-center gap-3 text-sm text-gray-800 cursor-pointer select-none">
+								<input
+									type="radio"
+									name="mapStyle"
 									checked={mapTypeId === "hybrid" && !showDrone}
 									onChange={() => {
 										setMapTypeId("hybrid");
@@ -381,7 +395,21 @@ export default function MapComponent({
 									}}
 									className="w-4 h-4 text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1"
 								/>
-								Satellite View
+								Hybrid View (Satellite + Labels)
+							</label>
+							<label className="flex items-center gap-3 text-sm text-gray-800 cursor-pointer select-none">
+								<input
+									type="radio"
+									name="mapStyle"
+									checked={mapTypeId === "terrain" && !showDrone}
+									onChange={() => {
+										setMapTypeId("terrain");
+										setShowDrone(false);
+										if (mapRef.current) mapRef.current.setMapTypeId("terrain");
+									}}
+									className="w-4 h-4 text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1"
+								/>
+								Terrain Map
 							</label>
 						</div>
 

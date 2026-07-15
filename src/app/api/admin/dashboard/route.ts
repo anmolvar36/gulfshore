@@ -38,6 +38,49 @@ export async function GET() {
 			prisma.viewedProperty.count()
 		]);
 
+		// Fetch last 7 days of signups and inquiries for the chart in parallel
+		const chartPromises = [];
+		for (let i = 6; i >= 0; i--) {
+			const startOfDay = new Date();
+			startOfDay.setDate(startOfDay.getDate() - i);
+			startOfDay.setHours(0, 0, 0, 0);
+
+			const endOfDay = new Date();
+			endOfDay.setDate(endOfDay.getDate() - i);
+			endOfDay.setHours(23, 59, 59, 999);
+
+			const dateLabel = startOfDay.toLocaleDateString("en-US", {
+				month: "short",
+				day: "numeric",
+			});
+
+			const promise = Promise.all([
+				prisma.lead.count({
+					where: {
+						createdAt: {
+							gte: startOfDay,
+							lte: endOfDay,
+						},
+					},
+				}),
+				prisma.inquiry.count({
+					where: {
+						createdAt: {
+							gte: startOfDay,
+							lte: endOfDay,
+						},
+					},
+				}),
+			]).then(([leadsCount, inquiriesCount]) => ({
+				date: dateLabel,
+				Leads: leadsCount,
+				Inquiries: inquiriesCount,
+			}));
+
+			chartPromises.push(promise);
+		}
+		const chartData = await Promise.all(chartPromises);
+
 		const res = {
 			TotalCities: totalCities,
 			TotalCommunities: totalCommunities,
@@ -48,7 +91,8 @@ export async function GET() {
 			TotalUsers: totalUsers,
 			TotalWishlistedProperties: totalWishlistedProperties,
 			TotalPropertyViews: totalPropertyViews,
-			LastSocialMediaUploadTime: new Date().toISOString()
+			LastSocialMediaUploadTime: new Date().toISOString(),
+			chartData: chartData
 		};
 
 		// Store in cache

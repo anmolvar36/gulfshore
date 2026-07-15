@@ -76,6 +76,10 @@ const sourceOptions = [
 		color: "bg-amber-100 text-amber-800",
 	},
 	{
+		value: "Home_Valuation",
+		color: "bg-emerald-100 text-emerald-800",
+	},
+	{
 		value: "Other",
 		color: "bg-gray-100 text-gray-800",
 	},
@@ -86,6 +90,7 @@ const SourceFilters = [
 	"SignUp",
 	"Contact_Form",
 	"Tour_Request",
+	"Home_Valuation",
 	"General",
 	"Other",
 ];
@@ -619,6 +624,7 @@ export default function LeadsPage() {
 										<SelectItem value="Signup">Signup</SelectItem>
 										<SelectItem value="Contact_Form">Contact Form</SelectItem>
 										<SelectItem value="Tour_Request">Tour Request</SelectItem>
+										<SelectItem value="Home_Valuation">Home Valuation</SelectItem>
 										<SelectItem value="Other">Other</SelectItem>
 									</SelectContent>
 								</Select>
