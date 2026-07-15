@@ -149,7 +149,7 @@ export default function ForcedLoginModal() {
 						<Link href="/signin" onClick={() => setIsOpen(false)} className="w-full block">
 							<Button
 								variant="outline"
-								className="w-full border-gray-200 text-gray-700 hover:bg-gray-50 font-semibold py-5 rounded-xl text-sm cursor-pointer">
+								className="w-full border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-gray-900 font-semibold py-5 rounded-xl text-sm cursor-pointer">
 								Already have an account? Sign In
 							</Button>
 						</Link>
