@@ -20,7 +20,7 @@ const mapContainerStyle = {
 };
 
 export default function PropertyMap({ property, Latitude, Longitude }: PropertyMapProps) {
-	const [mapTypeId, setMapTypeId] = useState<"roadmap" | "hybrid">("roadmap");
+	const [mapTypeId, setMapTypeId] = useState<"roadmap" | "satellite" | "hybrid" | "terrain">("roadmap");
 	const [streetViewActive, setStreetViewActive] = useState(false);
 	const [showFema, setShowFema] = useState(false);
 	const [showDrone, setShowDrone] = useState(false);
@@ -169,6 +169,20 @@ export default function PropertyMap({ property, Latitude, Longitude }: PropertyM
 								<input
 									type="radio"
 									name="propMapStyle"
+									checked={mapTypeId === "satellite" && !showDrone}
+									onChange={() => {
+										setMapTypeId("satellite");
+										setShowDrone(false);
+										if (mapRef.current) mapRef.current.setMapTypeId("satellite");
+									}}
+									className="text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1 cursor-pointer"
+								/>
+								Satellite View
+							</label>
+							<label className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer select-none">
+								<input
+									type="radio"
+									name="propMapStyle"
 									checked={mapTypeId === "hybrid" && !showDrone}
 									onChange={() => {
 										setMapTypeId("hybrid");
@@ -177,7 +191,21 @@ export default function PropertyMap({ property, Latitude, Longitude }: PropertyM
 									}}
 									className="text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1 cursor-pointer"
 								/>
-								Satellite View
+								Hybrid View (Satellite + Labels)
+							</label>
+							<label className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer select-none">
+								<input
+									type="radio"
+									name="propMapStyle"
+									checked={mapTypeId === "terrain" && !showDrone}
+									onChange={() => {
+										setMapTypeId("terrain");
+										setShowDrone(false);
+										if (mapRef.current) mapRef.current.setMapTypeId("terrain");
+									}}
+									className="text-[#B89A6A] focus:ring-[#B89A6A] focus:ring-1 cursor-pointer"
+								/>
+								Terrain Map
 							</label>
 							
 							<div className="h-px bg-gray-100 my-0.5" />

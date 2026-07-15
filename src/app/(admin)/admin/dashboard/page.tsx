@@ -9,6 +9,16 @@ import axios from "axios";
 import { Users, Building, Zap, Heart, MapPin, Home, Phone, Calendar } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+	ResponsiveContainer,
+	LineChart,
+	Line,
+	CartesianGrid,
+	XAxis,
+	YAxis,
+	Tooltip,
+	Legend
+} from "recharts";
 
 interface DashBoardStats {
 	TotalSocialLogs: number;
@@ -21,6 +31,7 @@ interface DashBoardStats {
 	TotalCommunities: number;
 	TotalTours: number;
 	LastSocialMediaUploadTime: string;
+	chartData?: Array<{ date: string; Leads: number; Inquiries: number }>;
 }
 
 export default function DashboardPage() {
@@ -144,6 +155,29 @@ export default function DashboardPage() {
 					</Card>
 				))}
 			</div>
+
+			{/* Trends Chart */}
+			{data.chartData && data.chartData.length > 0 && (
+				<Card className="mt-6 shadow-sm border border-border/80">
+					<CardHeader className="pb-2">
+						<CardTitle className="text-lg font-bold">7-Day Platform Activity Trends</CardTitle>
+						<p className="text-xs text-muted-foreground">Compare new user registrations (Leads) against property inquiries & valuations (Inquiries)</p>
+					</CardHeader>
+					<CardContent className="h-[320px] w-full pt-4">
+						<ResponsiveContainer width="100%" height="100%">
+							<LineChart data={data.chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+								<CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+								<XAxis dataKey="date" tickLine={false} className="text-xs font-semibold text-muted-foreground" />
+								<YAxis tickLine={false} className="text-xs font-semibold text-muted-foreground" allowDecimals={false} />
+								<Tooltip contentStyle={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: "8px" }} />
+								<Legend wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }} />
+								<Line type="monotone" dataKey="Leads" stroke="#10b981" strokeWidth={3} activeDot={{ r: 6 }} name="New Signups / Leads" />
+								<Line type="monotone" dataKey="Inquiries" stroke="#d90429" strokeWidth={3} activeDot={{ r: 6 }} name="Valuations & Requests" />
+							</LineChart>
+						</ResponsiveContainer>
+					</CardContent>
+				</Card>
+			)}
 		</div>
 	);
 }

@@ -21,6 +21,7 @@ Yeh report client ke sabhi requests, unke implementation changes, aur unke progr
 | **11** | **FEMA Toggle MVCArray Bug Fix** (Overlay map types freeze) | **Completed** | MVCArray me standard `indexOf` error loop replace kiya jisse FEMA ON-OFF cleanly map array se remove/insert ho सके.<br>📂 `src/app/(public)/Florida-Real-Estate-Search/[[...slug]]/mapComponent.tsx` |
 | **12** | **Street View & Real View Feature** | **Completed** | Map popup card par `👁️ Street & Real View` ka link set kiya jo direct properties coordinates par Google Street View new tab me open karta hai.<br>📂 `src/components/cards/property/property-card.tsx` |
 | **13** | **Detailed Search Flow & Backend Data Flow Guide** (Detailed Workflow file) | **Completed** | User aur Client ke data parsing, URL structures, DB relationships, aur workflow actions ka manual roadmap create kiya.<br>📂 `walkthrough_search_flow.md` |
+| **14** | **Multiple Map Layers** (Satellite, Terrain, Hybrid, Standard Roadmap styles) | **Completed** | Roadmap, Satellite, Hybrid, aur Terrain layers dono maps (Search view & Property Detail view) par enable kiye.<br>📂 `src/app/(public)/Florida-Real-Estate-Search/[[...slug]]/mapComponent.tsx`, `src/components/property/propertyMap.tsx` |
 
 ---
 

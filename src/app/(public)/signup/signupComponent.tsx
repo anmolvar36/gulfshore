@@ -79,22 +79,30 @@ export default function SignUpForm() {
 			if (phoneNumber.length < 4) return phoneNumber;
 			if (phoneNumber.length < 7)
 				return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3)}`;
-			return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(
-				3,
-				6
-			)}-${phoneNumber.slice(6, 10)}`;
-		} else {
-			return phoneNumber.replace(/(\d{3})(?=\d)/g, "$1 ");
+			return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
 		}
+		if (country === "+91") {
+			if (phoneNumber.length < 6) return phoneNumber;
+			return `${phoneNumber.slice(0, 5)}-${phoneNumber.slice(5, 10)}`;
+		}
+		return phoneNumber.replace(/(\d{3})(?=\d)/g, "$1 ");
 	};
 
 	const validatePhoneNumber = (phone: any, country: any) => {
+		const digits = phone.replace(/\D/g, "");
 		if (country === "+1") {
-			return /^\(\d{3}\) \d{3}-\d{4}$/.test(phone);
-		} else {
-			const digits = phone.replace(/\D/g, "");
-			return digits.length >= 7 && digits.length <= 15;
+			return /^\(\d{3}\) \d{3}-\d{4}$/.test(phone) && digits.length === 10;
 		}
+		if (country === "+91") {
+			return /^[6-9]\d{9}$/.test(digits);
+		}
+		if (country === "+44") {
+			return digits.length >= 10 && digits.length <= 11;
+		}
+		if (country === "+971") {
+			return digits.length >= 9 && digits.length <= 10;
+		}
+		return digits.length >= 7 && digits.length <= 15;
 	};
 
 	const handlePhoneChange = (e: any) => {

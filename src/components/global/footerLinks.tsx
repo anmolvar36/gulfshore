@@ -14,6 +14,7 @@ const FooterLinks = () => {
 		},
 		{ href: "/about", label: "About Us" },
 		{ href: "/contact", label: "Contact Us" },
+		{ href: "/sell", label: "Home Valuation" },
 
 		// ... more links
 	];

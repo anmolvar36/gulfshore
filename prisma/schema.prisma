@@ -11,6 +11,7 @@ enum InquiryType {
   Contact_Form
   Tour_Request
   General
+  Home_Valuation
 }
 
 enum AlertFrequency {
@@ -33,6 +34,7 @@ enum LeadSource {
   Admin
   General
   Other
+  Home_Valuation
 }
 
 enum LeadTag {
@@ -161,7 +163,7 @@ model Inquiry {
   id         String      @id @default(cuid())
   leadId     String
   type       InquiryType
-  message    String?
+  message    String?     @db.Text
   propertyId String?
   createdAt  DateTime    @default(now())
 
