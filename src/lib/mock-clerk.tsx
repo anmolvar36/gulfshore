@@ -816,3 +816,25 @@ export function useSignUp() {
 		}
 	};
 }
+
+export function useSignIn() {
+	return {
+		isLoaded: true,
+		signIn: {
+			authenticateWithRedirect: async (params: any) => {
+				console.log("Mock signIn authenticateWithRedirect called:", params);
+				setCookie("mock_signed_in", "true");
+				setCookie("mock_user_email", "admin@gulfshore.com");
+				setCookie("mock_user_id", "admin_dummy_123");
+				if (typeof sessionStorage !== "undefined") {
+					sessionStorage.setItem("just_signed_in", "true");
+				}
+				window.location.reload();
+			}
+		},
+		setActive: async (params: any) => {
+			console.log("Mock signIn setActive called:", params);
+		}
+	};
+}
+
