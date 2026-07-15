@@ -54,9 +54,16 @@ export async function GET(req: NextRequest) {
 			} else if (statusVal === "Short Sale" || statusVal === "Foreclosure") {
 				// Short sale / foreclosure fall back to Active or check description/raw if they exist in active listings
 				where.StandardStatus = "Active";
-				// Check standard conditions in raw data if available, or just return active
+				where.AND = where.AND || [];
+				where.AND.push({
+					Description: { contains: statusVal }
+				});
+			} else if (statusVal === "Pending") {
+				where.StandardStatus = { contains: "Pending" };
+			} else if (statusVal === "Active") {
+				where.StandardStatus = "Active";
 			} else {
-				where.StandardStatus = statusVal;
+				where.StandardStatus = { contains: statusVal };
 			}
 		}
 
