@@ -55,6 +55,26 @@ export default async function Listing({
 }) {
 	const id = (await params).mls?.[0];
 	const property: Property = await FetchProperty(id);
+
+	// Handle case when property is not found
+	if (!property) {
+		return (
+			<div className="min-h-screen flex items-center justify-center">
+				<div className="text-center">
+					<h1 className="text-2xl font-bold mb-4">
+						Property Not Found
+					</h1>
+					<p className="text-gray-600 mb-4">
+						The requested property could not be found.
+					</p>
+					<Link href="/" className="text-blue-600 hover:underline">
+						Return to Home
+					</Link>
+				</div>
+			</div>
+		);
+	}
+
 	const media = (property.images ?? (property as any)?.raw?.Media) as any;
 	let images: string[] = [];
 	if (media && media.length > 0) {
@@ -78,25 +98,6 @@ export default async function Listing({
 			value !== "No Information"
 		);
 	};
-
-	// Handle case when property is not found
-	if (!property) {
-		return (
-			<div className="min-h-screen flex items-center justify-center">
-				<div className="text-center">
-					<h1 className="text-2xl font-bold mb-4">
-						Property Not Found
-					</h1>
-					<p className="text-gray-600 mb-4">
-						The requested property could not be found.
-					</p>
-					<Link href="/" className="text-blue-600 hover:underline">
-						Return to Home
-					</Link>
-				</div>
-			</div>
-		);
-	}
 
 	const city = capitalizeWords(property.City || "");
 	const development = capitalizeWords(

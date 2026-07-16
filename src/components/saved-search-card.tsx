@@ -52,7 +52,7 @@ export default function SavedSearchCard({
 							target="_blank"
 							rel="noopener noreferrer"
 							className="font-semibold text-foreground group-hover:text-blue-600 transition-colors pr-2 hover:underline">
-							{search.name}
+							{capitalizeWords(search.name.replaceAll("-", " "))}
 						</a>
 						<div className="flex items-center gap-1">
 							<Button
