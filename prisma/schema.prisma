@@ -446,6 +446,7 @@ model City {
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   communities  Community[]
+  faqs         Faq[]
 
   @@index([name])
   @@index([slug])
@@ -636,5 +637,17 @@ model DripCampaignLog {
   @@map("dripcampaignlog")
 }
 
+model Faq {
+  id        String   @id @default(cuid())
+  question  String   @db.Text
+  answer    String   @db.Text
+  cityId    Int?
+  category  String?  @default("General")
+  isActive  Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  city      City?    @relation(fields: [cityId], references: [id])
 
-
+  @@map("faq")
+}
