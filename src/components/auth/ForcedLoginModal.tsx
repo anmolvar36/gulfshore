@@ -64,7 +64,7 @@ export default function ForcedLoginModal() {
 			<DialogContent 
 				onInteractOutside={(e) => e.preventDefault()}
 				onEscapeKeyDown={(e) => e.preventDefault()}
-				className="sm:max-w-[480px] p-0 overflow-hidden bg-white rounded-3xl border-0 shadow-2xl [&>button]:hidden"
+				className="sm:max-w-[480px] p-0 max-h-[90dvh] overflow-y-auto bg-white rounded-3xl border-0 shadow-2xl [&>button]:hidden flex flex-col gap-0 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full"
 			>
 				{/* Top Header Banner */}
 				<div className="relative bg-gradient-to-br from-red-600 via-red-700 to-rose-900 p-8 text-white text-center">
