@@ -89,9 +89,31 @@ export default async function RootLayout({
 }>) {
 	const slugs = (await params).slug || [];
 	const filtersParams = await ExtractSearchParams(slugs);
-	const seoData = await GetSeoData({
-		params: filtersParams,
-	});
+	let seoData;
+	try {
+		seoData = await GetSeoData({
+			params: filtersParams,
+		});
+	} catch (error) {
+		console.error("Error fetching SEO data:", error);
+		seoData = {
+			title: "Search Properties in Florida",
+			description: "Search Real Estate and Homes for sale.",
+			heading: "Listings in Florida",
+			keywords: "real estate, homes, condos",
+			jsonld: {},
+			total: 0,
+			content: {
+				Images: [],
+				infoText: "Discover beautiful real estate listings. Explore properties with Gulfshore Group.",
+				defaultImage: "",
+			},
+			city: filtersParams.city || "",
+			community: filtersParams.community || "",
+			similar: [],
+			canonicalUrl: "",
+		};
+	}
 
 	return (
 		<>

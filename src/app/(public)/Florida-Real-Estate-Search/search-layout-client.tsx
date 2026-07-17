@@ -22,16 +22,16 @@ export default function SearchLayoutClient({
 		<div className="flex w-full h-full relative">
 			{/* Left side: Map (only renders when isMapView is true) */}
 			{isMapView && (
-				<div className="w-full h-full">
+				<div className="w-full lg:w-[52%] xl:w-[54%] h-[82vh] lg:h-[calc(100vh-140px)] lg:sticky lg:top-[140px] shrink-0">
 					<Map filterParams={filterParams} />
 				</div>
 			)}
 
-			{/* Right side: List View and Community Info (hidden when in Map view) */}
+			{/* Right side: List View and Community Info */}
 			<div
 				className={`${
 					isMapView
-						? "hidden"
+						? "hidden lg:flex lg:w-[48%] xl:w-[46%] flex-col overflow-y-auto"
 						: "w-full relative bg-white mx-auto overflow-y-auto flex flex-col"
 				}`}
 			>

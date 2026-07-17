@@ -36,12 +36,31 @@ export default function MapViewList({
 		total,
 		totalPages,
 		filters,
+		details,
 	} = useSelector((state: RootState) => state.search);
 	const path = usePathname();
 	const searchParams = useSearchParams();
 
 	const dispatch = useDispatch<AppDispatch>();
 	const filterString = JSON.stringify(filter);
+
+	const topRef = React.useRef<HTMLDivElement>(null);
+	React.useEffect(() => {
+		if (view === "map" && details && details.MLSNumber && topRef.current) {
+			topRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+		}
+	}, [details?.MLSNumber, view]);
+
+	const orderedList = React.useMemo(() => {
+		if (!details || !details.MLSNumber || view !== "map") return list;
+		const selectedIndex = list.findIndex(
+			(p: any) => p.MLSNumber === details.MLSNumber
+		);
+		if (selectedIndex <= 0) return list;
+		const selectedItem = list[selectedIndex];
+		const rest = list.filter((p: any) => p.MLSNumber !== details.MLSNumber);
+		return [selectedItem, ...rest];
+	}, [list, details, view]);
 	React.useEffect(() => {
 		if (view !== "map") {
 			dispatch(
@@ -173,9 +192,14 @@ export default function MapViewList({
 				</button>
 			</div>
 
+			<div ref={topRef} className="scroll-mt-4" />
 			<div className={gridClass}>
-				{list.map((property, i: number) => (
-					<PropertyCard key={i} {...(property as any)} />
+				{(view === "map" ? orderedList : list).map((property, i: number) => (
+					<PropertyCard
+						key={(property as any).MLSNumber || i}
+						isSelected={details?.MLSNumber === (property as any).MLSNumber}
+						{...(property as any)}
+					/>
 				))}
 			</div>
 

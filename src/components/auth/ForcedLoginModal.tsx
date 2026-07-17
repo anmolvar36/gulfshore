@@ -29,13 +29,17 @@ export default function ForcedLoginModal() {
 			return;
 		}
 
-		// Don't show on auth pages or admin pages
+		// Don't show on auth pages, admin pages, blogs, or city/search pages (per client request)
 		if (
 			pathname.includes("/signup") ||
 			pathname.includes("/signin") ||
 			pathname.includes("/sign-up") ||
 			pathname.includes("/sign-in") ||
-			pathname.startsWith("/admin")
+			pathname.startsWith("/admin") ||
+			pathname.startsWith("/blogs") ||
+			// To ensure city pages aren't blocked:
+			(pathname.startsWith("/Florida-Real-Estate-Search") && !pathname.includes("/Florida-Real-Estate-Listings/")) ||
+			pathname.startsWith("/explore")
 		) {
 			setIsOpen(false);
 			return;
