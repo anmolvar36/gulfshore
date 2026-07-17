@@ -100,7 +100,7 @@ export default async function RootLayout({
 				<SearchLayoutClient filterParams={filtersParams}>
 						<div
 							id="container"
-							className="h-full flex-col flex overflow-y-auto overflow-x-hidden w-full gap-2">
+							className="h-full flex-col flex overflow-x-hidden w-full gap-2">
 							<div className="w-11/12 max-w-[1600px] pt-6 mx-auto mb-4">
 								<h1 className="lg:text-xl text-lg font-medium text-primary">
 									{seoData?.heading ||
