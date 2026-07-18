@@ -221,7 +221,7 @@ model Property {
   FullAddress     String
 
   // ---- Property Info ----
-  Description           String?
+  Description           String? @db.Text
   PropertyType          String?
   PropertySubType       String?
   BedroomsTotal         Int?
