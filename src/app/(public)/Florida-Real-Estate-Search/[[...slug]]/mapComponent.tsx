@@ -148,6 +148,22 @@ export default function MapComponent({
 			ui.details.MLSNumber !== property.MLSNumber
 		) {
 			dispatch(setMapCard(property));
+			
+			// Auto-pan the map to the clicked marker so it isn't cut off
+			if (mapRef.current) {
+				const lat = parseFloat(property.Latitude);
+				const lng = parseFloat(property.Longitude);
+				if (!isNaN(lat) && !isNaN(lng)) {
+					mapRef.current.panTo({ lat, lng });
+					
+					// Slight offset to make sure the top part of the marker card isn't cut off by the header
+					setTimeout(() => {
+						if (mapRef.current) {
+							mapRef.current.panBy(0, -80);
+						}
+					}, 200);
+				}
+			}
 		} else {
 			dispatch(setMapCard(null));
 		}
