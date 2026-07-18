@@ -168,7 +168,7 @@ export default function MapViewList({
 
 	return (
 		<div>
-			{/* Status Tabs (Active / Sold) */}
+			{/* Status Tabs (Active / Sold / All) */}
 			<div className="w-11/12 max-w-[1600px] mx-auto mb-6 flex border-b border-[#E8E4DC] gap-6 text-sm">
 				<button
 					onClick={() => handleStatusChange("Active")}
@@ -189,6 +189,16 @@ export default function MapViewList({
 					}`}
 				>
 					Sold Properties
+				</button>
+				<button
+					onClick={() => handleStatusChange("All")}
+					className={`pb-2.5 font-medium border-b-2 transition-all ${
+						currentStatus === "All"
+							? "border-[#B89A6A] text-[#1C1712] font-semibold"
+							: "border-transparent text-[#7A7060] hover:text-[#1C1712]"
+					}`}
+				>
+					All Properties
 				</button>
 			</div>
 

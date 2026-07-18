@@ -5,43 +5,42 @@ import prisma from "@/lib/prisma";
 export async function GET(req: NextRequest) {
 	const { searchParams } = new URL(req.url);
 	const forceDate = searchParams.get("date");
-	const today = new Date().toISOString().split("T")[0];
 
 	const lastFetched = await prisma.property.findMany({
 		where: {
 			StandardStatus: "Active",
 		},
 		orderBy: {
-			createdAt: "desc",
+			BridgeModificationTimestamp: "desc",
 		},
 		select: {
-			createdAt: true,
+			BridgeModificationTimestamp: true,
 		},
 		take: 1,
 	});
 
-	const lastFetchedDate = lastFetched[0]?.createdAt;
-	
-	// Default to a month ago if database is completely empty
-	const defaultStartDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
-	
-	// Always look back 7 days from last sync date to catch any newly added listings
-	const rawDate = forceDate || (lastFetchedDate ? lastFetchedDate.toISOString().split("T")[0] : defaultStartDate);
-	const lookbackDate = new Date(new Date(rawDate).getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
-	const queryDate = forceDate || lookbackDate;
+	// Use BridgeModificationTimestamp (not createdAt) as the base for incremental sync
+	const lastModifiedAt = lastFetched[0]?.BridgeModificationTimestamp;
 
-	// Count matching properties since queryDate
-	const count = await prisma.property.count({
-		where: {
-			StandardStatus: "Active",
-			BridgeModificationTimestamp: {
-				gte: new Date(queryDate),
-			},
-		},
-	});
+	// Default to 7 days ago if DB is empty
+	const defaultStartDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+		.toISOString()
+		.split("T")[0];
 
-	console.log(`Starting sync from date: ${queryDate}, count: ${count}`);
+	// Look back an extra 2 days from the last known modification to avoid gaps
+	let queryDate: string;
+	if (forceDate) {
+		queryDate = forceDate;
+	} else if (lastModifiedAt) {
+		const lookback = new Date(lastModifiedAt.getTime() - 2 * 24 * 60 * 60 * 1000);
+		queryDate = lookback.toISOString().split("T")[0];
+	} else {
+		queryDate = defaultStartDate;
+	}
+
+	console.log(`[Sync Route] Starting sync — modification lookback: ${queryDate}`);
+
 	await syncTodaysActiveProperties({ count: 0, date: queryDate });
 
-	return Response.json({ success: true, count, date: queryDate });
+	return Response.json({ success: true, date: queryDate });
 }
