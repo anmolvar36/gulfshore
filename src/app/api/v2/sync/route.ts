@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
 		where: {
 			StandardStatus: "Active",
 			BridgeModificationTimestamp: {
-				gte: queryDate,
+				gte: new Date(queryDate),
 			},
 		},
 	});
