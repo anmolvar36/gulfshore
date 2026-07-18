@@ -64,3 +64,34 @@ export async function fetchBridgeBatchByOnMarketDate(
 
 	return res.json();
 }
+
+/**
+ * ⚡ FULL SYNC — Fetch ALL listings with NO date filter.
+ * Only filters by status (e.g. "Active").
+ * Used for the one-time or periodic full sync to ensure
+ * zero properties are missed regardless of timestamps.
+ */
+export async function fetchAllBridgeListings(
+	offset: number,
+	limit: number,
+	status: string
+) {
+	const filter = `StandardStatus.eq=${status}`;
+
+	const url =
+		`${BASE_URL}/${SOURCE}/listings` +
+		`?access_token=${API_KEY}` +
+		`&limit=${limit}` +
+		`&offset=${offset}` +
+		`&${filter}`;
+
+	const res = await fetch(url);
+
+	if (!res.ok) {
+		const errText = await res.text();
+		throw new Error(`Bridge API full-sync error: ${res.status} - ${errText}`);
+	}
+
+	return res.json();
+}
+
