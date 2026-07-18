@@ -13,8 +13,13 @@ export async function syncTodaysActiveProperties({
 }) {
 	let offset = count || 0;
 	let totalFetched = 0;
-	const today = new Date().toISOString().split("T")[0];
-	const datetime = date || today;
+	
+	// Fetch from 3 days ago by default to prevent missing any listings
+	const threeDaysAgo = new Date();
+	threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+	const defaultDate = threeDaysAgo.toISOString().split("T")[0];
+	const datetime = date || defaultDate;
+	
 	while (true) {
 		const data = await fetchBridgeBatch(
 			offset,
@@ -27,13 +32,17 @@ export async function syncTodaysActiveProperties({
 		if (listings.length === 0) break;
 
 		for (const item of listings) {
-			await prisma.property.upsert({
-				where: {
-					ListingId: item.ListingId,
-				},
-				update: mapProperty(item),
-				create: mapProperty(item),
-			});
+			try {
+				await prisma.property.upsert({
+					where: {
+						ListingId: item.ListingId,
+					},
+					update: mapProperty(item),
+					create: mapProperty(item),
+				});
+			} catch (err: any) {
+				console.error(`Failed to sync property ${item.ListingId}: ${err.message || 'Unknown error'}`);
+			}
 		}
 
 		totalFetched += listings.length;

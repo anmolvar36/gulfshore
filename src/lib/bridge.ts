@@ -19,13 +19,13 @@ export async function fetchBridgeBatch(
 		`?access_token=${API_KEY}` +
 		`&limit=${limit}` +
 		`&offset=${offset}` +
-		`&${filter}` +
-		`&$expand=Media`;
+		`&${filter}`;
 
 	const res = await fetch(url);
 
 	if (!res.ok) {
-		throw new Error(`Bridge API error: ${res.status}, ${url}`);
+		const errText = await res.text();
+		throw new Error(`Bridge API error: ${res.status}, ${url} - Response: ${errText}`);
 	}
 
 	return res.json();
