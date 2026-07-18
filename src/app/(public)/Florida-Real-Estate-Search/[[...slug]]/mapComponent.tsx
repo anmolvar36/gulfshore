@@ -461,6 +461,9 @@ export default function MapComponent({
 						streetViewControl: false,
 						fullscreenControl: false,
 						zoomControl: true,
+						zoomControlOptions: {
+							position: window.google.maps.ControlPosition.RIGHT_CENTER,
+						},
 					}}
 				>
 					<MarkerClustererF>
