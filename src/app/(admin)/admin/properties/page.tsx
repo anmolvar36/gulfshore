@@ -26,6 +26,8 @@ import {
 	ChevronLeft,
 	ChevronRight,
 	Plus,
+	RefreshCw,
+	Database,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -70,6 +72,8 @@ export default function PropertiesPage() {
 	const [citySearch, setCitySearch] = useState("");
 	const [developmentSearch, setDevelopmentSearch] = useState("");
 	const [mlsSearch, setMlsSearch] = useState("");
+	const [statusFilter, setStatusFilter] = useState("Active");
+	const [syncStatus, setSyncStatus] = useState<null | { loading: boolean; message: string; success?: boolean }>(null);
 	const limit = 20;
 
 	const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -150,16 +154,11 @@ export default function PropertiesPage() {
 	const fetchProperties = async () => {
 		setLoading(true);
 		try {
-			let url = `/api/properties?page=${page}&limit=${limit}&Status=Active`;
-			if (citySearch) {
-				url += `&city=${encodeURIComponent(citySearch)}`;
-			}
-			if (developmentSearch) {
-				url += `&development=${encodeURIComponent(developmentSearch)}`;
-			}
-			if (mlsSearch) {
-				url += `&MLSNumber=${encodeURIComponent(mlsSearch)}`;
-			}
+			const statusParam = statusFilter === "All" ? "All" : statusFilter;
+			let url = `/api/properties?page=${page}&limit=${limit}&Status=${statusParam}`;
+			if (citySearch) url += `&city=${encodeURIComponent(citySearch)}`;
+			if (developmentSearch) url += `&development=${encodeURIComponent(developmentSearch)}`;
+			if (mlsSearch) url += `&MLSNumber=${encodeURIComponent(mlsSearch)}`;
 
 			const res = await fetch(url);
 			const json = await res.json();
@@ -175,9 +174,36 @@ export default function PropertiesPage() {
 		}
 	};
 
+	/**
+	 * Trigger full Bridge sync from admin UI.
+	 * Chains calls automatically using nextOffset until complete.
+	 */
+	const handleFullSync = async () => {
+		setSyncStatus({ loading: true, message: "Starting full sync from Bridge API..." });
+		let offset = 0;
+		let totalFetched = 0;
+		try {
+			while (true) {
+				setSyncStatus({ loading: true, message: `Syncing... ${totalFetched} properties fetched so far` });
+				const res = await fetch(`/api/v2/sync/full?offset=${offset}&status=Active`);
+				const json = await res.json();
+				if (!json.success) throw new Error(json.error || "Sync failed");
+				totalFetched += json.totalFetched || 0;
+				if (json.isComplete || json.nextOffset === null) break;
+				offset = json.nextOffset;
+			}
+			setSyncStatus({ loading: false, message: `✅ Full sync complete! ${totalFetched.toLocaleString()} properties synced.`, success: true });
+			toast.success(`Full sync complete! ${totalFetched.toLocaleString()} properties synced.`);
+			fetchProperties();
+		} catch (err: any) {
+			setSyncStatus({ loading: false, message: `❌ Sync failed: ${err.message}`, success: false });
+			toast.error(err.message || "Sync failed");
+		}
+	};
+
 	useEffect(() => {
 		fetchProperties();
-	}, [page]);
+	}, [page, statusFilter]);
 
 	const handleSearchSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
@@ -187,22 +213,56 @@ export default function PropertiesPage() {
 
 	return (
 		<div className="space-y-6">
-			<div className="flex items-center justify-between">
+			<div className="flex items-center justify-between flex-wrap gap-3">
 				<div>
 					<h1 className="text-3xl font-bold text-foreground">
 						Properties Listings
 						<span className="text-muted-foreground text-sm font-normal ml-2">
-							({totalCount.toLocaleString()} total active)
+							({totalCount.toLocaleString()} {statusFilter === "All" ? "total" : statusFilter.toLowerCase()})
 						</span>
 					</h1>
 					<p className="text-muted-foreground">
-						Manage and monitor all active property listings across Florida
+						Manage and monitor all property listings across Florida
 					</p>
+					{syncStatus && (
+						<p className={`text-xs mt-1 font-medium ${
+							syncStatus.success === false ? "text-red-500" :
+							syncStatus.success === true ? "text-green-600" : "text-blue-500"
+						}`}>
+							{syncStatus.loading && <RefreshCw className="inline h-3 w-3 mr-1 animate-spin" />}
+							{syncStatus.message}
+						</p>
+					)}
 				</div>
-				<Button onClick={() => setIsCreateOpen(true)} className="flex items-center gap-2">
-					<Plus className="h-4 w-4" />
-					Add Property
-				</Button>
+				<div className="flex gap-2 flex-wrap">
+					{/* Status Filter */}
+					<Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
+						<SelectTrigger className="w-[140px]">
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="Active">Active</SelectItem>
+							<SelectItem value="Closed">Sold / Closed</SelectItem>
+							<SelectItem value="All">All Properties</SelectItem>
+						</SelectContent>
+					</Select>
+					{/* Full Sync Button */}
+					<Button
+						variant="outline"
+						onClick={handleFullSync}
+						disabled={syncStatus?.loading}
+						className="flex items-center gap-2 border-blue-300 text-blue-600 hover:bg-blue-50"
+					>
+						{syncStatus?.loading
+							? <RefreshCw className="h-4 w-4 animate-spin" />
+							: <Database className="h-4 w-4" />}
+						{syncStatus?.loading ? "Syncing..." : "Full MLS Sync"}
+					</Button>
+					<Button onClick={() => setIsCreateOpen(true)} className="flex items-center gap-2">
+						<Plus className="h-4 w-4" />
+						Add Property
+					</Button>
+				</div>
 			</div>
 
 			{/* Search Filters */}

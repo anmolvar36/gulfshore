@@ -139,6 +139,8 @@ export async function GET(req: NextRequest) {
 		// Map sort field to Prisma compatible column name
 		let prismaSortField = sortField;
 		if (sortField === "CurrentPrice") prismaSortField = "ListPrice";
+		if (sortField === "CreatedDate") prismaSortField = "createdAt";
+		if (sortField === "OnMarketDate") prismaSortField = "OnMarketDate";
 
 		const [total, properties] = await Promise.all([
 			prisma.property.count({ where }),

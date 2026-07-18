@@ -34,6 +34,12 @@ export const SortItems = [
 		order: "asc",
 		sort: "CreatedDate",
 	},
+	{
+		id: 4,
+		label: "🆕 New Launch",
+		order: "desc",
+		sort: "OnMarketDate",
+	},
 ] as const;
 
 export type SortItem = (typeof SortItems)[number];
