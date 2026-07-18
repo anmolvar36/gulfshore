@@ -147,10 +147,17 @@ export default function MapViewList({
 	const currentStatus = filters.status || "Active";
 
 	const handleStatusChange = (newStatus: string) => {
+		// When "All Properties" → auto sort by OnMarketDate (New Launch)
+		// so newest listings appear first by their actual market date
+		const sortOverride = newStatus === "All"
+			? { sort: "OnMarketDate", order: "desc" }
+			: { sort: "CreatedDate", order: "desc" };
+
 		const nextFilters = {
 			...filters,
 			status: newStatus,
-			page: "1"
+			page: "1",
+			...sortOverride,
 		};
 		dispatch(setFilters(nextFilters));
 		dispatch(fetchProperties());
@@ -159,8 +166,12 @@ export default function MapViewList({
 		const nextParams = new URLSearchParams(searchParams.toString());
 		if (newStatus === "Active") {
 			nextParams.delete("status");
+			nextParams.set("sort", "CreatedDate");
+			nextParams.set("order", "desc");
 		} else {
 			nextParams.set("status", newStatus);
+			nextParams.set("sort", sortOverride.sort);
+			nextParams.set("order", sortOverride.order);
 		}
 		const newUrl = `${path}?${nextParams.toString()}`;
 		window.history.pushState(null, "", newUrl);
