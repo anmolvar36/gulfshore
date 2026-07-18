@@ -321,8 +321,8 @@ model Property {
   PhotosChangeTimestamp   DateTime?
   VideosCount             Int?
   VideosChangeTimestamp   DateTime?
-  VirtualTourURLUnbranded String?
-  VirtualTourURLBranded   String?
+  VirtualTourURLUnbranded String?   @db.Text
+  VirtualTourURLBranded   String?   @db.Text
   AllPixDownloaded        Boolean   @default(false)
   images                  Json?
   communityId Int?

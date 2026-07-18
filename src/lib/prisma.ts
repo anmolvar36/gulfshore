@@ -14,9 +14,10 @@ function createPrismaClient() {
 			user: "root",
 			password: "",
 			database: "gulfshoregroup",
-			connectTimeout: 10000,
-			connectionLimit: 10,
-			acquireTimeout: 10000,
+			connectTimeout: 30000,
+			connectionLimit: 20,
+			acquireTimeout: 30000,
+			socketTimeout: 60000,
 		} as any);
 		return new PrismaClient({ adapter });
 	}
@@ -30,9 +31,10 @@ function createPrismaClient() {
 		user: url.username,
 		password: url.password,
 		database: url.pathname.slice(1),
-		connectTimeout: 10000,
-		connectionLimit: 10,
-		acquireTimeout: 10000,
+		connectTimeout: 30000,
+		connectionLimit: 20,
+		acquireTimeout: 30000,
+		socketTimeout: 60000,
 	} as any);
 	return new PrismaClient({ adapter });
 }
