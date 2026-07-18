@@ -35,7 +35,7 @@ export async function syncTodaysActiveProperties({
 			try {
 				await prisma.property.upsert({
 					where: {
-						ListingId: item.ListingId,
+						ListingKey: item.ListingKey,
 					},
 					update: mapProperty(item),
 					create: mapProperty(item),
