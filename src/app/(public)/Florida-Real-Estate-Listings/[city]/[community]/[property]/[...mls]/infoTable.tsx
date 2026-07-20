@@ -204,7 +204,7 @@ export default function PropertyDetailsTable({
 						Property Overview
 					</h2>
 					<ReadMore
-						maxLength={140}
+						maxLength={450}
 						readMoreText="Read More"
 						readLessText="Read Less"
 						className="text-sm lg:text-base md:font-normal font-light">

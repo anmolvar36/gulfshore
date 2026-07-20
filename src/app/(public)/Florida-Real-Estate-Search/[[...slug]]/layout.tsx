@@ -185,7 +185,9 @@ export default async function RootLayout({
 																				.replaceAll("###", "•")
 																				.replaceAll("##", "•")
 																				.replaceAll("#", "")
-																		: `${capitalizeWords(filtersParams.city || "Naples")}, Florida: Your Gateway to Paradise Living\n\nNestled along Florida's pristine Gulf Coast, ${capitalizeWords(filtersParams.city || "Naples")} represents the epitome of luxury living, combining world-class amenities with natural beauty that captivates residents and visitors alike. This enchanting city has evolved from a small fishing village into one of America's most desirable destinations for those seeking an exceptional quality of life.`}
+																		: (seoData?.community || filtersParams.developmentName)
+																			? `Welcome to ${seoData?.community || capitalizeWords(filtersParams.developmentName || "")} in ${capitalizeWords(filtersParams.city || "Naples")}, Florida. An exceptional community offering a premier lifestyle with access to world-class amenities and the natural beauty of Southwest Florida's Gulf Coast.`
+																			: `${capitalizeWords(filtersParams.city || "Naples")}, Florida: Your Gateway to Paradise Living\n\nNestled along Florida's pristine Gulf Coast, ${capitalizeWords(filtersParams.city || "Naples")} represents the epitome of luxury living, combining world-class amenities with natural beauty that captivates residents and visitors alike. This enchanting city has evolved from a small fishing village into one of America's most desirable destinations for those seeking an exceptional quality of life.`}
 																</ReadMore>
 															</div>
 														</div>

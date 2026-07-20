@@ -388,6 +388,7 @@ export default async function Listing({
 					})(),
 				}}
 			/>
+			{Meta?.content?.infoText && Meta.content.infoText.trim().length > 0 && (
 			<section className="mt-14 md:mt-16 lg:mt-20">
 				<div className="mx-auto w-11/12">
 					<div className="rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
@@ -431,15 +432,12 @@ export default async function Listing({
 										</div>
 
 										<div className="prose prose-gray max-w-none lg:max-h-[480px] overflow-y-auto">
-											<ReadMore
-												className="text-gray-500 leading-relaxed">
-												{Meta?.content?.infoText && Meta.content.infoText.trim().length > 0
-													? Meta.content.infoText
-															.replaceAll("*", "")
-															.replaceAll("###", "•")
-															.replaceAll("##", "•")
-															.replaceAll("#", "")
-													: `${capitalizeWords(property.City || "Naples")}, Florida: Your Gateway to Paradise Living\n\nNestled along Florida's pristine Gulf Coast, ${capitalizeWords(property.City || "Naples")} represents the epitome of luxury living, combining world-class amenities with natural beauty that captivates residents and visitors alike. This enchanting city has evolved from a small fishing village into one of America's most desirable destinations for those seeking an exceptional quality of life.`}
+											<ReadMore className="text-gray-500 leading-relaxed">
+												{Meta.content.infoText
+														.replaceAll("*", "")
+														.replaceAll("###", "•")
+														.replaceAll("##", "•")
+														.replaceAll("#", "")}
 											</ReadMore>
 										</div>
 									</div>
@@ -449,6 +447,7 @@ export default async function Listing({
 					</div>
 				</div>
 			</section>
+			)}
 			<div className="my-5 mx-auto w-11/12">
 				<span className="font-semibold text-sm">Disclaimer:</span>
 				<span className="text-xs font-light text-gray-600">
