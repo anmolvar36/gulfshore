@@ -78,8 +78,9 @@ export default function PropertySection({
 	const cityPath = queryParams?.city
 		? capitalizeWords(queryParams.city).replaceAll(" ", "-")
 		: "";
-	const communityPath = queryParams?.development
-		? capitalizeWords(queryParams.development).replaceAll(" ", "-")
+	const communityRaw = queryParams?.development || queryParams?.developmentName || queryParams?.community || "";
+	const communityPath = communityRaw
+		? capitalizeWords(communityRaw).replaceAll(" ", "-")
 		: "";
 
 	useEffect(() => {

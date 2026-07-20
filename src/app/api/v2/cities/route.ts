@@ -75,6 +75,8 @@ export async function GET(req: NextRequest) {
 				PropertyType: {
 					not: "Residential Lease",
 				},
+				FullAddress: { not: "" },
+				NOT: { images: { equals: null } },
 			},
 			_count: {
 				id: true,
