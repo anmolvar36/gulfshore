@@ -130,7 +130,7 @@ const PropertyCard = (property: Property & { isSelected?: boolean }) => {
 					<PropertyCardInfoLabels property={property} />
 
 					{/* HOA — shown only when relevant */}
-					{property.MandatoryHOAYN && property.HOAFee && (
+					{property.MandatoryHOAYN && property.HOAFee > 0 && (
 						<div className="mt-2 flex items-center gap-1.5">
 							<Landmark size={12} className="text-[#B89A6A]" aria-hidden="true" />
 							<span className="text-[11px] text-[#9A9082]">
