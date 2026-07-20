@@ -12,10 +12,13 @@ export async function GET(req: NextRequest) {
 		// ----- CACHE KEY -----
 		const cacheKey = `cities:${type || "all"}:limit-${limit}`;
 
-		// ----- CHECK REDIS CACHE -----
-		const cached = await redisGet(cacheKey);
-		if (typeof cached === "string") {
-			return NextResponse.json(JSON.parse(cached));
+		// ----- CHECK REDIS CACHE (skip if cache-buster ?t= is present) -----
+		const hasCacheBuster = !!queryParams.get("t");
+		if (!hasCacheBuster) {
+			const cached = await redisGet(cacheKey);
+			if (typeof cached === "string") {
+				return NextResponse.json(JSON.parse(cached));
+			}
 		}
 
 		// Southwest Florida cities only
@@ -108,8 +111,8 @@ export async function GET(req: NextRequest) {
 
 		const response = { success: true, data };
 
-		// ----- SAVE TO CACHE (24 hours) -----
-		await redisSet(cacheKey, JSON.stringify(response), 86400);
+		// ----- SAVE TO CACHE (2 hours for fresher listing counts) -----
+		await redisSet(cacheKey, JSON.stringify(response), 7200);
 
 		return NextResponse.json(response);
 	} catch (error: any) {

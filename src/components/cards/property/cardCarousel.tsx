@@ -34,8 +34,16 @@ export default function CardCarousel({
 	let images: string[] = [];
 	if (Array.isArray(media) && media.length > 0) {
 		images = media
-			.filter((item: any) => item?.MediaCategory === "Photo" && typeof item?.MediaURL === "string" && item.MediaURL.trim() !== "")
-			.map((item: any) => item.MediaURL);
+			.map((item: any) => {
+				// Handle plain URL strings
+				if (typeof item === "string" && item.trim() !== "") return item;
+				// Handle objects with MediaURL (accept Photo category or missing category)
+				if (typeof item?.MediaURL === "string" && item.MediaURL.trim() !== "") {
+					if (!item.MediaCategory || item.MediaCategory === "Photo") return item.MediaURL;
+				}
+				return null;
+			})
+			.filter(Boolean) as string[];
 	}
 	const imageArray = images;
 

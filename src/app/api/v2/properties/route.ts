@@ -87,6 +87,13 @@ export async function GET(req: NextRequest) {
 			not: "Residential Lease",
 		};
 
+		// ---- Exclude blank listings (no address or no images) ----
+		where.FullAddress = { not: "" };
+		where.NOT = where.NOT || [];
+		where.NOT.push(
+			{ images: { equals: null } },
+		);
+
 		// ---- Location ----
 		if (query.get("city")) {
 			where.City = {

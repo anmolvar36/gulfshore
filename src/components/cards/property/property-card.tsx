@@ -171,8 +171,14 @@ export const PropertyCard2 = ({
 	let images: string[] = [];
 	if (Array.isArray(media) && media.length > 0) {
 		images = media
-			.filter((item: any) => item?.MediaCategory === "Photo" && typeof item?.MediaURL === "string" && item.MediaURL.trim() !== "")
-			.map((item: any) => item.MediaURL);
+			.map((item: any) => {
+				if (typeof item === "string" && item.trim() !== "") return item;
+				if (typeof item?.MediaURL === "string" && item.MediaURL.trim() !== "") {
+					if (!item.MediaCategory || item.MediaCategory === "Photo") return item.MediaURL;
+				}
+				return null;
+			})
+			.filter(Boolean) as string[];
 	}
 
 	return (
