@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 export default function AboutSection() {
 	const areas = [
 		"Naples",
@@ -13,11 +15,12 @@ export default function AboutSection() {
 		<section id="about" className="py-24 md:py-32 bg-secondary/30">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-					<div className="h-full md:max-h-[500px] max-h-[350px]">
-						<img
+					<div className="relative h-[350px] md:h-[500px] w-full">
+						<Image
 							src="https://res.cloudinary.com/dm68hqwp9/image/upload/v1752289517/b8116620c2365c422108705cbb609f57_m9ddcy.jpg"
 							alt="GulfShore Group office"
-							className="rounded-lg h-full object-fill shadow-lg w-full"
+							fill
+							className="rounded-lg object-cover shadow-lg"
 						/>
 					</div>
 					<div>

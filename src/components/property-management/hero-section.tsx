@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 export default function HeroSection() {
 	return (
@@ -35,10 +36,12 @@ export default function HeroSection() {
 					</div>
 					<div className="hidden md:block">
 						<div className="relative h-96 bg-gradient-to-br from-muted to-muted/50 rounded-lg overflow-hidden">
-							<img
+							<Image
 								src="https://res.cloudinary.com/dm68hqwp9/image/upload/v1752289237/hero-bg_dy8ttf.jpg"
 								alt="Luxury waterfront property"
-								className="w-full h-full object-cover"
+								fill
+								priority
+								className="object-cover"
 							/>
 						</div>
 					</div>
