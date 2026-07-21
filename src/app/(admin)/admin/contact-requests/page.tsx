@@ -152,7 +152,7 @@ export default function ContactRequestsPage() {
 			</div>
 
 			{/* Summary Cards */}
-			<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+			<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
 				<Card>
 					<CardContent className="pt-6 text-center">
 						<div className="text-3xl font-bold text-foreground">
