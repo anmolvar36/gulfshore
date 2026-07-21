@@ -23,6 +23,7 @@ export default function PropertyMap({ property, Latitude, Longitude }: PropertyM
 	const [mapTypeId, setMapTypeId] = useState<"roadmap" | "satellite" | "hybrid" | "terrain">("roadmap");
 	const [streetViewActive, setStreetViewActive] = useState(false);
 	const [showFema, setShowFema] = useState(false);
+	const [femaLoading, setFemaLoading] = useState(false);
 	const [showDrone, setShowDrone] = useState(false);
 	const [dropdownOpen, setDropdownOpen] = useState(false);
 	
@@ -54,6 +55,7 @@ export default function PropertyMap({ property, Latitude, Longitude }: PropertyM
 		setShowFema(nextState);
 
 		if (nextState) {
+			setFemaLoading(true);
 			const femaType = new google.maps.ImageMapType({
 				getTileUrl: (coord, zoom) => {
 					const initialResolution = 2 * Math.PI * 6378137 / 256;
@@ -73,7 +75,14 @@ export default function PropertyMap({ property, Latitude, Longitude }: PropertyM
 			});
 			femaOverlayRef.current = femaType;
 			mapRef.current.overlayMapTypes.insertAt(0, femaType);
+
+			const listener = mapRef.current.addListener("tilesloaded", () => {
+				setFemaLoading(false);
+				if (listener) google.maps.event.removeListener(listener);
+			});
+			setTimeout(() => setFemaLoading(false), 2500);
 		} else {
+			setFemaLoading(false);
 			if (femaOverlayRef.current) {
 				const overlayTypes = mapRef.current.overlayMapTypes;
 				for (let i = 0; i < overlayTypes.getLength(); i++) {
@@ -241,6 +250,41 @@ export default function PropertyMap({ property, Latitude, Longitude }: PropertyM
 						</div>
 					)}
 				</div>
+
+				{/* FEMA Flood Zone Legend & Loading Box */}
+				{showFema && !showDrone && (
+					<div className="absolute top-4 right-4 z-40 bg-white/95 backdrop-blur-md border border-gray-200 rounded-xl shadow-lg p-3 max-w-xs transition-all duration-300">
+						<div className="flex items-center justify-between gap-2 mb-2 pb-1.5 border-b border-gray-100">
+							<span className="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+								<span>🌊 FEMA Flood Zone Legend</span>
+							</span>
+							{femaLoading ? (
+								<span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800 animate-pulse">
+									<span className="w-1.5 h-1.5 rounded-full bg-amber-600 animate-ping"></span>
+									Loading...
+								</span>
+							) : (
+								<span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-green-100 text-green-800">
+									Active
+								</span>
+							)}
+						</div>
+						<div className="flex flex-col gap-1.5 text-[11px] text-gray-700">
+							<div className="flex items-center gap-2">
+								<div className="w-3.5 h-3.5 rounded bg-[#FF0000]/70 border border-[#CC0000] shrink-0"></div>
+								<span><strong>Zone AE / VE:</strong> High Risk (Insurance Required)</span>
+							</div>
+							<div className="flex items-center gap-2">
+								<div className="w-3.5 h-3.5 rounded bg-[#FFA500]/70 border border-[#CC8400] shrink-0"></div>
+								<span><strong>Zone X (Shaded):</strong> Moderate Risk (0.2% Chance)</span>
+							</div>
+							<div className="flex items-center gap-2">
+								<div className="w-3.5 h-3.5 rounded bg-[#008000]/70 border border-[#006600] shrink-0"></div>
+								<span><strong>Zone X (Unshaded):</strong> Low Risk (Minimal Hazard)</span>
+							</div>
+						</div>
+					</div>
+				)}
 
 				{showDrone ? (
 					<iframe 
