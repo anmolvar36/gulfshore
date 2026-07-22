@@ -62,11 +62,21 @@ export default function SettingsPage() {
 			.catch(() => {});
 
 		// 4. Dark mode preference
-		const savedDark = localStorage.getItem("admin_dark_mode") === "true";
-		setDarkMode(savedDark);
-		if (savedDark) {
-			document.documentElement.classList.add("dark");
-		}
+		fetch("/api/admin/appearance-settings")
+			.then((res) => res.json())
+			.then((data) => {
+				if (typeof data.darkMode === "boolean") {
+					setDarkMode(data.darkMode);
+					localStorage.setItem("admin_dark_mode", String(data.darkMode));
+					if (data.darkMode) document.documentElement.classList.add("dark");
+					else document.documentElement.classList.remove("dark");
+				}
+			})
+			.catch(() => {
+				const savedDark = localStorage.getItem("admin_dark_mode") === "true";
+				setDarkMode(savedDark);
+				if (savedDark) document.documentElement.classList.add("dark");
+			});
 	}, []);
 
 	const handleSaveGeneral = async () => {
@@ -111,7 +121,7 @@ export default function SettingsPage() {
 		}
 	};
 
-	const handleToggleDarkMode = (enabled: boolean) => {
+	const handleToggleDarkMode = async (enabled: boolean) => {
 		setDarkMode(enabled);
 		localStorage.setItem("admin_dark_mode", String(enabled));
 		if (enabled) {
@@ -120,6 +130,16 @@ export default function SettingsPage() {
 			document.documentElement.classList.remove("dark");
 		}
 		toast.info(enabled ? "Dark mode enabled" : "Light mode enabled");
+
+		try {
+			await fetch("/api/admin/appearance-settings", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ darkMode: enabled }),
+			});
+		} catch {
+			// Silent fallback to localstorage
+		}
 	};
 
 	const handleUpdateSecurity = async () => {
