@@ -2,36 +2,38 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 
-const filePath = path.join(process.cwd(), "src/data/notification-settings.json");
+const filePath = path.join(process.cwd(), "src/data/general-settings.json");
 
-function getNotificationSettings() {
+function getGeneralSettings() {
 	try {
 		if (fs.existsSync(filePath)) {
 			const data = fs.readFileSync(filePath, "utf8");
 			return JSON.parse(data);
 		}
 	} catch (e) {
-		console.error("Error reading notification settings:", e);
+		console.error("Error reading general settings:", e);
 	}
 	return {
-		pushEnabled: true,
-		emailEnabled: true
+		siteName: "Gulfshore Group",
+		contactEmail: "admin@gulfshore.com",
+		siteUrl: "https://gulfshoregroup.com"
 	};
 }
 
 export async function GET() {
-	const settings = getNotificationSettings();
+	const settings = getGeneralSettings();
 	return NextResponse.json(settings);
 }
 
 export async function POST(req: Request) {
 	try {
 		const body = await req.json();
-		const { pushEnabled, emailEnabled } = body;
+		const { siteName, contactEmail, siteUrl } = body;
 
 		const updated = {
-			pushEnabled: typeof pushEnabled === "boolean" ? pushEnabled : true,
-			emailEnabled: typeof emailEnabled === "boolean" ? emailEnabled : true
+			siteName: siteName || "Gulfshore Group",
+			contactEmail: contactEmail || "admin@gulfshore.com",
+			siteUrl: siteUrl || "https://gulfshoregroup.com"
 		};
 
 		const dir = path.dirname(filePath);
@@ -42,7 +44,7 @@ export async function POST(req: Request) {
 
 		return NextResponse.json({ success: true, settings: updated });
 	} catch (error) {
-		console.error("Error saving notification settings:", error);
-		return NextResponse.json({ success: false, error: "Failed to save notification settings" }, { status: 500 });
+		console.error("Error saving general settings:", error);
+		return NextResponse.json({ success: false, error: "Failed to save settings" }, { status: 500 });
 	}
 }

@@ -9,11 +9,18 @@ import { Separator } from "@/components/ui/separator";
 import { Settings, Bell, Shield, Palette, Globe, Save } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+
 export default function SettingsPage() {
+	const [siteName, setSiteName] = useState("Gulfshore Group");
+	const [contactEmail, setContactEmail] = useState("admin@gulfshore.com");
+	const [siteUrl, setSiteUrl] = useState("https://gulfshoregroup.com");
+	const [savingGeneral, setSavingGeneral] = useState(false);
+
 	const [notifications, setNotifications] = useState(true);
 	const [emailAlerts, setEmailAlerts] = useState(true);
-	const [darkMode, setDarkMode] = useState(false);
 	const [savingNotif, setSavingNotif] = useState(false);
+
+	const [darkMode, setDarkMode] = useState(false);
 
 	const [email, setEmail] = useState("");
 	const [currentPassword, setCurrentPassword] = useState("");
@@ -21,7 +28,7 @@ export default function SettingsPage() {
 	const [updating, setUpdating] = useState(false);
 
 	useEffect(() => {
-		// Read admin email from cookie
+		// 1. Read admin email from cookie or fallback
 		const getCookie = (name: string) => {
 			const value = `; ${document.cookie}`;
 			const parts = value.split(`; ${name}=`);
@@ -34,7 +41,18 @@ export default function SettingsPage() {
 		} else {
 			setEmail("admin@gulfshore.com");
 		}
-		// Load saved notification preferences from database
+
+		// 2. Load General Settings
+		fetch("/api/admin/general-settings")
+			.then((res) => res.json())
+			.then((data) => {
+				if (data.siteName) setSiteName(data.siteName);
+				if (data.contactEmail) setContactEmail(data.contactEmail);
+				if (data.siteUrl) setSiteUrl(data.siteUrl);
+			})
+			.catch(() => {});
+
+		// 3. Load Notification Settings
 		fetch("/api/admin/notification-settings")
 			.then((res) => res.json())
 			.then((data) => {
@@ -42,7 +60,35 @@ export default function SettingsPage() {
 				if (typeof data.emailEnabled === "boolean") setEmailAlerts(data.emailEnabled);
 			})
 			.catch(() => {});
+
+		// 4. Dark mode preference
+		const savedDark = localStorage.getItem("admin_dark_mode") === "true";
+		setDarkMode(savedDark);
+		if (savedDark) {
+			document.documentElement.classList.add("dark");
+		}
 	}, []);
+
+	const handleSaveGeneral = async () => {
+		setSavingGeneral(true);
+		try {
+			const res = await fetch("/api/admin/general-settings", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ siteName, contactEmail, siteUrl }),
+			});
+			const data = await res.json();
+			if (data.success) {
+				toast.success("General settings saved successfully!");
+			} else {
+				toast.error(data.error || "Failed to save settings.");
+			}
+		} catch {
+			toast.error("Error saving general settings.");
+		} finally {
+			setSavingGeneral(false);
+		}
+	};
 
 	const saveNotificationSettings = async (push: boolean, email_alerts: boolean) => {
 		setSavingNotif(true);
@@ -56,13 +102,24 @@ export default function SettingsPage() {
 			if (data.success) {
 				toast.success("Notification preference saved!");
 			} else {
-				toast.error(data.error || "Failed to save.");
+				toast.error(data.error || "Failed to save notification preference.");
 			}
 		} catch {
 			toast.error("Error saving notification setting.");
 		} finally {
 			setSavingNotif(false);
 		}
+	};
+
+	const handleToggleDarkMode = (enabled: boolean) => {
+		setDarkMode(enabled);
+		localStorage.setItem("admin_dark_mode", String(enabled));
+		if (enabled) {
+			document.documentElement.classList.add("dark");
+		} else {
+			document.documentElement.classList.remove("dark");
+		}
+		toast.info(enabled ? "Dark mode enabled" : "Light mode enabled");
 	};
 
 	const handleUpdateSecurity = async () => {
@@ -96,7 +153,7 @@ export default function SettingsPage() {
 			} else {
 				toast.error(data.error || "Failed to update credentials.");
 			}
-		} catch (err) {
+		} catch {
 			toast.error("Error updating credentials.");
 		} finally {
 			setUpdating(false);
@@ -114,33 +171,50 @@ export default function SettingsPage() {
 			</div>
 
 			<div className="grid gap-6">
-				{/* Profile Settings */}
+				{/* General Settings */}
 				<Card>
 					<CardHeader>
 						<CardTitle className="flex items-center gap-2">
 							<Globe className="h-5 w-5" />
 							General Settings
 						</CardTitle>
-						<CardDescription>Configure your basic preferences</CardDescription>
+						<CardDescription>Configure your basic site preferences</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-4">
-						<div className="grid grid-cols-2 gap-4">
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 							<div className="space-y-2">
 								<Label htmlFor="siteName">Site Name</Label>
-								<Input id="siteName" defaultValue="Gulfshore Group" />
+								<Input 
+									id="siteName" 
+									value={siteName} 
+									onChange={(e) => setSiteName(e.target.value)} 
+								/>
 							</div>
 							<div className="space-y-2">
 								<Label htmlFor="contactEmail">Contact Email</Label>
-								<Input id="contactEmail" type="email" defaultValue="admin@gulfshore.com" />
+								<Input 
+									id="contactEmail" 
+									type="email" 
+									value={contactEmail} 
+									onChange={(e) => setContactEmail(e.target.value)} 
+								/>
 							</div>
 						</div>
 						<div className="space-y-2">
 							<Label htmlFor="siteUrl">Site URL</Label>
-							<Input id="siteUrl" defaultValue="https://gulfshore.com" />
+							<Input 
+								id="siteUrl" 
+								value={siteUrl} 
+								onChange={(e) => setSiteUrl(e.target.value)} 
+							/>
 						</div>
-						<Button onClick={() => toast.success("Settings saved!")} className="bg-primary text-white">
+						<Button 
+							onClick={handleSaveGeneral} 
+							disabled={savingGeneral}
+							className="bg-primary text-white"
+						>
 							<Save className="h-4 w-4 mr-2" />
-							Save Changes
+							{savingGeneral ? "Saving..." : "Save Changes"}
 						</Button>
 					</CardContent>
 				</Card>
@@ -202,7 +276,7 @@ export default function SettingsPage() {
 								<p className="font-medium">Dark Mode</p>
 								<p className="text-sm text-muted-foreground">Switch between light and dark theme</p>
 							</div>
-							<Switch checked={darkMode} onCheckedChange={setDarkMode} />
+							<Switch checked={darkMode} onCheckedChange={handleToggleDarkMode} />
 						</div>
 					</CardContent>
 				</Card>
@@ -260,3 +334,4 @@ export default function SettingsPage() {
 		</div>
 	);
 }
+
