@@ -1,9 +1,25 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import FooterLinks from "./footerLinks";
 import SearchSuggestions from "./searchSuggestions";
+import { useState, useEffect } from "react";
 
 export default function Footer() {
+	const [siteName, setSiteName] = useState("GulfshoreGroup");
+	const [siteUrl, setSiteUrl] = useState("https://gulfshoregroup.com");
+
+	useEffect(() => {
+		fetch("/api/admin/general-settings")
+			.then((res) => res.json())
+			.then((data) => {
+				if (data.siteName) setSiteName(data.siteName);
+				if (data.siteUrl) setSiteUrl(data.siteUrl);
+			})
+			.catch(() => {});
+	}, []);
+
 	const cities = [
 		"Naples",
 		"Bonita Springs",
@@ -30,10 +46,10 @@ export default function Footer() {
 										src="/logored.svg"
 										width={32}
 										height={32}
-										alt="GulfshoreGroup Logo"
+										alt={`${siteName} Logo`}
 									/>
 									<h2 className="text-xl text-primary font-bold">
-										GulfshoreGroup
+										{siteName}
 									</h2>
 								</div>
 							</div>
@@ -100,11 +116,10 @@ export default function Footer() {
 					</div>
 				</div>
 				<div className="w-full h-fit text-center text-sm py-3">
-					Thanks for visiting GulfshoreGroup.com.
+					Thanks for visiting {siteName}.
 				</div>
 				<div className="w-full h-fit text-sm lg:text-base py-2 border-t-2 border-white text-white bg-black text-center poppins">
-					&copy; GulfshoreGroup.com | All rights reserved. <br />
-					{/* Website designed and developed by DL */}
+					&copy; {siteName} | All rights reserved. <br />
 				</div>
 			</footer>
 		</>

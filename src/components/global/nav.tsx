@@ -47,6 +47,27 @@ const Navbar = () => {
 
 	const searchParams = useSearchParams();
 
+	const [generalSettings, setGeneralSettings] = useState({
+		siteName: "GULFSHORE GROUP",
+		contactEmail: "mailbox@gulfshoregroup.com",
+		siteUrl: "https://gulfshoregroup.com",
+	});
+
+	useEffect(() => {
+		fetch("/api/admin/general-settings")
+			.then((res) => res.json())
+			.then((data) => {
+				if (data.siteName || data.contactEmail) {
+					setGeneralSettings((prev) => ({
+						siteName: data.siteName ? data.siteName.toUpperCase() : prev.siteName,
+						contactEmail: data.contactEmail || prev.contactEmail,
+						siteUrl: data.siteUrl || prev.siteUrl,
+					}));
+				}
+			})
+			.catch(() => {});
+	}, []);
+
 	// Redirect admin users to admin panel ONLY right after fresh login in production
 	useEffect(() => {
 		if (isLoaded && isSignedIn && user?.publicMetadata?.role === "admin") {
@@ -105,7 +126,7 @@ const Navbar = () => {
 							/>
 
 							<div className="flex flex-col">
-								<span className="text-primary">GULFSHORE GROUP</span>
+								<span className="text-primary">{generalSettings.siteName}</span>
 								<span
 									className={`text-gray-600 md:font-medium font-normal text-start md:text-sm text-[10px]`}>
 									London Forster Realty
@@ -148,7 +169,7 @@ const Navbar = () => {
 								<NavigationMenuLink
 									className="relative inline-flex flex-row whitespace-nowrap items-center gap-2 px-4 py-3 rounded-xl font-medium hover:bg-gray-100 hover:text-black transition-all duration-200"
 									aria-label="Email us"
-									href={"mailto:mailbox@gulfshoregroup.com"}>
+									href={`mailto:${generalSettings.contactEmail}`}>
 									<Mail size={20} className="shrink-0" />
 									E-mail Us
 								</NavigationMenuLink>

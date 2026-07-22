@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Settings, Bell, Shield, Palette, Globe, Save } from "lucide-react";
+import { Settings, Bell, Shield, Globe, Save } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
@@ -19,8 +19,6 @@ export default function SettingsPage() {
 	const [notifications, setNotifications] = useState(true);
 	const [emailAlerts, setEmailAlerts] = useState(true);
 	const [savingNotif, setSavingNotif] = useState(false);
-
-	const [darkMode, setDarkMode] = useState(false);
 
 	const [email, setEmail] = useState("");
 	const [currentPassword, setCurrentPassword] = useState("");
@@ -60,23 +58,6 @@ export default function SettingsPage() {
 				if (typeof data.emailEnabled === "boolean") setEmailAlerts(data.emailEnabled);
 			})
 			.catch(() => {});
-
-		// 4. Dark mode preference
-		fetch("/api/admin/appearance-settings")
-			.then((res) => res.json())
-			.then((data) => {
-				if (typeof data.darkMode === "boolean") {
-					setDarkMode(data.darkMode);
-					localStorage.setItem("admin_dark_mode", String(data.darkMode));
-					if (data.darkMode) document.documentElement.classList.add("dark");
-					else document.documentElement.classList.remove("dark");
-				}
-			})
-			.catch(() => {
-				const savedDark = localStorage.getItem("admin_dark_mode") === "true";
-				setDarkMode(savedDark);
-				if (savedDark) document.documentElement.classList.add("dark");
-			});
 	}, []);
 
 	const handleSaveGeneral = async () => {
@@ -90,6 +71,7 @@ export default function SettingsPage() {
 			const data = await res.json();
 			if (data.success) {
 				toast.success("General settings saved successfully!");
+				window.dispatchEvent(new Event("general-settings-updated"));
 			} else {
 				toast.error(data.error || "Failed to save settings.");
 			}
@@ -118,27 +100,6 @@ export default function SettingsPage() {
 			toast.error("Error saving notification setting.");
 		} finally {
 			setSavingNotif(false);
-		}
-	};
-
-	const handleToggleDarkMode = async (enabled: boolean) => {
-		setDarkMode(enabled);
-		localStorage.setItem("admin_dark_mode", String(enabled));
-		if (enabled) {
-			document.documentElement.classList.add("dark");
-		} else {
-			document.documentElement.classList.remove("dark");
-		}
-		toast.info(enabled ? "Dark mode enabled" : "Light mode enabled");
-
-		try {
-			await fetch("/api/admin/appearance-settings", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ darkMode: enabled }),
-			});
-		} catch {
-			// Silent fallback to localstorage
 		}
 	};
 
@@ -277,26 +238,6 @@ export default function SettingsPage() {
 									saveNotificationSettings(notifications, val);
 								}}
 							/>
-						</div>
-					</CardContent>
-				</Card>
-
-				{/* Appearance */}
-				<Card>
-					<CardHeader>
-						<CardTitle className="flex items-center gap-2">
-							<Palette className="h-5 w-5" />
-							Appearance
-						</CardTitle>
-						<CardDescription>Customize the look and feel</CardDescription>
-					</CardHeader>
-					<CardContent className="space-y-4">
-						<div className="flex items-center justify-between">
-							<div>
-								<p className="font-medium">Dark Mode</p>
-								<p className="text-sm text-muted-foreground">Switch between light and dark theme</p>
-							</div>
-							<Switch checked={darkMode} onCheckedChange={handleToggleDarkMode} />
 						</div>
 					</CardContent>
 				</Card>

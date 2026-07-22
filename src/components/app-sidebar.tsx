@@ -245,6 +245,22 @@ const NavItems = () => {
 export function AppSidebar({
 	...props
 }: React.ComponentProps<typeof Sidebar>) {
+	const [siteName, setSiteName] = React.useState("Gulfshore Group");
+
+	React.useEffect(() => {
+		const loadSettings = () => {
+			fetch("/api/admin/general-settings")
+				.then((res) => res.json())
+				.then((data) => {
+					if (data.siteName) setSiteName(data.siteName);
+				})
+				.catch(() => {});
+		};
+		loadSettings();
+		window.addEventListener("general-settings-updated", loadSettings);
+		return () => window.removeEventListener("general-settings-updated", loadSettings);
+	}, []);
+
 	return (
 		<Sidebar collapsible="offcanvas" {...props}>
 			<SidebarHeader>
@@ -256,7 +272,7 @@ export function AppSidebar({
 							<a href="#">
 								<Home className="!size-5" />
 								<span className="text-base font-semibold">
-									Gulfshore Group
+									{siteName}
 								</span>
 							</a>
 						</SidebarMenuButton>
