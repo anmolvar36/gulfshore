@@ -188,40 +188,22 @@ const NavItems = () => {
 	const tab = searchParams.get("tab");
 
 	const isActive = (item: { label: string; href: string }) => {
-		// De-duplicate active highlights first
-		if (item.href === "/admin/users" && item.label !== "Users List") return false;
-		if (item.href === "/admin/tours" && item.label !== "Tours") return false;
-
+		// Strict matching for sub-tabs to prevent overlap
 		if (item.href.startsWith("/admin/automation")) {
-			if (item.label === "Social Media") {
-				return path === "/admin/automation" && tab === "social";
-			}
-			if (item.label === "MLS") {
-				return path === "/admin/automation" && (tab === "mls" || !tab);
-			}
+			if (item.label === "Social Media") return path === "/admin/automation" && tab === "social";
+			if (item.label === "MLS") return path === "/admin/automation" && (tab === "mls" || !tab);
+			return false;
 		}
 
 		if (item.href.startsWith("/admin/performance")) {
-			if (item.label === "Social Media") {
-				return path === "/admin/performance" && tab === "social";
-			}
-			if (item.label === "Property Performance") {
-				return path === "/admin/performance" && (tab === "properties" || !tab);
-			}
+			if (item.label === "Social Media") return path === "/admin/performance" && tab === "social";
+			if (item.label === "Property Performance") return path === "/admin/performance" && (tab === "properties" || !tab);
+			return false;
 		}
 
-		// Path hierarchy prefix check
+		// Prevent partial matches on different parent routes
 		if (path === item.href) return true;
-		if (item.href === "/admin/users" && path.startsWith("/admin/users/")) return true;
-		if (item.href === "/admin/tours" && path.startsWith("/admin/tours/")) return true;
-		if (item.href === "/admin/properties" && path.startsWith("/admin/properties/")) {
-			if (path.startsWith("/admin/properties/cities") || path.startsWith("/admin/properties/communities")) {
-				return false;
-			}
-			return true;
-		}
-		if (item.href === "/admin/properties/cities" && path.startsWith("/admin/cities/")) return true;
-		if (item.href === "/admin/properties/communities" && path.startsWith("/admin/communities/")) return true;
+		if (path.startsWith(item.href + "/")) return true;
 
 		return false;
 	};
@@ -246,8 +228,8 @@ const NavItems = () => {
 										isActive={isActive(item)}
 										asChild>
 										<Link href={item.href}>
-											<item.icon />
-											<span>{item.label}</span>
+											<item.icon className="size-5 shrink-0" />
+											<span className="truncate">{item.label}</span>
 										</Link>
 									</SidebarMenuButton>
 								</SidebarMenuItem>

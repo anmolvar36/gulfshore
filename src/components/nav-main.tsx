@@ -40,18 +40,18 @@ export function NavMain({
 		<SidebarGroup>
 			<SidebarGroupContent className="flex flex-col gap-2">
 				<SidebarMenu>
-					<SidebarMenuItem className="flex items-center gap-2">
+					<SidebarMenuItem className="flex flex-row items-center gap-2 px-1">
 						<SidebarMenuButton
 							tooltip="Quick Create"
-							className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear">
-							<IconCirclePlusFilled />
-							<span>Quick Create</span>
+							className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground focus:bg-primary/90 focus:text-primary-foreground font-semibold justify-center shadow-sm">
+							<IconCirclePlusFilled className="size-5 mr-1 shrink-0" />
+							<span className="truncate">Quick Create</span>
 						</SidebarMenuButton>
 						<Button
 							size="icon"
-							className="size-8 group-data-[collapsible=icon]:opacity-0"
-							variant="outline">
-							<IconMail />
+							variant="outline"
+							className="h-8 w-8 shrink-0 text-primary border-primary/20 hover:bg-primary/10">
+							<IconMail size={16} />
 							<span className="sr-only">Inbox</span>
 						</Button>
 					</SidebarMenuItem>
@@ -65,8 +65,8 @@ export function NavMain({
 								tooltip={item.title}
 								asChild>
 								<Link href={item.url}>
-									{item.icon && <item.icon />}
-									<span>{item.title}</span>
+									{item.icon && <item.icon className="size-5 shrink-0" />}
+									<span className="truncate">{item.title}</span>
 								</Link>
 							</SidebarMenuButton>
 						</SidebarMenuItem>

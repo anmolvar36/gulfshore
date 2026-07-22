@@ -1,6 +1,7 @@
 "use client";
 import { log } from "console";
 import React, { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 
 interface CarouselProps {
 	items: any[];
@@ -93,7 +94,7 @@ const CustomCarousel: React.FC<CarouselProps> = ({ items }) => {
 			<button
 				className="carousel-arrow rounded-full p-2 bg-black  left-arrow"
 				onClick={handlePrev}>
-				<img src="/svg/left-white.svg" alt="" width={25} />
+				<Image src="/svg/left-white.svg" alt="" width={25} height={25} />
 			</button>
 			<div className="carousel-wrapper container mx-auto py-2">
 				<div className="carousel-track" ref={trackRef}>
@@ -107,7 +108,7 @@ const CustomCarousel: React.FC<CarouselProps> = ({ items }) => {
 			<button
 				className="carousel-arrow rounded-full p-2 bg-black right-arrow"
 				onClick={handleNext}>
-				<img src="/svg/right-white.svg" alt="" width={25} />
+				<Image src="/svg/right-white.svg" alt="" width={25} height={25} />
 			</button>
 		</div>
 	);
