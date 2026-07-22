@@ -7,21 +7,21 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 
 const allPages = [
-	{ title: "Dashboard", href: "/dashboard", category: "Main", description: "Overview of stats and KPIs" },
-	{ title: "Leads", href: "/leads", category: "CRM", description: "Manage potential buyers and sellers" },
-	{ title: "Contact Requests", href: "/contact-requests", category: "CRM", description: "View inbound contact form submissions" },
-	{ title: "Users List", href: "/users", category: "Users", description: "All registered users" },
-	{ title: "Wishlist", href: "/wishlist", category: "Users", description: "Properties saved by users" },
-	{ title: "Tours", href: "/tours", category: "Users", description: "Scheduled property tour requests" },
-	{ title: "Properties List", href: "/properties", category: "Properties", description: "All active and inactive listings" },
-	{ title: "Cities", href: "/properties/cities", category: "Properties", description: "Manage city pages and images" },
-	{ title: "Communities", href: "/properties/communities", category: "Properties", description: "Manage community and development pages" },
-	{ title: "Blogs", href: "/blogs", category: "Content", description: "Create and manage blog articles" },
-	{ title: "Notifications", href: "/notifications", category: "Automation", description: "Schedule and send push notifications" },
-	{ title: "Automation Status", href: "/automation", category: "Automation", description: "Monitor background automation processes" },
-	{ title: "Property Performance", href: "/performance", category: "Reports", description: "Analytics and property engagement stats" },
-	{ title: "Settings", href: "/settings", category: "Admin", description: "Manage admin preferences and security" },
-	{ title: "Help & Support", href: "/help", category: "Admin", description: "FAQs and support contacts" },
+	{ title: "Dashboard", href: "/admin/dashboard", category: "Main", description: "Overview of stats and KPIs" },
+	{ title: "Leads", href: "/admin/leads", category: "CRM", description: "Manage potential buyers and sellers" },
+	{ title: "Contact Requests", href: "/admin/contact-requests", category: "CRM", description: "View inbound contact form submissions" },
+	{ title: "Users List", href: "/admin/users", category: "Users", description: "All registered users" },
+	{ title: "Wishlist", href: "/admin/wishlist", category: "Users", description: "Properties saved by users" },
+	{ title: "Tours", href: "/admin/tours", category: "Users", description: "Scheduled property tour requests" },
+	{ title: "Properties List", href: "/admin/properties", category: "Properties", description: "All active and inactive listings" },
+	{ title: "Cities", href: "/admin/properties/cities", category: "Properties", description: "Manage city pages and images" },
+	{ title: "Communities", href: "/admin/properties/communities", category: "Properties", description: "Manage community and development pages" },
+	{ title: "Blogs", href: "/admin/blogs", category: "Content", description: "Create and manage blog articles" },
+	{ title: "Notifications", href: "/admin/notifications", category: "Automation", description: "Schedule and send push notifications" },
+	{ title: "Automation Status", href: "/admin/automation", category: "Automation", description: "Monitor background automation processes" },
+	{ title: "Property Performance", href: "/admin/performance", category: "Reports", description: "Analytics and property engagement stats" },
+	{ title: "Settings", href: "/admin/settings", category: "Admin", description: "Manage admin preferences and security" },
+	{ title: "Help & Support", href: "/admin/help", category: "Admin", description: "FAQs and support contacts" },
 ];
 
 const categoryColors: Record<string, string> = {

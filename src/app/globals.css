@@ -360,8 +360,33 @@ body {
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
+		scrollbar-width: thin;
+		scrollbar-color: rgba(156, 163, 175, 0.4) transparent;
 	}
 	body {
 		@apply bg-background text-foreground;
 	}
+}
+
+/* Custom sleek scrollbar */
+::-webkit-scrollbar {
+	width: 6px;
+	height: 6px;
+}
+
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	background: rgba(156, 163, 175, 0.35);
+	border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: rgba(100, 116, 139, 0.65);
+}
+
+::-webkit-scrollbar-corner {
+	background: transparent;
 }
