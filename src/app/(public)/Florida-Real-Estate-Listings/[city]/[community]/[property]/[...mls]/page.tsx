@@ -254,7 +254,7 @@ export default async function Listing({
 											</div>
 											<div>
 												<div className="text-lg font-semibold text-gray-900">
-													{property.LivingArea?.toLocaleString()}
+													{property.LivingArea ? Number(property.LivingArea).toLocaleString("en-US") : "N/A"}
 												</div>
 												<div className="text-sm text-gray-500">
 													Sqft

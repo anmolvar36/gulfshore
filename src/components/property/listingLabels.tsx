@@ -1,4 +1,6 @@
 "use client";
+import React, { useState, useEffect } from "react";
+
 export default function ListingLabels({
 	CreatedDate,
 	Status,
@@ -18,27 +20,32 @@ export default function ListingLabels({
 	gulfAccess?: boolean;
 	waterFront?: boolean;
 }) {
-	const calculateTimeDifference = (
-		time: string | number | Date
-	): string | null => {
-		const now = new Date();
-		// console.log(time);
-		const diff =
-			(now.getTime() - new Date(time).getTime()) / 1000 / 60; // difference in minutes
-		if (diff <= 60) return `${Math.floor(diff)} minutes ago`;
-		if (diff <= 1440) return `${Math.floor(diff / 60)} hours ago`;
-		if (diff > 1440 && diff < 2880) return `1 day ago`;
-		return diff <= 4320
-			? `${Math.floor(diff / 1440)} days ago`
-			: null;
-	};
+	const [timeAgo, setTimeAgo] = useState<string | null>(null);
+
+	useEffect(() => {
+		if (!CreatedDate) return;
+		const calculateTimeDifference = (
+			time: string | number | Date
+		): string | null => {
+			const now = new Date();
+			const diff =
+				(now.getTime() - new Date(time).getTime()) / 1000 / 60; // difference in minutes
+			if (diff <= 60) return `${Math.floor(diff)} minutes ago`;
+			if (diff <= 1440) return `${Math.floor(diff / 60)} hours ago`;
+			if (diff > 1440 && diff < 2880) return `1 day ago`;
+			return diff <= 4320
+				? `${Math.floor(diff / 1440)} days ago`
+				: null;
+		};
+		setTimeAgo(calculateTimeDifference(CreatedDate));
+	}, [CreatedDate]);
 
 	return (
 		<div className="flex flex-wrap gap-2 items-center justify-start">
-			{calculateTimeDifference(CreatedDate) && (
+			{timeAgo && (
 				<div className="text-center w-fit">
 					<p className="font-semibold text-xs w-fit  px-2 py-1.5 rounded-2xl bg-black/70 focus:ring-4 focus:outline-none shadow-md  text-white">
-						{calculateTimeDifference(CreatedDate)}
+						{timeAgo}
 					</p>
 				</div>
 			)}

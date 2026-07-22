@@ -85,7 +85,9 @@ export async function generateMetadata({
 			property.AllPixList && property.AllPixList.length > 0
 				? [
 						{
-							url: `https://gulfshoregroup.com${property.AllPixList[0]}`,
+							url: property.AllPixList[0].startsWith("http")
+								? property.AllPixList[0]
+								: `https://gulfshoregroup.com${property.AllPixList[0].startsWith("/") ? "" : "/"}${property.AllPixList[0]}`,
 							width: 1920,
 							height: 1080,
 							alt: `${property.PropertyAddress} - image`,

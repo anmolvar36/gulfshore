@@ -45,16 +45,6 @@ export default function PropertyDetail(property: Property) {
 	const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 	useTrackViewedProperty(property.id);
 
-	if (isLoaded && !isSignedIn) {
-		return (
-			<div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-				<SignIn
-					signUpUrl="/signup"
-					forceRedirectUrl={typeof window !== "undefined" ? window.location.pathname : "/"}
-				/>
-			</div>
-		);
-	}
 
 	const handleSendEmail = () => {
 		const subject = `Inquiry about ${property.MLSNumber}`;
@@ -177,37 +167,59 @@ export default function PropertyDetail(property: Property) {
 					</div>
 				</div>
 				{!property.VirtualTourURLBranded &&
-				!property.VirtualTourURLUnbranded ? (
-					<></>
-				) : (
-					<div className="mt-5 w-full">
-						<h4 className="text-lg">Virtual Tour</h4>
-						<Link
-							target="__blank"
-							href={
-								property.VirtualTourURLBranded ||
-								property.VirtualTourURLUnbranded ||
-								"#"
-							}>
-							<div className="relative w-full rounded-lg my-4">
-								<Image
-									className="lg:h-[400px] h-1/2 w-full rounded-lg"
-									src={
-										"https://gulfshoregroup.com" +
-										((property.raw as any)?.VirtualTourThumbnail ||
-											"/default-virtual-tour-thumbnail.jpg")
-									}
-									alt="Virtual Tour"
-									width={1040}
-									height={400}
-								/>
-								<div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-									<PlayCircle size={50} color="white" />
+				!property.VirtualTourURLUnbranded ? null : (() => {
+					const rawThumbnail = (property.raw as any)?.VirtualTourThumbnail;
+					let thumbnailSrc = "/default-virtual-tour-thumbnail.jpg";
+					if (rawThumbnail && typeof rawThumbnail === "string" && rawThumbnail.trim() !== "") {
+						if (rawThumbnail.startsWith("http://") || rawThumbnail.startsWith("https://")) {
+							thumbnailSrc = rawThumbnail;
+						} else if (rawThumbnail.startsWith("/")) {
+							thumbnailSrc = rawThumbnail;
+						} else {
+							thumbnailSrc = `/${rawThumbnail}`;
+						}
+					} else {
+						const firstImage = property.AllPixList?.[0] ||
+							(Array.isArray((property as any).images) ? (typeof (property as any).images[0] === "string" ? (property as any).images[0] : ((property as any).images[0] as any)?.MediaURL) : null) ||
+							(Array.isArray((property.raw as any)?.Media) ? (property.raw as any)?.Media?.[0]?.MediaURL : null);
+						if (firstImage && typeof firstImage === "string" && firstImage.trim() !== "") {
+							if (firstImage.startsWith("http://") || firstImage.startsWith("https://")) {
+								thumbnailSrc = firstImage;
+							} else if (firstImage.startsWith("/")) {
+								thumbnailSrc = firstImage;
+							} else {
+								thumbnailSrc = `/${firstImage}`;
+							}
+						}
+					}
+
+					return (
+						<div className="mt-5 w-full">
+							<h4 className="text-lg">Virtual Tour</h4>
+							<Link
+								target="_blank"
+								href={
+									property.VirtualTourURLBranded ||
+									property.VirtualTourURLUnbranded ||
+									"#"
+								}>
+								<div className="relative w-full rounded-lg my-4">
+									<Image
+										className="lg:h-[400px] h-1/2 w-full rounded-lg object-cover"
+										src={thumbnailSrc}
+										alt="Virtual Tour"
+										width={1040}
+										height={400}
+										unoptimized
+									/>
+									<div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
+										<PlayCircle size={50} color="white" />
+									</div>
 								</div>
-							</div>
-						</Link>
-					</div>
-				)}
+							</Link>
+						</div>
+					);
+				})()}
 			</div>
 			<div className="fixed bottom-0 right-0 left-0 md:left-auto md:right-5 md:bottom-5 text-center z-50 md:w-[360px]">
 				<Card className="md:rounded-lg rounded-none w-full mx-0 py-0 shadow-md">
