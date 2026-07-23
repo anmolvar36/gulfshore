@@ -586,6 +586,51 @@ export const Filters = ({
 							</DropdownMenuContent>
 						</DropdownMenu>
 					</div>
+
+					{/* Private Pool */}
+					<div className="flex flex-col space-y-2">
+						<Label className="text-sm font-medium text-gray-900">
+							Private Pool
+						</Label>
+						<div className="flex items-center space-x-2 h-10 px-3 border rounded-lg bg-gray-50/50">
+							<Checkbox
+								id="private-pool-toggle"
+								checked={keywords.includes("Pool")}
+								onCheckedChange={(checked) =>
+									setKeywords((prev) =>
+										checked
+											? [...prev, "Pool"]
+											: prev.filter((item) => item !== "Pool")
+									)
+								}
+							/>
+							<label
+								htmlFor="private-pool-toggle"
+								className="text-sm text-gray-800 cursor-pointer font-medium">
+								Has Private Pool
+							</label>
+						</div>
+					</div>
+
+					{/* HOA Fee */}
+					<div className="flex flex-col space-y-2">
+						<Label className="text-sm font-medium text-gray-900">
+							HOA Fee / Month
+						</Label>
+						<DropdownMenu>
+							<DropdownMenuTrigger className="text-center border rounded-lg justify-between p-2 items-center inline-flex text-sm">
+								{hoa === "No" ? "No HOA" : hoa || "Any"} <ChevronDown size={14} />
+							</DropdownMenuTrigger>
+							<DropdownMenuContent>
+								<DropdownMenuRadioGroup value={hoa} onValueChange={setHoa}>
+									<DropdownMenuRadioItem value="Any">Any HOA Fee</DropdownMenuRadioItem>
+									<DropdownMenuRadioItem value="No">No HOA Fee</DropdownMenuRadioItem>
+									<DropdownMenuRadioItem value="Yes">Has HOA Fee</DropdownMenuRadioItem>
+								</DropdownMenuRadioGroup>
+							</DropdownMenuContent>
+						</DropdownMenu>
+					</div>
+
 					<div className="flex flex-col space-y-2">
 						<Label className="text-sm font-medium text-gray-900">
 							Min Year Built
