@@ -261,6 +261,8 @@ export async function POST(req: NextRequest) {
 				MLSNumber: data.MLSNumber,
 				FullAddress: data.FullAddress,
 				City: data.City,
+				SubdivisionName: data.SubdivisionName || data.Community || null,
+				Development: data.SubdivisionName || data.Community || null,
 				StandardStatus: data.StandardStatus,
 				ListPrice: data.ListPrice ? Number(data.ListPrice) : null,
 				PropertyType: data.PropertyType || null,
@@ -271,6 +273,7 @@ export async function POST(req: NextRequest) {
 				raw: {},
 			},
 		});
+
 
 		return NextResponse.json({ success: true, data: property }, { status: 201 });
 	} catch (error: any) {

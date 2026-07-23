@@ -78,10 +78,14 @@ export default function PropertiesPage() {
 	const limit = 20;
 
 	const [isCreateOpen, setIsCreateOpen] = useState(false);
+	const [citiesList, setCitiesList] = useState<string[]>([]);
+	const [communitiesList, setCommunitiesList] = useState<{ Development: string; City: string }[]>([]);
+
 	const [formData, setFormData] = useState({
 		MLSNumber: "",
 		FullAddress: "",
 		City: "",
+		SubdivisionName: "",
 		ListPrice: "",
 		PropertyType: "Single Family Residence",
 		StandardStatus: "Active",
@@ -90,6 +94,40 @@ export default function PropertiesPage() {
 		LivingArea: "",
 		ImageUrl: "",
 	});
+
+	// Fetch cities & communities dropdown options
+	useEffect(() => {
+		const fetchOptions = async () => {
+			try {
+				const [citiesRes, commsRes] = await Promise.all([
+					fetch("/api/cities").then((r) => r.json()).catch(() => ({})),
+					fetch("/api/community?limit=2000").then((r) => r.json()).catch(() => ({})),
+				]);
+
+				if (citiesRes.data) {
+					const names = citiesRes.data.map((c: any) => c.City || c.name).filter(Boolean);
+					const uniqueNames = Array.from(new Set(names)) as string[];
+					setCitiesList(uniqueNames);
+					if (uniqueNames.length > 0 && !formData.City) {
+						setFormData((prev) => ({ ...prev, City: uniqueNames[0] }));
+					}
+				}
+
+				if (commsRes.data) {
+					const items = commsRes.data.map((c: any) => ({
+						Development: c.Development || c.name,
+						City: c.City || "",
+					})).filter((c: any) => Boolean(c.Development));
+					setCommunitiesList(items);
+				}
+			} catch (err) {
+				console.error("Error fetching dropdown options:", err);
+			}
+		};
+
+		fetchOptions();
+	}, []);
+
 
 	const [imageFile, setImageFile] = useState<File | null>(null);
 
@@ -135,7 +173,8 @@ export default function PropertiesPage() {
 			setFormData({
 				MLSNumber: "",
 				FullAddress: "",
-				City: "",
+				City: citiesList[0] || "",
+				SubdivisionName: "",
 				ListPrice: "",
 				PropertyType: "Single Family Residence",
 				StandardStatus: "Active",
@@ -144,6 +183,7 @@ export default function PropertiesPage() {
 				LivingArea: "",
 				ImageUrl: "",
 			});
+
 			setImageFile(null);
 			toast.success("Property created successfully!");
 			fetchProperties();
@@ -456,20 +496,63 @@ export default function PropertiesPage() {
 										<Label htmlFor="City" className="text-xs font-semibold text-foreground">
 											City <span className="text-red-500">*</span>
 										</Label>
-										<Input
-											id="City"
-											required
-											placeholder="e.g. Naples"
+										<Select
 											value={formData.City}
-											onChange={(e) =>
+											onValueChange={(val) =>
 												setFormData((prev) => ({
 													...prev,
-													City: e.target.value,
+													City: val,
+													SubdivisionName: "", // Reset subdivision when city changes
 												}))
 											}
-										/>
+										>
+											<SelectTrigger id="City" className="w-full">
+												<SelectValue placeholder="Select City..." />
+											</SelectTrigger>
+											<SelectContent className="max-h-56 overflow-y-auto">
+												{citiesList.length > 0 ? (
+													citiesList.map((cityName) => (
+														<SelectItem key={cityName} value={cityName}>
+															{cityName}
+														</SelectItem>
+													))
+												) : (
+													<SelectItem value="Naples">Naples</SelectItem>
+												)}
+											</SelectContent>
+										</Select>
 									</div>
+
 									<div className="flex flex-col gap-1.5">
+										<Label htmlFor="SubdivisionName" className="text-xs font-semibold text-foreground">
+											Community / Subdivision
+										</Label>
+										<Select
+											value={formData.SubdivisionName}
+											onValueChange={(val) =>
+												setFormData((prev) => ({
+													...prev,
+													SubdivisionName: val,
+												}))
+											}
+										>
+											<SelectTrigger id="SubdivisionName" className="w-full">
+												<SelectValue placeholder="Select Community / Subdivision..." />
+											</SelectTrigger>
+											<SelectContent className="max-h-56 overflow-y-auto">
+												<SelectItem value="None">-- None / General --</SelectItem>
+												{communitiesList
+													.filter((c) => !formData.City || !c.City || c.City.toLowerCase() === formData.City.toLowerCase())
+													.map((comm) => (
+														<SelectItem key={comm.Development} value={comm.Development}>
+															{comm.Development}
+														</SelectItem>
+													))}
+											</SelectContent>
+										</Select>
+									</div>
+
+									<div className="md:col-span-2 flex flex-col gap-1.5">
 										<Label htmlFor="MLSNumber" className="text-xs font-semibold text-foreground">
 											MLS / Listing ID <span className="text-red-500">*</span>
 										</Label>
@@ -488,6 +571,7 @@ export default function PropertiesPage() {
 									</div>
 								</div>
 							</div>
+
 
 							{/* Specs & Pricing Section */}
 							<div className="p-4 bg-muted/30 rounded-xl border border-border space-y-3">
