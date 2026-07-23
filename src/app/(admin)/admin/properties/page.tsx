@@ -28,6 +28,7 @@ import {
 	Plus,
 	RefreshCw,
 	Database,
+	Building2,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
