@@ -281,9 +281,11 @@ export default function PropertyDetail(property: Property) {
 				<ScheduleTourForm
 					propertyAddress={property.FullAddress}
 					MLSNumber={property.MLSNumber}
+					propertyId={property.id}
 					onClose={closeModal}
 				/>
 			)}
+
 			{isContactModalOpen && (
 				<ContactForm
 					propertyId={property.MLSNumber}

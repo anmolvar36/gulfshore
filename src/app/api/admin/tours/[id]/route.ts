@@ -22,7 +22,40 @@ export async function PUT(
 			data: { status },
 		});
 
+		// Auto-sync Lead status & Hot Lead tag in Master CRM (/admin/leads)
+		if (updatedTour.email && (status === "Confirmed" || status === "Completed")) {
+			const cleanEmail = updatedTour.email.toLowerCase().trim();
+			const existingLead = await prisma.lead.findUnique({
+				where: { email: cleanEmail },
+				select: { id: true, tags: true },
+			});
+
+			if (existingLead) {
+				let currentTags: string[] = [];
+				if (existingLead.tags) {
+					try {
+						currentTags = typeof existingLead.tags === "string"
+							? JSON.parse(existingLead.tags)
+							: (existingLead.tags as string[]);
+					} catch (e) {
+						console.error("Error parsing lead tags:", e);
+					}
+				}
+
+				const newTags = Array.from(new Set([...currentTags, "Hot Lead", "Buyer"]));
+
+				await prisma.lead.update({
+					where: { id: existingLead.id },
+					data: {
+						status: "Interested",
+						tags: newTags,
+					},
+				});
+			}
+		}
+
 		return NextResponse.json({ success: true, tour: updatedTour });
+
 	} catch (error: any) {
 		console.error("Error updating tour status:", error);
 		return NextResponse.json(

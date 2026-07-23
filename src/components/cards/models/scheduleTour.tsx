@@ -7,6 +7,7 @@ import { toast } from "sonner";
 const ScheduleTourForm = ({
 	propertyAddress,
 	MLSNumber,
+	propertyId,
 	onClose,
 }: any) => {
 	const [formData, setFormData] = useState({
@@ -17,7 +18,9 @@ const ScheduleTourForm = ({
 		message: "",
 		propertyAddress: propertyAddress,
 		MLSNumber: MLSNumber,
+		propertyId: propertyId || MLSNumber,
 	});
+
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [successMessage, setSuccessMessage] = useState("");
@@ -59,9 +62,11 @@ const ScheduleTourForm = ({
 					email: "",
 					phone: "",
 					message: "",
-					propertyAddress: "",
-					MLSNumber: "",
+					propertyAddress: propertyAddress || "",
+					MLSNumber: MLSNumber || "",
+					propertyId: propertyId || MLSNumber || "",
 				});
+
 				onClose();
 				toast.success("Tour Request has been created.");
 			} else {

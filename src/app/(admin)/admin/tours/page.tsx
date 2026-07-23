@@ -19,6 +19,27 @@ import {
 } from "@/components/ui/select";
 import {
 	Table,
+"use client";
+import React, { useEffect, useState } from "react";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import {
+	Table,
 	TableBody,
 	TableCell,
 	TableHead,
@@ -36,7 +57,10 @@ import {
 	CheckCircle2,
 	XCircle,
 	AlertCircle,
+	Lock,
+	ExternalLink,
 } from "lucide-react";
+
 import { toast } from "sonner";
 
 export default function ToursPage() {
@@ -111,14 +135,14 @@ export default function ToursPage() {
 	const getStatusStyles = (status: string) => {
 		switch (status?.toLowerCase()) {
 			case "confirmed":
-				return "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100";
+				return "bg-blue-100 text-blue-800 border-blue-300 hover:bg-blue-200";
 			case "completed":
-				return "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100";
+				return "bg-emerald-100 text-emerald-800 border-emerald-300 hover:bg-emerald-200";
 			case "cancelled":
-				return "bg-red-50 text-red-700 border-red-200 hover:bg-red-100";
+				return "bg-red-100 text-red-800 border-red-300 hover:bg-red-200";
 			case "pending":
 			default:
-				return "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100";
+				return "bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-200";
 		}
 	};
 
@@ -160,7 +184,7 @@ export default function ToursPage() {
 					<CardContent className="pt-6 text-center">
 						<div className="text-3xl font-bold text-blue-600">{confirmedCount}</div>
 						<p className="text-sm text-muted-foreground mt-1 flex items-center justify-center gap-1">
-							<CheckCircle2 className="h-4 w-4 text-blue-500" /> Confirmed
+							<Lock className="h-4 w-4 text-blue-500" /> Locked & Confirmed
 						</p>
 					</CardContent>
 				</Card>
@@ -230,43 +254,71 @@ export default function ToursPage() {
 							<Table>
 								<TableHeader className="bg-muted/50">
 									<TableRow>
-										<TableHead className="w-[120px]">Request ID</TableHead>
+										<TableHead className="w-[110px]">Request ID</TableHead>
 										<TableHead className="min-w-[200px]">Property</TableHead>
 										<TableHead className="min-w-[180px]">User Details</TableHead>
-										<TableHead className="min-w-[150px]">Requested Date/Time</TableHead>
+										<TableHead className="min-w-[170px]">Date & Time Slot</TableHead>
 										<TableHead className="w-[150px] text-center">Status Action</TableHead>
-										<TableHead className="min-w-[180px]">Message</TableHead>
-										<TableHead className="w-[80px] text-right">Action</TableHead>
+										<TableHead className="min-w-[160px]">Message</TableHead>
+										<TableHead className="w-[70px] text-right">Action</TableHead>
 									</TableRow>
 								</TableHeader>
 								<TableBody>
 									{filteredTours.map((request) => {
+										const statusLower = (request.status || "").toLowerCase();
+										const isConfirmed = statusLower === "confirmed";
+										const isCompleted = statusLower === "completed";
+										const isCancelled = statusLower === "cancelled";
+
 										const displayAddr = request.propertyAddress === "MLS: " || !request.propertyAddress || request.propertyAddress === "N/A"
 											? "General / Direct Tour"
 											: request.propertyAddress;
 
 										return (
-											<TableRow key={request.id} className="align-middle">
+											<TableRow 
+												key={request.id} 
+												className={`align-middle transition-colors ${
+													isConfirmed 
+														? "bg-blue-50/50 dark:bg-blue-950/20 border-l-4 border-l-blue-600" 
+														: isCompleted 
+														? "bg-emerald-50/30 dark:bg-emerald-950/10 border-l-4 border-l-emerald-600"
+														: isCancelled 
+														? "bg-red-50/20 opacity-75 border-l-4 border-l-red-400"
+														: ""
+												}`}
+											>
 												<TableCell className="font-mono text-xs text-muted-foreground">
 													<span title={request.id}>
 														#{request.id.slice(-8)}
 													</span>
 												</TableCell>
+
 												<TableCell>
 													<div className="flex items-start gap-2">
-														<Building2 className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+														<Building2 className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
 														<div>
-															<div className="font-medium text-sm">
+															<div className="font-semibold text-sm text-foreground">
 																{displayAddr}
 															</div>
 															{request.propertyId && (
-																<div className="text-xs text-muted-foreground font-mono">
-																	MLS ID: {request.propertyId}
+																<div className="text-xs text-muted-foreground font-mono flex items-center gap-1 mt-0.5">
+																	<span>MLS ID: {request.propertyId}</span>
+																	<a
+																		href={`/admin/properties?search=${encodeURIComponent(request.propertyId)}`}
+																		target="_blank"
+																		rel="noreferrer"
+																		className="text-blue-600 hover:underline flex items-center gap-0.5 ml-1"
+																		title="View Property in Admin"
+																	>
+																		<ExternalLink className="h-3 w-3" /> View
+																	</a>
 																</div>
 															)}
 														</div>
 													</div>
 												</TableCell>
+
+
 												<TableCell>
 													<div>
 														<div className="font-semibold text-sm">
@@ -284,6 +336,7 @@ export default function ToursPage() {
 														)}
 													</div>
 												</TableCell>
+
 												<TableCell>
 													<div>
 														<div className="font-medium text-sm flex items-center gap-1">
@@ -293,8 +346,34 @@ export default function ToursPage() {
 														<div className="text-xs text-muted-foreground pl-4.5 mt-0.5">
 															⏰ {request.requestedTime}
 														</div>
+
+														{/* Lock / Slot Badge */}
+														{isConfirmed && (
+															<Badge className="bg-blue-600 hover:bg-blue-700 text-white font-medium text-[11px] gap-1 px-2 py-0.5 mt-1.5 inline-flex items-center shadow-sm">
+																<Lock className="h-3 w-3" /> Slot Locked & Booked
+															</Badge>
+														)}
+
+														{isCompleted && (
+															<Badge className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-[11px] gap-1 px-2 py-0.5 mt-1.5 inline-flex items-center shadow-sm">
+																<CheckCircle2 className="h-3 w-3" /> Tour Completed
+															</Badge>
+														)}
+
+														{isCancelled && (
+															<Badge variant="outline" className="text-red-600 bg-red-50 border-red-200 text-[11px] gap-1 px-2 py-0.5 mt-1.5 inline-flex items-center">
+																<XCircle className="h-3 w-3" /> Tour Cancelled
+															</Badge>
+														)}
+
+														{!isConfirmed && !isCompleted && !isCancelled && (
+															<Badge variant="outline" className="text-amber-700 bg-amber-50 border-amber-300 text-[11px] gap-1 px-2 py-0.5 mt-1.5 inline-flex items-center">
+																<Clock className="h-3 w-3" /> Awaiting Confirmation
+															</Badge>
+														)}
 													</div>
 												</TableCell>
+
 												<TableCell className="text-center">
 													<Select
 														value={request.status?.toLowerCase() || "pending"}
@@ -318,11 +397,13 @@ export default function ToursPage() {
 														</SelectContent>
 													</Select>
 												</TableCell>
+
 												<TableCell className="max-w-xs">
 													<div className="text-xs text-muted-foreground truncate" title={request.message}>
 														{request.message || "No additional message."}
 													</div>
 												</TableCell>
+
 												<TableCell className="text-right">
 													<Button
 														variant="ghost"

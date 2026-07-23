@@ -47,13 +47,16 @@ export async function POST(req: Request) {
 		});
 
 
+		const targetPropertyId = propertyId || MLSNumber || "";
+		const formattedMessage = message || (propertyAddress ? `Scheduled a tour for property ${propertyAddress}` : "");
+
 		// 2. Create Inquiry in SQL linked to the Lead
 		await prisma.inquiry.create({
 			data: {
 				leadId: sqlLead.id,
 				type: "Tour_Request",
-				message: message || `Scheduled a tour for property ${propertyAddress || propertyId || ""}`,
-				propertyId: propertyId || undefined,
+				message: formattedMessage,
+				propertyId: targetPropertyId || undefined,
 			},
 		});
 
@@ -72,11 +75,12 @@ export async function POST(req: Request) {
 				name: resolvedName,
 				date: parsedDate,
 				phone,
-				message: message || "",
+				message: formattedMessage,
 				status: "Pending",
-				propertyId: propertyId || "",
+				propertyId: targetPropertyId,
 			},
 		});
+
 
 		return NextResponse.json({ success: true, lead: sqlLead, tour: sqlTour });
 	} catch (err: any) {

@@ -14,8 +14,14 @@ export async function GET() {
 
 		const [properties, leads] = await Promise.all([
 			prisma.property.findMany({
-				where: { id: { in: propertyIds } },
-				select: { id: true, FullAddress: true },
+				where: {
+					OR: [
+						{ id: { in: propertyIds } },
+						{ ListingId: { in: propertyIds } },
+						{ MLSNumber: { in: propertyIds } },
+					],
+				},
+				select: { id: true, ListingId: true, MLSNumber: true, FullAddress: true },
 			}),
 			prisma.lead.findMany({
 				where: { email: { in: emails } },
@@ -23,7 +29,13 @@ export async function GET() {
 			}),
 		]);
 
-		const propertyMap = new Map(properties.map((p) => [p.id, p.FullAddress]));
+		const propertyMap = new Map<string, string>();
+		properties.forEach((p) => {
+			if (p.id) propertyMap.set(p.id, p.FullAddress);
+			if (p.ListingId) propertyMap.set(p.ListingId, p.FullAddress);
+			if (p.MLSNumber) propertyMap.set(p.MLSNumber, p.FullAddress);
+		});
+
 		const leadMap = new Map(
 			leads.map((l) => [
 				l.email.toLowerCase().trim(),
@@ -33,10 +45,15 @@ export async function GET() {
 
 		const mappedTours = tours.map((t) => {
 			const syncedLeadName = leadMap.get(t.email.toLowerCase().trim());
+			let resolvedAddress = t.propertyId ? propertyMap.get(t.propertyId) : null;
+			if (!resolvedAddress && t.message && t.message.includes("for property ")) {
+				resolvedAddress = t.message.split("for property ")[1]?.trim();
+			}
+
 			return {
 				id: t.id,
 				propertyId: t.propertyId,
-				propertyAddress: propertyMap.get(t.propertyId) || (t.propertyId ? "MLS: " + t.propertyId : "N/A"),
+				propertyAddress: resolvedAddress || (t.propertyId ? "MLS ID: " + t.propertyId : "General / Direct Tour"),
 				userName: syncedLeadName || t.name || "Unknown User",
 				userEmail: t.email,
 				userPhone: t.phone || "",
@@ -47,6 +64,7 @@ export async function GET() {
 				createdAt: new Date(t.createdAt).toLocaleDateString(),
 			};
 		});
+
 
 		return NextResponse.json({ success: true, tours: mappedTours });
 	} catch (error: any) {
