@@ -7,7 +7,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -30,22 +29,9 @@ import {
 	Mail,
 	Phone,
 	Filter,
+	Trash2,
 } from "lucide-react";
-
-const getStatusColor = (status: string) => {
-	switch (status?.toLowerCase()) {
-		case "pending":
-			return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
-		case "confirmed":
-			return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
-		case "completed":
-			return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
-		case "cancelled":
-			return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
-		default:
-			return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
-	}
-};
+import { toast } from "sonner";
 
 export default function ToursPage() {
 	const [tourRequests, setTourRequests] = useState<any[]>([]);
@@ -54,22 +40,59 @@ export default function ToursPage() {
 	const [userSearch, setUserSearch] = useState("");
 	const [statusFilter, setStatusFilter] = useState("all");
 
-	useEffect(() => {
-		const fetchTours = async () => {
-			try {
-				const res = await fetch("/api/admin/tours");
-				const json = await res.json();
-				if (json.success) {
-					setTourRequests(json.tours);
-				}
-			} catch (e) {
-				console.error("Error fetching tours:", e);
-			} finally {
-				setLoading(false);
+	const fetchTours = async () => {
+		try {
+			const res = await fetch("/api/admin/tours");
+			const json = await res.json();
+			if (json.success) {
+				setTourRequests(json.tours);
 			}
-		};
+		} catch (e) {
+			console.error("Error fetching tours:", e);
+			toast.error("Failed to load tour requests");
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	useEffect(() => {
 		fetchTours();
 	}, []);
+
+	// Handle Status Change
+	const handleStatusChange = async (tourId: string, newStatus: string) => {
+		try {
+			const res = await fetch(`/api/admin/tours/${tourId}`, {
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ status: newStatus }),
+			});
+			if (!res.ok) throw new Error("Failed to update status");
+
+			setTourRequests((prev) =>
+				prev.map((t) => (t.id === tourId ? { ...t, status: newStatus } : t))
+			);
+			toast.success(`Tour status updated to "${newStatus}"`);
+		} catch (err: any) {
+			toast.error(err.message || "Failed to update tour status");
+		}
+	};
+
+	// Handle Delete Tour
+	const handleDeleteTour = async (tourId: string) => {
+		if (!confirm("Are you sure you want to delete this tour request?")) return;
+		try {
+			const res = await fetch(`/api/admin/tours/${tourId}`, {
+				method: "DELETE",
+			});
+			if (!res.ok) throw new Error("Failed to delete tour request");
+
+			setTourRequests((prev) => prev.filter((t) => t.id !== tourId));
+			toast.success("Tour request deleted successfully");
+		} catch (err: any) {
+			toast.error(err.message || "Failed to delete tour request");
+		}
+	};
 
 	const filteredTours = tourRequests.filter((t) => {
 		const matchProperty = (t.propertyAddress || "").toLowerCase().includes(propertySearch.toLowerCase());
@@ -151,6 +174,7 @@ export default function ToursPage() {
 									<TableHead>Requested Date/Time</TableHead>
 									<TableHead>Status</TableHead>
 									<TableHead>Message</TableHead>
+									<TableHead className="text-right">Actions</TableHead>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
@@ -180,7 +204,7 @@ export default function ToursPage() {
 												</div>
 												<div className="text-sm text-muted-foreground flex items-center gap-1">
 													<Phone className="h-3 w-3" />
-													{request.userPhone}
+													{request.userPhone || "N/A"}
 												</div>
 											</div>
 										</TableCell>
@@ -196,14 +220,38 @@ export default function ToursPage() {
 											</div>
 										</TableCell>
 										<TableCell>
-											<Badge className={getStatusColor(request.status)}>
-												{request.status}
-											</Badge>
+											<Select
+												value={request.status?.toLowerCase() || "pending"}
+												onValueChange={(val) => {
+													const capitalized = val.charAt(0).toUpperCase() + val.slice(1);
+													handleStatusChange(request.id, capitalized);
+												}}
+											>
+												<SelectTrigger className="w-32 h-8 text-xs font-semibold">
+													<SelectValue />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="pending">Pending</SelectItem>
+													<SelectItem value="confirmed">Confirmed</SelectItem>
+													<SelectItem value="completed">Completed</SelectItem>
+													<SelectItem value="cancelled">Cancelled</SelectItem>
+												</SelectContent>
+											</Select>
 										</TableCell>
 										<TableCell className="max-w-xs">
 											<div className="truncate" title={request.message}>
-												{request.message}
+												{request.message || "N/A"}
 											</div>
+										</TableCell>
+										<TableCell className="text-right">
+											<Button
+												variant="ghost"
+												size="icon"
+												title="Delete Tour Request"
+												onClick={() => handleDeleteTour(request.id)}
+											>
+												<Trash2 className="h-4 w-4 text-red-600" />
+											</Button>
 										</TableCell>
 									</TableRow>
 								))}
@@ -215,3 +263,4 @@ export default function ToursPage() {
 		</div>
 	);
 }
+

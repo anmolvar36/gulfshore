@@ -30,19 +30,22 @@ export async function POST(req: Request) {
 		const sqlLead = await prisma.lead.upsert({
 			where: { email },
 			update: {
-				firstName: resolvedFirstName,
-				lastName: resolvedLastName,
+				firstName: resolvedFirstName || undefined,
+				lastName: resolvedLastName || undefined,
+				fullName: resolvedName,
 				phone: phone || undefined,
 			},
 			create: {
 				firstName: resolvedFirstName,
 				lastName: resolvedLastName,
+				fullName: resolvedName,
 				email,
 				phone: phone || undefined,
 				status: "New",
 				source: "Tour_Request",
 			},
 		});
+
 
 		// 2. Create Inquiry in SQL linked to the Lead
 		await prisma.inquiry.create({
