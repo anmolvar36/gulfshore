@@ -19,33 +19,20 @@ import {
 } from "@/components/ui/select";
 import {
 	Table,
-"use client";
-import React, { useEffect, useState } from "react";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-import {
-	Table,
 	TableBody,
 	TableCell,
 	TableHead,
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
 import {
 	Calendar,
 	Mail,
@@ -59,6 +46,9 @@ import {
 	AlertCircle,
 	Lock,
 	ExternalLink,
+	Eye,
+	User,
+	MessageSquare,
 } from "lucide-react";
 
 import { toast } from "sonner";
@@ -69,6 +59,10 @@ export default function ToursPage() {
 	const [propertySearch, setPropertySearch] = useState("");
 	const [userSearch, setUserSearch] = useState("");
 	const [statusFilter, setStatusFilter] = useState("all");
+
+	// View Details Modal State
+	const [viewModalTour, setViewModalTour] = useState<any | null>(null);
+	const [isViewOpen, setIsViewOpen] = useState(false);
 
 	const fetchTours = async () => {
 		try {
@@ -102,6 +96,9 @@ export default function ToursPage() {
 			setTourRequests((prev) =>
 				prev.map((t) => (t.id === tourId ? { ...t, status: newStatus } : t))
 			);
+			if (viewModalTour && viewModalTour.id === tourId) {
+				setViewModalTour((prev: any) => ({ ...prev, status: newStatus }));
+			}
 			toast.success(`Tour status updated to "${newStatus}"`);
 		} catch (err: any) {
 			toast.error(err.message || "Failed to update tour status");
@@ -118,10 +115,20 @@ export default function ToursPage() {
 			if (!res.ok) throw new Error("Failed to delete tour request");
 
 			setTourRequests((prev) => prev.filter((t) => t.id !== tourId));
+			if (viewModalTour?.id === tourId) {
+				setIsViewOpen(false);
+				setViewModalTour(null);
+			}
 			toast.success("Tour request deleted successfully");
 		} catch (err: any) {
 			toast.error(err.message || "Failed to delete tour request");
 		}
+	};
+
+	// Handle Open View Modal
+	const handleOpenViewModal = (tour: any) => {
+		setViewModalTour(tour);
+		setIsViewOpen(true);
 	};
 
 	const filteredTours = tourRequests.filter((t) => {
@@ -260,7 +267,7 @@ export default function ToursPage() {
 										<TableHead className="min-w-[170px]">Date & Time Slot</TableHead>
 										<TableHead className="w-[150px] text-center">Status Action</TableHead>
 										<TableHead className="min-w-[160px]">Message</TableHead>
-										<TableHead className="w-[70px] text-right">Action</TableHead>
+										<TableHead className="w-[100px] text-right">Actions</TableHead>
 									</TableRow>
 								</TableHeader>
 								<TableBody>
@@ -307,7 +314,7 @@ export default function ToursPage() {
 																		href={`/admin/properties?search=${encodeURIComponent(request.propertyId)}`}
 																		target="_blank"
 																		rel="noreferrer"
-																		className="text-blue-600 hover:underline flex items-center gap-0.5 ml-1"
+																		className="text-blue-600 hover:underline flex items-center gap-0.5 ml-1 font-semibold"
 																		title="View Property in Admin"
 																	>
 																		<ExternalLink className="h-3 w-3" /> View
@@ -405,15 +412,29 @@ export default function ToursPage() {
 												</TableCell>
 
 												<TableCell className="text-right">
-													<Button
-														variant="ghost"
-														size="icon"
-														className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-														title="Delete Tour Request"
-														onClick={() => handleDeleteTour(request.id)}
-													>
-														<Trash2 className="h-4 w-4" />
-													</Button>
+													<div className="flex items-center justify-end gap-1">
+														{/* View Details Modal Trigger */}
+														<Button
+															variant="ghost"
+															size="icon"
+															className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+															title="View Tour & Property Details"
+															onClick={() => handleOpenViewModal(request)}
+														>
+															<Eye className="h-4 w-4" />
+														</Button>
+
+														{/* Delete */}
+														<Button
+															variant="ghost"
+															size="icon"
+															className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+															title="Delete Tour Request"
+															onClick={() => handleDeleteTour(request.id)}
+														>
+															<Trash2 className="h-4 w-4" />
+														</Button>
+													</div>
 												</TableCell>
 											</TableRow>
 										);
@@ -424,6 +445,137 @@ export default function ToursPage() {
 					)}
 				</CardContent>
 			</Card>
+
+			{/* VIEW TOUR & PROPERTY DETAILS MODAL */}
+			<Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
+				<DialogContent className="sm:max-w-[550px] w-[95vw] rounded-2xl p-6">
+					<DialogHeader className="border-b pb-3">
+						<DialogTitle className="text-xl font-bold flex items-center gap-2">
+							<Building2 className="h-5 w-5 text-blue-600" />
+							Tour & Property Request Details
+						</DialogTitle>
+						<DialogDescription>
+							Full information submitted for this property visit.
+						</DialogDescription>
+					</DialogHeader>
+
+					{viewModalTour && (
+						<div className="space-y-5 py-4 text-sm">
+							{/* Property Block */}
+							<div className="p-4 bg-muted/40 rounded-xl border border-border space-y-2">
+								<h3 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+									<Building2 className="h-4 w-4 text-blue-600" /> Target Property Details
+								</h3>
+								<div className="text-base font-bold text-foreground">
+									{viewModalTour.propertyAddress === "MLS: " || !viewModalTour.propertyAddress || viewModalTour.propertyAddress === "N/A"
+										? "General / Direct Tour Request"
+										: viewModalTour.propertyAddress}
+								</div>
+								{viewModalTour.propertyId && (
+									<div className="flex items-center gap-2 pt-1">
+										<Badge variant="outline" className="font-mono text-xs">
+											MLS ID: {viewModalTour.propertyId}
+										</Badge>
+										<Button size="sm" variant="outline" asChild className="h-7 text-xs">
+											<a
+												href={`/admin/properties?search=${encodeURIComponent(viewModalTour.propertyId)}`}
+												target="_blank"
+												rel="noreferrer"
+											>
+												<ExternalLink className="h-3 w-3 mr-1 text-blue-600" /> View Property
+											</a>
+										</Button>
+									</div>
+								)}
+							</div>
+
+							{/* User Details Block */}
+							<div className="p-4 bg-muted/40 rounded-xl border border-border space-y-3">
+								<h3 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+									<User className="h-4 w-4 text-blue-600" /> Lead Contact Info
+								</h3>
+								<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+									<div>
+										<span className="text-xs text-muted-foreground block">Customer Name</span>
+										<span className="font-semibold text-foreground">{viewModalTour.userName}</span>
+									</div>
+									<div>
+										<span className="text-xs text-muted-foreground block">Email</span>
+										<a href={`mailto:${viewModalTour.userEmail}`} className="font-semibold text-blue-600 hover:underline flex items-center gap-1">
+											<Mail className="h-3.5 w-3.5" /> {viewModalTour.userEmail}
+										</a>
+									</div>
+									{viewModalTour.userPhone && (
+										<div>
+											<span className="text-xs text-muted-foreground block">Phone</span>
+											<a href={`tel:${viewModalTour.userPhone}`} className="font-semibold text-foreground flex items-center gap-1">
+												<Phone className="h-3.5 w-3.5 text-muted-foreground" /> {viewModalTour.userPhone}
+											</a>
+										</div>
+									)}
+									<div>
+										<span className="text-xs text-muted-foreground block">Submitted On</span>
+										<span className="font-medium text-foreground">{viewModalTour.createdAt}</span>
+									</div>
+								</div>
+							</div>
+
+							{/* Tour Date & Status */}
+							<div className="p-4 bg-muted/40 rounded-xl border border-border space-y-3">
+								<h3 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+									<Calendar className="h-4 w-4 text-blue-600" /> Requested Tour Date & Time
+								</h3>
+								<div className="flex items-center justify-between">
+									<div>
+										<div className="text-base font-bold text-foreground">
+											📅 {viewModalTour.requestedDate}
+										</div>
+										<div className="text-sm text-muted-foreground font-medium mt-0.5">
+											⏰ Slot: {viewModalTour.requestedTime}
+										</div>
+									</div>
+
+									<div>
+										<Select
+											value={viewModalTour.status?.toLowerCase() || "pending"}
+											onValueChange={(val) => {
+												const capitalized = val.charAt(0).toUpperCase() + val.slice(1);
+												handleStatusChange(viewModalTour.id, capitalized);
+											}}
+										>
+											<SelectTrigger className={`w-36 h-9 font-semibold rounded-full border ${getStatusStyles(viewModalTour.status)}`}>
+												<SelectValue />
+											</SelectTrigger>
+											<SelectContent>
+												<SelectItem value="pending">Pending</SelectItem>
+												<SelectItem value="confirmed">Confirmed</SelectItem>
+												<SelectItem value="completed">Completed</SelectItem>
+												<SelectItem value="cancelled">Cancelled</SelectItem>
+											</SelectContent>
+										</Select>
+									</div>
+								</div>
+							</div>
+
+							{/* Message Block */}
+							<div className="p-4 bg-muted/40 rounded-xl border border-border space-y-2">
+								<h3 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+									<MessageSquare className="h-4 w-4 text-blue-600" /> Customer Message / Note
+								</h3>
+								<p className="text-sm bg-white dark:bg-zinc-900 p-3 rounded-lg border border-border text-foreground leading-relaxed whitespace-pre-wrap">
+									{viewModalTour.message || "No additional comments provided."}
+								</p>
+							</div>
+						</div>
+					)}
+
+					<DialogFooter>
+						<Button variant="outline" onClick={() => setIsViewOpen(false)}>
+							Close Details
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }

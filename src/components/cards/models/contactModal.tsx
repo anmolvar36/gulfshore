@@ -1,5 +1,8 @@
-import React, { useState } from "react";
+"use client";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useUser } from "@clerk/nextjs";
+
 const ContactForm = ({
 	propertyId,
 	onClose,
@@ -7,6 +10,7 @@ const ContactForm = ({
 	propertyId: any;
 	onClose: any;
 }) => {
+	const { user } = useUser();
 	const [formData, setFormData] = useState({
 		fullName: "",
 		email: "",
@@ -14,6 +18,19 @@ const ContactForm = ({
 		message: "",
 		property: propertyId,
 	});
+
+	useEffect(() => {
+		if (user) {
+			const fullName = `${user.firstName || ""} ${user.lastName || ""}`.trim();
+			setFormData((prev) => ({
+				...prev,
+				fullName: prev.fullName || fullName || user.username || "",
+				email: prev.email || user.primaryEmailAddress?.emailAddress || "",
+				phone: prev.phone || user.primaryPhoneNumber?.phoneNumber || "",
+			}));
+		}
+	}, [user]);
+
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [successMessage, setSuccessMessage] = useState("");

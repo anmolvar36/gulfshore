@@ -1,6 +1,7 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useUser } from "@clerk/nextjs";
 import { Clock } from "lucide-react";
 import { toast } from "sonner";
 
@@ -10,6 +11,7 @@ const ScheduleTourForm = ({
 	propertyId,
 	onClose,
 }: any) => {
+	const { user } = useUser();
 	const [formData, setFormData] = useState({
 		firstName: "",
 		lastName: "",
@@ -20,6 +22,19 @@ const ScheduleTourForm = ({
 		MLSNumber: MLSNumber,
 		propertyId: propertyId || MLSNumber,
 	});
+
+	useEffect(() => {
+		if (user) {
+			setFormData((prev) => ({
+				...prev,
+				firstName: prev.firstName || user.firstName || "",
+				lastName: prev.lastName || user.lastName || "",
+				email: prev.email || user.primaryEmailAddress?.emailAddress || "",
+				phone: prev.phone || user.primaryPhoneNumber?.phoneNumber || "",
+			}));
+		}
+	}, [user]);
+
 
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
