@@ -36,6 +36,13 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 
 interface Community {
 	Development: string;
@@ -46,6 +53,7 @@ interface Community {
 
 export default function CommunitiesPage() {
 	const [communities, setCommunities] = useState<Community[]>([]);
+	const [citiesList, setCitiesList] = useState<string[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [totalCount, setTotalCount] = useState(0);
@@ -65,6 +73,7 @@ export default function CommunitiesPage() {
 		infoText: "",
 		defaultImage: "",
 	});
+
 
 	const handleCreateCommunity = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -134,9 +143,28 @@ export default function CommunitiesPage() {
 		}
 	};
 
+	// Fetch cities
+	const fetchCities = async () => {
+		try {
+			const res = await axios.get("/api/cities");
+			if (res.data?.data) {
+				const names = res.data.data.map((c: any) => c.City || c.name).filter(Boolean);
+				const uniqueNames = Array.from(new Set(names)) as string[];
+				setCitiesList(uniqueNames);
+				if (uniqueNames.length > 0 && !formData.City) {
+					setFormData((prev) => ({ ...prev, City: uniqueNames[0] }));
+				}
+			}
+		} catch (err) {
+			console.error("Failed to fetch cities for dropdown:", err);
+		}
+	};
+
 	useEffect(() => {
 		fetchCommunities(page);
+		fetchCities();
 	}, []);
+
 
 	const pageHandler = (pageNum: number) => {
 		setPage(pageNum);
@@ -312,15 +340,28 @@ export default function CommunitiesPage() {
 								</div>
 								<div className="grid gap-2">
 									<Label htmlFor="City">City Name <span className="text-red-500">*</span></Label>
-									<Input
-										id="City"
-										required
-										placeholder="e.g. Naples"
+									<Select
 										value={formData.City}
-										onChange={(e) => setFormData({ ...formData, City: e.target.value })}
-									/>
-									<p className="text-[10px] text-muted-foreground leading-tight">Must match an existing city</p>
+										onValueChange={(val) => setFormData((prev) => ({ ...prev, City: val }))}
+									>
+										<SelectTrigger id="City" className="w-full">
+											<SelectValue placeholder="Select existing city..." />
+										</SelectTrigger>
+										<SelectContent className="max-h-56 overflow-y-auto">
+											{citiesList.length > 0 ? (
+												citiesList.map((cityName) => (
+													<SelectItem key={cityName} value={cityName}>
+														{cityName}
+													</SelectItem>
+												))
+											) : (
+												<SelectItem value="Naples">Naples</SelectItem>
+											)}
+										</SelectContent>
+									</Select>
+									<p className="text-[10px] text-muted-foreground leading-tight">Select an active city from your database</p>
 								</div>
+
 							</div>
 
 							<div className="grid gap-2">

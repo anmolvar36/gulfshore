@@ -75,23 +75,34 @@ export async function POST(req: NextRequest) {
 		}
 
 		// Normalize names
-		const communityName = body.Development.trim().toUpperCase();
-		const cityName = body.City.trim().toUpperCase();
+		const communityName = body.Development.trim();
+		const rawCity = body.City.trim();
 		
-		// Find city by name
-		const city = await prisma.city.findFirst({
-			where: { name: cityName }
+		// Find city by name (case-insensitive) or auto-create
+		let city = await prisma.city.findFirst({
+			where: {
+				name: { equals: rawCity, mode: "insensitive" }
+			}
 		});
 
 		if (!city) {
-			return NextResponse.json(
-				{ error: `City '${cityName}' not found. Please create the city first.` },
-				{ status: 404 }
-			);
+			const citySlug = rawCity.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+			city = await prisma.city.create({
+				data: {
+					name: rawCity,
+					slug: citySlug,
+				}
+			});
 		}
 		
 		// Create a slug
-		const slug = body.Development.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-");
+		let slug = communityName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+		
+		// Check if community slug exists and make unique if needed
+		const existingComm = await prisma.community.findFirst({ where: { slug } });
+		if (existingComm) {
+			slug = `${slug}-${Date.now().toString().slice(-4)}`;
+		}
 
 		// Pack SEO and description fields into a JSON string
 		const descriptionPayload = JSON.stringify({
@@ -114,6 +125,7 @@ export async function POST(req: NextRequest) {
 				cityId: city.id
 			}
 		});
+
 
 		const mappedData = {
 			...newCommunity,
