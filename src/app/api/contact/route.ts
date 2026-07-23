@@ -73,14 +73,25 @@ export async function POST(request: Request) {
 			},
 		});
 
+		// Map to valid Prisma InquiryType enum (Contact_Form, Tour_Request, General, Home_Valuation)
+		let inquiryTypeEnum: "Contact_Form" | "Tour_Request" | "General" | "Home_Valuation" = "Contact_Form";
+		if (userRole === "Seller" || refType === "Home_Valuation") {
+			inquiryTypeEnum = "Home_Valuation";
+		} else if (refType === "Tour_Request") {
+			inquiryTypeEnum = "Tour_Request";
+		} else {
+			inquiryTypeEnum = "Contact_Form";
+		}
+
 		// 3. Create Inquiry in SQL linked to the Lead
 		await prisma.inquiry.create({
 			data: {
 				leadId: lead.id,
-				type: resolvedRefType,
+				type: inquiryTypeEnum,
 				message: message || "",
 			},
 		});
+
 
 		// 4. Create ContactRequest in SQL
 		const newReq = await prisma.contactRequest.create({
