@@ -158,16 +158,12 @@ const data = {
 			icon: IconSettings,
 		},
 		{
-			title: "Get Help",
-			url: "/admin/help",
+			title: "FAQs",
+			url: "/admin/faqs",
 			icon: IconHelp,
 		},
-		{
-			title: "Search",
-			url: "/admin/search",
-			icon: IconSearch,
-		},
 	],
+
 };
 
 const NavItems = () => {
