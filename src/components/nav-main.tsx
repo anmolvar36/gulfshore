@@ -40,23 +40,6 @@ export function NavMain({
 		<SidebarGroup>
 			<SidebarGroupContent className="flex flex-col gap-2">
 				<SidebarMenu>
-					<SidebarMenuItem className="flex flex-row items-center gap-2 px-1">
-						<SidebarMenuButton
-							tooltip="Quick Create"
-							className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground focus:bg-primary/90 focus:text-primary-foreground font-semibold justify-center shadow-sm">
-							<IconCirclePlusFilled className="size-5 mr-1 shrink-0" />
-							<span className="truncate">Quick Create</span>
-						</SidebarMenuButton>
-						<Button
-							size="icon"
-							variant="outline"
-							className="h-8 w-8 shrink-0 text-primary border-primary/20 hover:bg-primary/10">
-							<IconMail size={16} />
-							<span className="sr-only">Inbox</span>
-						</Button>
-					</SidebarMenuItem>
-				</SidebarMenu>
-				<SidebarMenu>
 					{items.map((item) => (
 						<SidebarMenuItem key={item.title}>
 							<SidebarMenuButton
