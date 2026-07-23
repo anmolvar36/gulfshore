@@ -3,56 +3,72 @@ import prisma from "@/lib/prisma";
 
 export async function GET() {
 	try {
-		// Fetch Home Valuation contact requests and inquiries
-		const [valuationRequests, sellerInquiries] = await Promise.all([
+		// Fetch Home Valuation contact requests and seller leads
+		const [valuationRequests, sellerLeads] = await Promise.all([
 			prisma.contactRequest.findMany({
 				where: { refType: "Home_Valuation" },
 				orderBy: { createdAt: "desc" },
 			}),
-			prisma.inquiry.findMany({
-				where: { type: "Home_Valuation" },
+			prisma.lead.findMany({
+				where: {
+					OR: [
+						{ source: "Home_Valuation" },
+						{ tags: { path: "$", array_contains: "Seller" } },
+					],
+				},
+				include: { inquiryHistory: true },
 				orderBy: { createdAt: "desc" },
-				include: { Lead: true },
 			}),
 		]);
 
-		const emails = Array.from(
-			new Set([
-				...valuationRequests.map((r) => r.email.toLowerCase().trim()),
-				...sellerInquiries.map((i) => i.Lead?.email?.toLowerCase().trim()).filter(Boolean),
-			])
-		) as string[];
-
-		const leads = await prisma.lead.findMany({
-			where: { email: { in: emails } },
-			select: { id: true, email: true, firstName: true, lastName: true, fullName: true, phone: true },
-		});
-
-		const leadMap = new Map(
-			leads.map((l) => [
-				l.email.toLowerCase().trim(),
-				{
-					id: l.id,
-					name: l.fullName || `${l.firstName || ""} ${l.lastName || ""}`.trim(),
-					phone: l.phone || "",
-				},
-			])
+		const contactRequestEmails = new Set(
+			valuationRequests.map((r) => r.email.toLowerCase().trim())
 		);
 
-		// Format valuation list
-		const formattedValuations = valuationRequests.map((req) => {
-			const syncedLead = leadMap.get(req.email.toLowerCase().trim());
-			return {
+		const formattedValuations: any[] = [];
+
+		// 1. Add Valuation Contact Requests
+		valuationRequests.forEach((req) => {
+			formattedValuations.push({
 				id: req.id,
 				propertyAddress: req.ref && req.ref !== "null" && req.ref !== "N/A" ? req.ref : "Address Provided In Details",
-				sellerName: syncedLead?.name || req.name || "Unknown Seller",
+				sellerName: req.name || "Unknown Seller",
 				sellerEmail: req.email,
-				sellerPhone: syncedLead?.phone || req.phone || "",
-				leadId: syncedLead?.id || null,
+				sellerPhone: req.phone || "",
 				status: req.status || "New Request",
 				message: req.message || "Home Valuation Estimate Request",
 				createdAt: new Date(req.createdAt).toLocaleDateString("en-US", { timeZone: "America/New_York" }),
-			};
+			});
+		});
+
+		// 2. Add Seller Leads not already included in Contact Requests
+		sellerLeads.forEach((lead) => {
+			const cleanEmail = lead.email.toLowerCase().trim();
+			if (!contactRequestEmails.has(cleanEmail)) {
+				const valuationInquiry = lead.inquiryHistory.find(
+					(i) => i.type === "Home_Valuation"
+				);
+
+				let propAddr = "Home Valuation Requested";
+				let msgText = valuationInquiry?.message || "Home Valuation Request submitted";
+
+				if (valuationInquiry?.message) {
+					if (valuationInquiry.message.includes("Property Address: ")) {
+						propAddr = valuationInquiry.message.split("Property Address: ")[1]?.split("\n")[0] || propAddr;
+					}
+				}
+
+				formattedValuations.push({
+					id: lead.id,
+					propertyAddress: propAddr,
+					sellerName: lead.fullName || `${lead.firstName || ""} ${lead.lastName || ""}`.trim() || "Unknown Seller",
+					sellerEmail: lead.email,
+					sellerPhone: lead.phone || "",
+					status: lead.status === "New" ? "New Request" : lead.status || "New Request",
+					message: msgText,
+					createdAt: new Date(lead.createdAt).toLocaleDateString("en-US", { timeZone: "America/New_York" }),
+				});
+			}
 		});
 
 		return NextResponse.json({ success: true, valuations: formattedValuations });
@@ -64,3 +80,4 @@ export async function GET() {
 		);
 	}
 }
+
