@@ -107,8 +107,46 @@ export async function POST(request: Request) {
 			},
 		});
 
+		// 5. Instant Confirmation Email to User via Resend
+		if (process.env.RESEND_API_KEY && email) {
+			try {
+				const { Resend } = await import("resend");
+				const resendClient = new Resend(process.env.RESEND_API_KEY);
+				await resendClient.emails.send({
+					from: "Gulfshore Group <onboarding@resend.dev>",
+					to: [email],
+					subject: `Thank you for reaching out to Gulfshore Group, ${resolvedFirstName || resolvedName}!`,
+					html: `
+						<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e5e7eb; rounded-lg: 12px; background-color: #ffffff;">
+							<div style="text-align: center; margin-bottom: 24px;">
+								<h1 style="color: #064e3b; margin: 0; font-size: 24px;">Gulfshore Group</h1>
+								<p style="color: #6b7280; font-size: 14px; margin-top: 4px;">London Forster Realty</p>
+							</div>
+							<h2 style="color: #111827; font-size: 18px; margin-bottom: 12px;">Hello ${resolvedName},</h2>
+							<p style="color: #374151; font-size: 15px; line-height: 1.6;">
+								Thank you for contacting Gulfshore Group! We have received your inquiry and our dedicated real estate specialist will be in touch with you shortly.
+							</p>
+							<div style="background-color: #f9fafb; padding: 16px; border-radius: 8px; margin: 20px 0;">
+								<p style="margin: 0; font-size: 14px; color: #4b5563;"><strong>Inquiry Type:</strong> ${userRole === "Seller" ? "Home Valuation / Seller" : "Buyer Inquiry"}</p>
+								${message ? `<p style="margin: 8px 0 0 0; font-size: 14px; color: #4b5563;"><strong>Message:</strong> ${message}</p>` : ""}
+							</div>
+							<p style="color: #374151; font-size: 14px; line-height: 1.6;">
+								If you have an urgent question, feel free to call us directly at <strong>+1 (239) 992-9119</strong>.
+							</p>
+							<hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;" />
+							<p style="color: #9ca3af; font-size: 12px; text-align: center; margin: 0;">
+								© ${new Date().getFullYear()} Gulfshore Group London Forster Realty. All rights reserved.
+							</p>
+						</div>
+					`,
+				});
+			} catch (emailErr) {
+				console.error("Instant user confirmation email error:", emailErr);
+			}
+		}
 
 		return NextResponse.json({ success: true, data: newReq });
+
 	} catch (error: any) {
 		console.error("Error saving contact request:", error);
 		return NextResponse.json(
