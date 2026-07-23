@@ -30,7 +30,9 @@ export default function ContactForm({
 		email: "",
 		phone: "",
 		message: "",
+		userRole: "Buyer",
 	});
+
 	const [countryCode, setCountryCode] = useState("+1");
 	const [phoneNumber, setPhoneNumber] = useState("");
 	const [isPhoneValid, setIsPhoneValid] = useState(true);
@@ -213,8 +215,29 @@ export default function ContactForm({
 
 			{/* Form */}
 			<form onSubmit={handleSubmit} className="space-y-6">
+				{/* Role Selector (Buyer / Seller / General) */}
+				<div>
+					<label className="block text-sm font-medium text-foreground mb-2">
+						I am a... <span className="text-red-500">*</span>
+					</label>
+					<Select
+						value={formData.userRole}
+						onValueChange={(val) => setFormData((prev) => ({ ...prev, userRole: val }))}
+					>
+						<SelectTrigger className="w-full h-12 px-4 border rounded-lg bg-gray-50 text-foreground font-medium focus:ring-2 focus:ring-primary transition">
+							<SelectValue placeholder="Select your role" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="Buyer">🛒 Buyer (Looking to Buy a Home)</SelectItem>
+							<SelectItem value="Seller">🏠 Seller (Looking to Sell My Home)</SelectItem>
+							<SelectItem value="General">💬 General Inquiry / Other Question</SelectItem>
+						</SelectContent>
+					</Select>
+				</div>
+
 				{/* Name Field */}
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
 					<div>
 						<label
 							htmlFor="name"
