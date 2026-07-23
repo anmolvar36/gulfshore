@@ -20,11 +20,26 @@ async function getMappedLead(id: string) {
 
 	if (!lead) return null;
 
+	let parsedTags: string[] = [];
+	if (lead.tags) {
+		try {
+			const raw = typeof lead.tags === "string" ? JSON.parse(lead.tags) : lead.tags;
+			if (Array.isArray(raw)) {
+				parsedTags = raw.filter((t: any) => typeof t === "string");
+			} else if (typeof raw === "object" && raw !== null) {
+				parsedTags = Object.values(raw).filter((t: any) => typeof t === "string");
+			}
+		} catch {
+			parsedTags = [];
+		}
+	}
+
 	return {
 		...lead,
 		_id: lead.id,
 		fullName: lead.fullName || `${lead.firstName || ""} ${lead.lastName || ""}`.trim() || "Unknown User",
-		tags: lead.tags ? (typeof lead.tags === "string" ? JSON.parse(lead.tags) : lead.tags) : [],
+		tags: parsedTags,
+
 		notes: lead.notes.map((n) => ({
 			_id: n.id,
 			content: n.message,

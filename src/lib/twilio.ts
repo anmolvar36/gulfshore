@@ -6,13 +6,22 @@ const client = Twilio(
 );
 
 export const sendSMS = async (to: string, body: string) => {
-	const from = process.env.TWILIO_NUMBER ? "+" + process.env.TWILIO_NUMBER.replace(/[^0-9]/g, "") : "";
-	await client.messages.create({
-		body,
-		from,
-		to,
-	});
+	try {
+		const from = process.env.TWILIO_NUMBER ? "+" + process.env.TWILIO_NUMBER.replace(/[^0-9]/g, "") : "";
+		if (!process.env.TWILIO_SID || !process.env.TWILIO_TOKEN || !from) {
+			console.log("Twilio credentials missing, skipping SMS dispatch.");
+			return;
+		}
+		await client.messages.create({
+			body,
+			from,
+			to,
+		});
+	} catch (error) {
+		console.error("Twilio SMS send failed gracefully:", error);
+	}
 };
+
 
 export const sendWhatsAppMessage = async (to: string) => {
 	try {
