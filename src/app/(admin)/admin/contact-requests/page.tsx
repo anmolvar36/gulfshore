@@ -290,11 +290,11 @@ export default function ContactRequestsPage() {
 												{request.message || "N/A"}
 											</td>
 											<td className="py-3 px-4">
-												{request.refType === "Home_Valuation" ? (
+												{request.refType?.toLowerCase().includes("valuation") || request.refType?.toLowerCase().includes("seller") || request.message?.includes("Home Valuation") ? (
 													<Badge className="bg-amber-100 text-amber-900 border border-amber-300 font-semibold px-2 py-0.5 text-xs inline-flex items-center gap-1">
 														🏠 Seller (Valuation)
 													</Badge>
-												) : request.refType === "Tour_Request" ? (
+												) : request.refType?.toLowerCase().includes("tour") || request.message?.includes("Tour") ? (
 													<Badge className="bg-blue-100 text-blue-900 border border-blue-300 font-semibold px-2 py-0.5 text-xs inline-flex items-center gap-1">
 														🛒 Buyer (Tour)
 													</Badge>
@@ -304,6 +304,7 @@ export default function ContactRequestsPage() {
 													</Badge>
 												)}
 											</td>
+
 											<td className="py-3 px-4 ">
 												{!request.ref || request.ref === "null" || request.ref === "N/A" ? (
 													""
