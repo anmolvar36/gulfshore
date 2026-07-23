@@ -172,6 +172,13 @@ const NavItems = () => {
 	const tab = searchParams.get("tab");
 
 	const isActive = (item: { label: string; href: string }) => {
+		const cleanPath = path.split("?")[0];
+		const cleanHref = item.href.split("?")[0];
+
+		if (cleanHref === "/admin/properties") {
+			return cleanPath === "/admin/properties";
+		}
+
 		// Strict matching for sub-tabs to prevent overlap
 		if (item.href.startsWith("/admin/automation")) {
 			if (item.label === "Social Media") return path === "/admin/automation" && tab === "social";
@@ -186,11 +193,12 @@ const NavItems = () => {
 		}
 
 		// Prevent partial matches on different parent routes
-		if (path === item.href) return true;
-		if (path.startsWith(item.href + "/")) return true;
+		if (cleanPath === cleanHref) return true;
+		if (cleanHref !== "/admin/properties" && cleanPath.startsWith(cleanHref + "/")) return true;
 
 		return false;
 	};
+
 	return navigationItems.map((navitem, index) => (
 		<Collapsible
 			key={index}

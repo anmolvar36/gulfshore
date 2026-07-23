@@ -165,9 +165,50 @@ export async function GET(req: NextRequest) {
 			opens: Math.ceil(dayCounts[day] * 2.8),
 		}));
 
+		// 5. Gather Property Performance Analytics from Database
+		const [totalPropertiesCount, activePropertiesCount, totalToursCount, totalLeadsCount, topPropertiesList] = await Promise.all([
+			prisma.property.count(),
+			prisma.property.count({ where: { StandardStatus: "Active" } }),
+			prisma.scheduleTour.count(),
+			prisma.lead.count(),
+			prisma.property.findMany({
+				take: 10,
+				orderBy: { id: "desc" },
+				select: {
+					id: true,
+					ListingId: true,
+					MLSNumber: true,
+					FullAddress: true,
+					ListPrice: true,
+					BedroomsTotal: true,
+					BathroomsFull: true,
+					LivingArea: true,
+					City: true,
+					StandardStatus: true,
+				},
+			}),
+		]);
+
 		// Return full metrics JSON response
 		return NextResponse.json({
 			success: true,
+			properties: {
+				totalProperties: totalPropertiesCount,
+				activeProperties: activePropertiesCount,
+				totalTours: totalToursCount,
+				totalLeads: totalLeadsCount,
+				list: topPropertiesList.map((p) => ({
+					id: p.id,
+					address: p.FullAddress || "Property Address N/A",
+					price: p.ListPrice ? `$${p.ListPrice.toLocaleString()}` : "Price Upon Request",
+					beds: p.BedroomsTotal || 0,
+					baths: p.BathroomsFull || 0,
+					sqft: p.LivingArea ? `${p.LivingArea.toLocaleString()} sqft` : "N/A",
+					city: p.City || "Naples",
+					status: p.StandardStatus || "Active",
+					mlsId: p.MLSNumber || p.ListingId || p.id,
+				})),
+			},
 			notifications: {
 				totalReceivers: notificationReceivers,
 				clicks: notificationClicks,
@@ -186,6 +227,7 @@ export async function GET(req: NextRequest) {
 				list: socialList,
 			},
 		});
+
 	} catch (error: any) {
 		console.error("Failed to load performance metrics:", error.message || error);
 		return NextResponse.json(

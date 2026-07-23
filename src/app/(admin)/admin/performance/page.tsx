@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
-import { TrendingUp, TrendingDown, MousePointer, Users, Mail, MessageSquare, Phone, Facebook, Instagram, Linkedin, Share2 } from "lucide-react"
+import { TrendingUp, TrendingDown, MousePointer, Users, Mail, MessageSquare, Phone, Facebook, Instagram, Linkedin, Share2, Building2 } from "lucide-react"
+
 import { useState, Suspense, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 
@@ -213,248 +214,264 @@ function PerformanceContent() {
   }
 
   // Extract metrics based on selected tab
-  const data = isSocial ? metrics?.social : metrics?.notifications
-
-  const totalClicks = data?.totalClicks || 0
-  const totalReceivers = isSocial ? (data?.reach || 0) : (data?.totalReceivers || 0)
-  const avgClickRate = Number(data?.clickRate || 0)
-  const avgOpenRate = isSocial ? Number(data?.avgEngagement?.replace('%', '') || 0) : Number(data?.openRate || 0)
-  const activeChannelData = data?.channelData || []
-  const chartData = data?.chartData || []
-  const activeData = data?.list || []
+  const propMetrics = metrics?.properties
+  const socialMetrics = metrics?.social
+  const isProperties = tab === "properties" || !isSocial
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">
-            {isSocial ? "Social Media Campaign Performance" : "Notification Performance"}
+          <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
+            {isSocial ? (
+              <>📱 Social Media Campaign Analytics</>
+            ) : (
+              <>🏠 Property Performance Analytics</>
+            )}
           </h1>
           <p className="text-muted-foreground mt-2">
             {isSocial 
-              ? "Track post reach, clicks, and engagement metrics across networks" 
-              : "Track clicks, engagement, and delivery metrics"}
+              ? "Track post reach, clicks, and engagement metrics across social networks" 
+              : "Track active listing inventory, buyer tour requests, and property performance analytics"}
           </p>
-        </div>
-        <div className="flex gap-2">
-          <Select value={timeFilter} onValueChange={setTimeFilter}>
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7d">Last 7 days</SelectItem>
-              <SelectItem value="30d">Last 30 days</SelectItem>
-              <SelectItem value="90d">Last 90 days</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={channelFilter} onValueChange={setChannelFilter}>
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Channels</SelectItem>
-              {isSocial ? (
-                <>
-                  <SelectItem value="facebook">Facebook</SelectItem>
-                  <SelectItem value="instagram">Instagram</SelectItem>
-                  <SelectItem value="linkedin">LinkedIn</SelectItem>
-                </>
-              ) : (
-                <>
-                  <SelectItem value="email">Email</SelectItem>
-                  <SelectItem value="whatsapp">WhatsApp</SelectItem>
-                  <SelectItem value="text">Text</SelectItem>
-                </>
-              )}
-            </SelectContent>
-          </Select>
         </div>
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <MousePointer className="h-4 w-4" />
-              Total Clicks
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">{totalClicks.toLocaleString()}</div>
-            <div className="flex items-center gap-1 text-sm text-green-600 mt-1">
-              <TrendingUp className="h-3 w-3" />
-              +12.5%
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              {isSocial ? "Total Reach" : "Total Receivers"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">{totalReceivers.toLocaleString()}</div>
-            <div className="flex items-center gap-1 text-sm text-green-600 mt-1">
-              <TrendingUp className="h-3 w-3" />
-              +8.2%
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Avg Click Rate</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">{avgClickRate.toFixed(1)}%</div>
-            <div className="flex items-center gap-1 text-sm text-red-600 mt-1">
-              <TrendingDown className="h-3 w-3" />
-              -2.1%
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              {isSocial ? "Avg Engagement" : "Avg Open Rate"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">{avgOpenRate.toFixed(1)}%</div>
-            <div className="flex items-center gap-1 text-sm text-green-600 mt-1">
-              <TrendingUp className="h-3 w-3" />
-              +5.3%
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {isProperties ? (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <Building2 className="h-4 w-4 text-emerald-600" />
+                Active Properties
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-foreground">
+                {propMetrics?.activeProperties?.toLocaleString() || 0}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">Live active listings on website</p>
+            </CardContent>
+          </Card>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Weekly Performance</CardTitle>
-            <CardDescription>
-              {isSocial ? "Post clicks and engagement over the last 7 days" : "Clicks and opens over the last 7 days"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="clicks" fill="#3b82f6" name="Clicks" />
-                <Bar dataKey="opens" fill="#10b981" name={isSocial ? "Engagement" : "Opens"} />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <MousePointer className="h-4 w-4 text-blue-600" />
+                Total Tour Requests
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-blue-600">
+                {propMetrics?.totalTours?.toLocaleString() || 0}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">Property visits requested by buyers</p>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Channel Distribution</CardTitle>
-            <CardDescription>
-              {isSocial ? "Distribution of clicks by social network" : "Notification distribution by channel"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={activeChannelData}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={80}
-                  dataKey="value"
-                  label={({ name, value }) => `${name}: ${value}%`}
-                >
-                  {activeChannelData.map((entry: any, index: number) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <Users className="h-4 w-4 text-purple-600" />
+                Total CRM Leads
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-purple-600">
+                {propMetrics?.totalLeads?.toLocaleString() || 0}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">Buyers & sellers in database</p>
+            </CardContent>
+          </Card>
 
-      {/* Performance Table */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-amber-600" />
+                Total Inventory
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-amber-600">
+                {propMetrics?.totalProperties?.toLocaleString() || 0}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">MLS & custom listings stored</p>
+            </CardContent>
+          </Card>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <MousePointer className="h-4 w-4" />
+                Total Clicks
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">{(socialMetrics?.totalClicks || 0).toLocaleString()}</div>
+              <div className="flex items-center gap-1 text-sm text-green-600 mt-1">
+                <TrendingUp className="h-3 w-3" />
+                +12.5%
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                Total Reach
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">{(socialMetrics?.reach || 0).toLocaleString()}</div>
+              <div className="flex items-center gap-1 text-sm text-green-600 mt-1">
+                <TrendingUp className="h-3 w-3" />
+                +8.2%
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <TrendingUp className="h-4 w-4" />
+                Click Rate
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">{socialMetrics?.clickRate || 0}%</div>
+              <div className="flex items-center gap-1 text-sm text-red-600 mt-1">
+                <TrendingDown className="h-3 w-3" />
+                -2.1%
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <Share2 className="h-4 w-4" />
+                Avg Engagement
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">{socialMetrics?.avgEngagement || "0.0%"}</div>
+              <div className="flex items-center gap-1 text-sm text-green-600 mt-1">
+                <TrendingUp className="h-3 w-3" />
+                +5.3%
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Table Section */}
       <Card>
         <CardHeader>
-          <CardTitle>Detailed Performance</CardTitle>
+          <CardTitle>
+            {isProperties ? "Active Property Inventory & Performance" : "Social Media Post Clicks & Reach"}
+          </CardTitle>
           <CardDescription>
-            {isSocial ? "Individual social media post clicks logged" : "Individual notification performance metrics"}
+            {isProperties
+              ? "Live property listings in database with price, specs, and status"
+              : "Individual social media post clicks and estimated reach logged"}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Channel</TableHead>
-                <TableHead>{isSocial ? "Last Clicked" : "Sent At"}</TableHead>
-                <TableHead className="text-right">{isSocial ? "Estimated Reach" : "Receivers"}</TableHead>
-                <TableHead className="text-right">Clicks</TableHead>
-                <TableHead className="text-right">Click Rate</TableHead>
-                <TableHead className="text-right">{isSocial ? "Engagement" : "Open Rate"}</TableHead>
-                <TableHead className="text-right">{isSocial ? "Status" : "Delivery"}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {activeData.map((item: any) => (
-                <TableRow key={item.id}>
-                  <TableCell className="font-medium">{item.title}</TableCell>
-                  <TableCell>
-                    <Badge className={getTypeColor(item.type)}>{item.type}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      {getChannelIcon(item.channel)}
-                      {item.channel}
-                    </div>
-                  </TableCell>
-                  <TableCell>{item.sentAt}</TableCell>
-                  <TableCell className="text-right">{item.totalReceivers.toLocaleString()}</TableCell>
-                  <TableCell className="text-right">{item.clicks.toLocaleString()}</TableCell>
-                  <TableCell className="text-right">
-                    <span
-                      className={
-                        item.clickRate > 30
-                          ? "text-green-600"
-                          : item.clickRate > 15
-                            ? "text-yellow-600"
-                            : "text-red-600"
-                      }
-                    >
-                      {item.clickRate}%
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <span
-                      className={
-                        item.openRate > 80 ? "text-green-600" : item.openRate > 60 ? "text-yellow-600" : "text-red-600"
-                      }
-                    >
-                      {item.openRate}%
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <span className={item.deliveryRate > 95 ? "text-green-600" : "text-yellow-600"}>
-                      {isSocial ? "Active" : `${item.deliveryRate}%`}
-                    </span>
-                  </TableCell>
+          {isProperties ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[110px]">MLS / ID</TableHead>
+                  <TableHead>Property Address</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Specs</TableHead>
+                  <TableHead>City</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {(propMetrics?.list || []).map((item: any) => (
+                  <TableRow key={item.id}>
+                    <TableCell>
+                      <Badge variant="outline" className="font-mono text-xs">
+                        #{String(item.mlsId).slice(-8)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="font-semibold text-foreground">
+                      {item.address}
+                    </TableCell>
+                    <TableCell className="font-bold text-emerald-600">
+                      {item.price}
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">
+                      🛏️ {item.beds} bd | 🛁 {item.baths} ba | 📐 {item.sqft}
+                    </TableCell>
+                    <TableCell className="font-medium text-xs">{item.city}</TableCell>
+                    <TableCell>
+                      <Badge className="bg-emerald-100 text-emerald-800 border border-emerald-300 font-semibold text-xs">
+                        {item.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <a
+                        href={`/admin/properties?search=${encodeURIComponent(item.mlsId)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs text-blue-600 hover:underline font-semibold"
+                      >
+                        View Listing ↗️
+                      </a>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Channel</TableHead>
+                  <TableHead>Last Clicked</TableHead>
+                  <TableHead className="text-right">Estimated Reach</TableHead>
+                  <TableHead className="text-right">Clicks</TableHead>
+                  <TableHead className="text-right">Click Rate</TableHead>
+                  <TableHead className="text-right">Engagement</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {(socialMetrics?.list || []).map((item: any) => (
+                  <TableRow key={item.id}>
+                    <TableCell className="font-medium">{item.title}</TableCell>
+                    <TableCell>
+                      <Badge className={getTypeColor(item.type)}>{item.type}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {getChannelIcon(item.channel)}
+                        {item.channel}
+                      </div>
+                    </TableCell>
+                    <TableCell>{item.sentAt}</TableCell>
+                    <TableCell className="text-right">{item.totalReceivers.toLocaleString()}</TableCell>
+                    <TableCell className="text-right">{item.clicks.toLocaleString()}</TableCell>
+                    <TableCell className="text-right text-emerald-600 font-bold">
+                      {item.clickRate}%
+                    </TableCell>
+                    <TableCell className="text-right font-medium">
+                      Active
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
+
     </div>
   )
 }
