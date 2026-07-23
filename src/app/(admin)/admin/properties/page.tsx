@@ -416,223 +416,258 @@ export default function PropertiesPage() {
 				</CardContent>
 			</Card>
 			<Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-				<DialogContent className="sm:max-w-[600px] w-[95vw] rounded-xl">
+				<DialogContent className="sm:max-w-[720px] w-[95vw] rounded-2xl p-6 shadow-2xl">
 					<form onSubmit={handleCreateProperty}>
-						<DialogHeader>
-							<DialogTitle>Add New Property</DialogTitle>
+						<DialogHeader className="border-b pb-3">
+							<DialogTitle className="text-xl font-bold flex items-center gap-2 text-foreground">
+								<Home className="h-5 w-5 text-emerald-600" /> Add New Property Listing
+							</DialogTitle>
 							<DialogDescription>
-								Fill in the property details below to add it to the active listings.
+								Fill in the listing details below to publish an exclusive or custom property to the website.
 							</DialogDescription>
 						</DialogHeader>
-						<div className="grid gap-4 py-4 max-h-[65vh] overflow-y-auto px-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:rounded-full">
-							<div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
-								<Label htmlFor="MLSNumber" className="text-left sm:text-right">
-									MLS Number
-								</Label>
-								<Input
-									id="MLSNumber"
-									required
-									value={formData.MLSNumber}
-									onChange={(e) =>
-										setFormData((prev) => ({
-											...prev,
-											MLSNumber: e.target.value,
-										}))
-									}
-									className="sm:col-span-3"
-								/>
+
+						<div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1 pr-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:rounded-full">
+							{/* Location & Identification Section */}
+							<div className="p-4 bg-muted/30 rounded-xl border border-border space-y-3">
+								<h3 className="font-bold text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+									<Building2 className="h-4 w-4 text-blue-600" /> Property Identity & Address
+								</h3>
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+									<div className="md:col-span-2 flex flex-col gap-1.5">
+										<Label htmlFor="FullAddress" className="text-xs font-semibold text-foreground">
+											Full Address <span className="text-red-500">*</span>
+										</Label>
+										<Input
+											id="FullAddress"
+											required
+											placeholder="e.g. 3777 Gordon Dr, Naples, FL 34102"
+											value={formData.FullAddress}
+											onChange={(e) =>
+												setFormData((prev) => ({
+													...prev,
+													FullAddress: e.target.value,
+												}))
+											}
+										/>
+									</div>
+									<div className="flex flex-col gap-1.5">
+										<Label htmlFor="City" className="text-xs font-semibold text-foreground">
+											City <span className="text-red-500">*</span>
+										</Label>
+										<Input
+											id="City"
+											required
+											placeholder="e.g. Naples"
+											value={formData.City}
+											onChange={(e) =>
+												setFormData((prev) => ({
+													...prev,
+													City: e.target.value,
+												}))
+											}
+										/>
+									</div>
+									<div className="flex flex-col gap-1.5">
+										<Label htmlFor="MLSNumber" className="text-xs font-semibold text-foreground">
+											MLS / Listing ID <span className="text-red-500">*</span>
+										</Label>
+										<Input
+											id="MLSNumber"
+											required
+											placeholder="e.g. 226008320"
+											value={formData.MLSNumber}
+											onChange={(e) =>
+												setFormData((prev) => ({
+													...prev,
+													MLSNumber: e.target.value,
+												}))
+											}
+										/>
+									</div>
+								</div>
 							</div>
-							<div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
-								<Label htmlFor="FullAddress" className="text-left sm:text-right">
-									Full Address
-								</Label>
-								<Input
-									id="FullAddress"
-									required
-									value={formData.FullAddress}
-									onChange={(e) =>
-										setFormData((prev) => ({
-											...prev,
-											FullAddress: e.target.value,
-										}))
-									}
-									className="sm:col-span-3"
-								/>
+
+							{/* Specs & Pricing Section */}
+							<div className="p-4 bg-muted/30 rounded-xl border border-border space-y-3">
+								<h3 className="font-bold text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+									💰 Pricing, Type & Dimensions
+								</h3>
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+									<div className="flex flex-col gap-1.5">
+										<Label htmlFor="ListPrice" className="text-xs font-semibold text-foreground">
+											List Price ($) <span className="text-red-500">*</span>
+										</Label>
+										<Input
+											id="ListPrice"
+											type="number"
+											placeholder="e.g. 2500000"
+											value={formData.ListPrice}
+											onChange={(e) =>
+												setFormData((prev) => ({
+													...prev,
+													ListPrice: e.target.value,
+												}))
+											}
+										/>
+									</div>
+									<div className="flex flex-col gap-1.5">
+										<Label htmlFor="PropertyType" className="text-xs font-semibold text-foreground">
+											Property Type
+										</Label>
+										<Select
+											value={formData.PropertyType}
+											onValueChange={(v) =>
+												setFormData((prev) => ({ ...prev, PropertyType: v }))
+											}
+										>
+											<SelectTrigger className="w-full">
+												<SelectValue />
+											</SelectTrigger>
+											<SelectContent>
+												<SelectItem value="Single Family Residence">Single Family Residence</SelectItem>
+												<SelectItem value="Condo">Condo</SelectItem>
+												<SelectItem value="Townhouse">Townhouse</SelectItem>
+												<SelectItem value="Land">Land</SelectItem>
+												<SelectItem value="Commercial">Commercial</SelectItem>
+											</SelectContent>
+										</Select>
+									</div>
+									<div className="flex flex-col gap-1.5">
+										<Label htmlFor="StandardStatus" className="text-xs font-semibold text-foreground">
+											Listing Status
+										</Label>
+										<Select
+											value={formData.StandardStatus}
+											onValueChange={(v) =>
+												setFormData((prev) => ({ ...prev, StandardStatus: v }))
+											}
+										>
+											<SelectTrigger className="w-full">
+												<SelectValue />
+											</SelectTrigger>
+											<SelectContent>
+												<SelectItem value="Active">Active</SelectItem>
+												<SelectItem value="Pending">Pending</SelectItem>
+												<SelectItem value="Sold">Sold</SelectItem>
+												<SelectItem value="Closed">Closed</SelectItem>
+												<SelectItem value="Off Market">Off Market</SelectItem>
+											</SelectContent>
+										</Select>
+									</div>
+									<div className="flex flex-col gap-1.5">
+										<Label htmlFor="LivingArea" className="text-xs font-semibold text-foreground">
+											Living Area (SqFt)
+										</Label>
+										<Input
+											id="LivingArea"
+											type="number"
+											placeholder="e.g. 3500"
+											value={formData.LivingArea}
+											onChange={(e) =>
+												setFormData((prev) => ({
+													...prev,
+													LivingArea: e.target.value,
+												}))
+											}
+										/>
+									</div>
+									<div className="flex flex-col gap-1.5">
+										<Label htmlFor="BedroomsTotal" className="text-xs font-semibold text-foreground">
+											Bedrooms
+										</Label>
+										<Input
+											id="BedroomsTotal"
+											type="number"
+											placeholder="e.g. 4"
+											value={formData.BedroomsTotal}
+											onChange={(e) =>
+												setFormData((prev) => ({
+													...prev,
+													BedroomsTotal: e.target.value,
+												}))
+											}
+										/>
+									</div>
+									<div className="flex flex-col gap-1.5">
+										<Label htmlFor="BathroomsFull" className="text-xs font-semibold text-foreground">
+											Bathrooms
+										</Label>
+										<Input
+											id="BathroomsFull"
+											type="number"
+											placeholder="e.g. 3"
+											value={formData.BathroomsFull}
+											onChange={(e) =>
+												setFormData((prev) => ({
+													...prev,
+													BathroomsFull: e.target.value,
+												}))
+											}
+										/>
+									</div>
+								</div>
 							</div>
-							<div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
-								<Label htmlFor="City" className="text-left sm:text-right">
-									City
-								</Label>
-								<Input
-									id="City"
-									required
-									value={formData.City}
-									onChange={(e) =>
-										setFormData((prev) => ({
-											...prev,
-											City: e.target.value,
-										}))
-									}
-									className="sm:col-span-3"
-								/>
-							</div>
-							<div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
-								<Label htmlFor="ListPrice" className="text-left sm:text-right">
-									List Price ($)
-								</Label>
-								<Input
-									id="ListPrice"
-									type="number"
-									value={formData.ListPrice}
-									onChange={(e) =>
-										setFormData((prev) => ({
-											...prev,
-											ListPrice: e.target.value,
-										}))
-									}
-									className="sm:col-span-3"
-								/>
-							</div>
-							<div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
-								<Label htmlFor="PropertyType" className="text-left sm:text-right">
-									Property Type
-								</Label>
-								<Select
-									value={formData.PropertyType}
-									onValueChange={(v) =>
-										setFormData((prev) => ({ ...prev, PropertyType: v }))
-									}
-								>
-									<SelectTrigger className="sm:col-span-3">
-										<SelectValue />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="Single Family Residence">Single Family Residence</SelectItem>
-										<SelectItem value="Condo">Condo</SelectItem>
-										<SelectItem value="Townhouse">Townhouse</SelectItem>
-										<SelectItem value="Land">Land</SelectItem>
-										<SelectItem value="Commercial">Commercial</SelectItem>
-									</SelectContent>
-								</Select>
-							</div>
-							<div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
-								<Label htmlFor="StandardStatus" className="text-left sm:text-right">
-									Status
-								</Label>
-								<Select
-									value={formData.StandardStatus}
-									onValueChange={(v) =>
-										setFormData((prev) => ({ ...prev, StandardStatus: v }))
-									}
-								>
-									<SelectTrigger className="sm:col-span-3">
-										<SelectValue />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="Active">Active</SelectItem>
-										<SelectItem value="Pending">Pending</SelectItem>
-										<SelectItem value="Sold">Sold</SelectItem>
-										<SelectItem value="Closed">Closed</SelectItem>
-										<SelectItem value="Off Market">Off Market</SelectItem>
-									</SelectContent>
-								</Select>
-							</div>
-							<div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
-								<Label htmlFor="BedroomsTotal" className="text-left sm:text-right">
-									Bedrooms
-								</Label>
-								<Input
-									id="BedroomsTotal"
-									type="number"
-									value={formData.BedroomsTotal}
-									onChange={(e) =>
-										setFormData((prev) => ({
-											...prev,
-											BedroomsTotal: e.target.value,
-										}))
-									}
-									className="sm:col-span-3"
-								/>
-							</div>
-							<div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
-								<Label htmlFor="BathroomsFull" className="text-left sm:text-right">
-									Bathrooms
-								</Label>
-								<Input
-									id="BathroomsFull"
-									type="number"
-									value={formData.BathroomsFull}
-									onChange={(e) =>
-										setFormData((prev) => ({
-											...prev,
-											BathroomsFull: e.target.value,
-										}))
-									}
-									className="sm:col-span-3"
-								/>
-							</div>
-							<div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
-								<Label htmlFor="LivingArea" className="text-left sm:text-right">
-									Living Area (Sqft)
-								</Label>
-								<Input
-									id="LivingArea"
-									type="number"
-									value={formData.LivingArea}
-									onChange={(e) =>
-										setFormData((prev) => ({
-											...prev,
-											LivingArea: e.target.value,
-										}))
-									}
-									className="sm:col-span-3"
-								/>
-							</div>
-							<div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
-								<Label htmlFor="imageFile" className="text-left sm:text-right">
-									Upload Photo
-								</Label>
-								<Input
-									id="imageFile"
-									type="file"
-									accept="image/*"
-									onChange={(e) => {
-										if (e.target.files && e.target.files[0]) {
-											setImageFile(e.target.files[0]);
-											setFormData((prev) => ({ ...prev, ImageUrl: "" }));
-										} else {
-											setImageFile(null);
-										}
-									}}
-									className="sm:col-span-3 cursor-pointer"
-								/>
-							</div>
-							<div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
-								<Label htmlFor="ImageUrl" className="text-left sm:text-right text-muted-foreground text-xs">
-									OR Paste URL
-								</Label>
-								<Input
-									id="ImageUrl"
-									type="url"
-									placeholder="https://example.com/photo.jpg"
-									value={formData.ImageUrl}
-									onChange={(e) =>
-										setFormData((prev) => ({
-											...prev,
-											ImageUrl: e.target.value,
-										}))
-									}
-									className="sm:col-span-3"
-									disabled={!!imageFile}
-								/>
+
+							{/* Photo Upload Section */}
+							<div className="p-4 bg-muted/30 rounded-xl border border-border space-y-3">
+								<h3 className="font-bold text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+									🖼️ Property Main Image
+								</h3>
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+									<div className="flex flex-col gap-1.5">
+										<Label htmlFor="imageFile" className="text-xs font-semibold text-foreground">
+											Upload Image File
+										</Label>
+										<Input
+											id="imageFile"
+											type="file"
+											accept="image/*"
+											onChange={(e) => {
+												if (e.target.files && e.target.files[0]) {
+													setImageFile(e.target.files[0]);
+													setFormData((prev) => ({ ...prev, ImageUrl: "" }));
+												} else {
+													setImageFile(null);
+												}
+											}}
+											className="cursor-pointer text-xs"
+										/>
+									</div>
+									<div className="flex flex-col gap-1.5">
+										<Label htmlFor="ImageUrl" className="text-xs font-semibold text-foreground">
+											OR Paste Image URL
+										</Label>
+										<Input
+											id="ImageUrl"
+											type="url"
+											placeholder="https://example.com/photo.jpg"
+											value={formData.ImageUrl}
+											onChange={(e) =>
+												setFormData((prev) => ({
+													...prev,
+													ImageUrl: e.target.value,
+												}))
+											}
+											disabled={!!imageFile}
+										/>
+									</div>
+								</div>
 							</div>
 						</div>
-						<DialogFooter>
-							<Button type="submit">Create Property</Button>
+
+						<DialogFooter className="border-t pt-3 gap-2">
+							<Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>
+								Cancel
+							</Button>
+							<Button type="submit" className="bg-emerald-600 hover:bg-emerald-700 font-bold px-6">
+								Create & Publish Property
+							</Button>
 						</DialogFooter>
 					</form>
 				</DialogContent>
 			</Dialog>
+
 		</div>
 	);
 }

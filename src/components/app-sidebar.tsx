@@ -109,7 +109,7 @@ const navigationItems = [
 
 	{
 		id: "reports",
-		label: "Reports",
+		label: "Analytics & Reports",
 		icon: BarChart3,
 		children: [
 			{
@@ -118,27 +118,13 @@ const navigationItems = [
 				href: "/admin/performance?tab=properties",
 			},
 			{
-				label: "Notification",
-				icon: MousePointer,
-				href: "/admin/notifications",
-			},
-			{
-				label: "Social Media",
+				label: "Social Analytics",
 				icon: Facebook,
 				href: "/admin/performance?tab=social",
 			},
-			{
-				label: "Tour Requests",
-				icon: Calendar,
-				href: "/admin/tours",
-			},
-			{
-				label: "New Users",
-				icon: UserPlus,
-				href: "/admin/users",
-			},
 		],
 	},
+
 ];
 
 const data = {
