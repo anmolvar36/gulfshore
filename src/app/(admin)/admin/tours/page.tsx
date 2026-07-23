@@ -260,14 +260,14 @@ export default function ToursPage() {
 						<div className="overflow-x-auto rounded-md border">
 							<Table>
 								<TableHeader className="bg-muted/50">
-									<TableRow>
-										<TableHead className="w-[110px]">Request ID</TableHead>
-										<TableHead className="min-w-[200px]">Property</TableHead>
-										<TableHead className="min-w-[180px]">User Details</TableHead>
-										<TableHead className="min-w-[170px]">Date & Time Slot</TableHead>
+									<TableRow className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+										<TableHead className="w-[120px] pl-4">Request ID</TableHead>
+										<TableHead className="min-w-[220px]">Property Details</TableHead>
+										<TableHead className="min-w-[200px]">Visitor Contact</TableHead>
+										<TableHead className="min-w-[190px]">Tour Date & Time</TableHead>
 										<TableHead className="w-[150px] text-center">Status Action</TableHead>
-										<TableHead className="min-w-[160px]">Message</TableHead>
-										<TableHead className="w-[100px] text-right">Actions</TableHead>
+										<TableHead className="min-w-[180px]">Note / Message</TableHead>
+										<TableHead className="w-[100px] text-right pr-4">Actions</TableHead>
 									</TableRow>
 								</TableHeader>
 								<TableBody>
@@ -286,35 +286,39 @@ export default function ToursPage() {
 												key={request.id} 
 												className={`align-middle transition-colors ${
 													isConfirmed 
-														? "bg-blue-50/50 dark:bg-blue-950/20 border-l-4 border-l-blue-600" 
+														? "bg-blue-50/60 dark:bg-blue-950/20 border-l-4 border-l-blue-600" 
 														: isCompleted 
-														? "bg-emerald-50/30 dark:bg-emerald-950/10 border-l-4 border-l-emerald-600"
+														? "bg-emerald-50/40 dark:bg-emerald-950/10 border-l-4 border-l-emerald-600"
 														: isCancelled 
-														? "bg-red-50/20 opacity-75 border-l-4 border-l-red-400"
+														? "bg-red-50/30 opacity-80 border-l-4 border-l-red-400"
 														: ""
 												}`}
 											>
-												<TableCell className="font-mono text-xs text-muted-foreground">
-													<span title={request.id}>
+												{/* Request ID */}
+												<TableCell className="pl-4 py-3">
+													<Badge variant="outline" className="font-mono text-[11px] text-muted-foreground bg-background" title={request.id}>
 														#{request.id.slice(-8)}
-													</span>
+													</Badge>
 												</TableCell>
 
-												<TableCell>
-													<div className="flex items-start gap-2">
-														<Building2 className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
-														<div>
-															<div className="font-semibold text-sm text-foreground">
+												{/* Property */}
+												<TableCell className="py-3">
+													<div className="flex items-start gap-2.5">
+														<div className="p-1.5 rounded-md bg-blue-50 dark:bg-blue-950/50 border border-blue-100 shrink-0 mt-0.5">
+															<Building2 className="h-4 w-4 text-blue-600" />
+														</div>
+														<div className="space-y-0.5">
+															<div className="font-semibold text-sm text-foreground leading-tight">
 																{displayAddr}
 															</div>
 															{request.propertyId && (
-																<div className="text-xs text-muted-foreground font-mono flex items-center gap-1 mt-0.5">
-																	<span>MLS ID: {request.propertyId}</span>
+																<div className="text-xs text-muted-foreground font-mono flex items-center gap-1.5 pt-0.5">
+																	<span>MLS: {request.propertyId}</span>
 																	<a
 																		href={`/admin/properties?search=${encodeURIComponent(request.propertyId)}`}
 																		target="_blank"
 																		rel="noreferrer"
-																		className="text-blue-600 hover:underline flex items-center gap-0.5 ml-1 font-semibold"
+																		className="text-blue-600 hover:underline inline-flex items-center gap-0.5 font-semibold"
 																		title="View Property in Admin"
 																	>
 																		<ExternalLink className="h-3 w-3" /> View
@@ -325,63 +329,75 @@ export default function ToursPage() {
 													</div>
 												</TableCell>
 
-
-												<TableCell>
-													<div>
-														<div className="font-semibold text-sm">
-															{request.userName}
+												{/* Visitor Contact */}
+												<TableCell className="py-3">
+													<div className="space-y-0.5">
+														<div className="font-semibold text-sm text-foreground flex items-center gap-1.5 flex-wrap">
+															<User className="h-3.5 w-3.5 text-muted-foreground" />
+															<span>{request.userName}</span>
+															<Badge className="bg-blue-100 text-blue-900 border-blue-200 text-[10px] px-1.5 py-0 font-bold">
+																🛒 Buyer
+															</Badge>
 														</div>
-														<div className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-															<Mail className="h-3 w-3" />
-															{request.userEmail}
+
+														<div className="text-xs text-muted-foreground flex items-center gap-1.5">
+															<Mail className="h-3 w-3 text-blue-500 shrink-0" />
+															<a href={`mailto:${request.userEmail}`} className="hover:underline hover:text-blue-600 truncate max-w-[160px]">
+																{request.userEmail}
+															</a>
 														</div>
 														{request.userPhone && (
-															<div className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-																<Phone className="h-3 w-3" />
-																{request.userPhone}
+															<div className="text-xs text-muted-foreground flex items-center gap-1.5">
+																<Phone className="h-3 w-3 text-emerald-500 shrink-0" />
+																<a href={`tel:${request.userPhone}`} className="hover:underline">
+																	{request.userPhone}
+																</a>
 															</div>
 														)}
 													</div>
 												</TableCell>
 
-												<TableCell>
-													<div>
-														<div className="font-medium text-sm flex items-center gap-1">
-															<Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+												{/* Date & Time Slot */}
+												<TableCell className="py-3">
+													<div className="space-y-1">
+														<div className="font-semibold text-xs text-foreground flex items-center gap-1.5">
+															<Calendar className="h-3.5 w-3.5 text-blue-600" />
 															{request.requestedDate}
 														</div>
-														<div className="text-xs text-muted-foreground pl-4.5 mt-0.5">
-															⏰ {request.requestedTime}
+														<div className="text-xs text-muted-foreground flex items-center gap-1.5">
+															<Clock className="h-3.5 w-3.5 text-amber-600" />
+															<span>{request.requestedTime}</span>
 														</div>
 
 														{/* Lock / Slot Badge */}
 														{isConfirmed && (
-															<Badge className="bg-blue-600 hover:bg-blue-700 text-white font-medium text-[11px] gap-1 px-2 py-0.5 mt-1.5 inline-flex items-center shadow-sm">
+															<Badge className="bg-blue-600 hover:bg-blue-700 text-white font-medium text-[11px] gap-1 px-2 py-0.5 mt-1 inline-flex items-center shadow-sm">
 																<Lock className="h-3 w-3" /> Slot Locked & Booked
 															</Badge>
 														)}
 
 														{isCompleted && (
-															<Badge className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-[11px] gap-1 px-2 py-0.5 mt-1.5 inline-flex items-center shadow-sm">
+															<Badge className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-[11px] gap-1 px-2 py-0.5 mt-1 inline-flex items-center shadow-sm">
 																<CheckCircle2 className="h-3 w-3" /> Tour Completed
 															</Badge>
 														)}
 
 														{isCancelled && (
-															<Badge variant="outline" className="text-red-600 bg-red-50 border-red-200 text-[11px] gap-1 px-2 py-0.5 mt-1.5 inline-flex items-center">
+															<Badge variant="outline" className="text-red-600 bg-red-50 border-red-200 text-[11px] gap-1 px-2 py-0.5 mt-1 inline-flex items-center">
 																<XCircle className="h-3 w-3" /> Tour Cancelled
 															</Badge>
 														)}
 
 														{!isConfirmed && !isCompleted && !isCancelled && (
-															<Badge variant="outline" className="text-amber-700 bg-amber-50 border-amber-300 text-[11px] gap-1 px-2 py-0.5 mt-1.5 inline-flex items-center">
+															<Badge variant="outline" className="text-amber-700 bg-amber-50 border-amber-300 text-[11px] gap-1 px-2 py-0.5 mt-1 inline-flex items-center">
 																<Clock className="h-3 w-3" /> Awaiting Confirmation
 															</Badge>
 														)}
 													</div>
 												</TableCell>
 
-												<TableCell className="text-center">
+												{/* Status Action */}
+												<TableCell className="text-center py-3">
 													<Select
 														value={request.status?.toLowerCase() || "pending"}
 														onValueChange={(val) => {
@@ -405,13 +421,15 @@ export default function ToursPage() {
 													</Select>
 												</TableCell>
 
-												<TableCell className="max-w-xs">
-													<div className="text-xs text-muted-foreground truncate" title={request.message}>
+												{/* Message */}
+												<TableCell className="max-w-[200px] py-3">
+													<div className="text-xs text-muted-foreground truncate leading-relaxed" title={request.message}>
 														{request.message || "No additional message."}
 													</div>
 												</TableCell>
 
-												<TableCell className="text-right">
+												{/* Actions */}
+												<TableCell className="text-right pr-4 py-3">
 													<div className="flex items-center justify-end gap-1">
 														{/* View Details Modal Trigger */}
 														<Button
@@ -441,6 +459,7 @@ export default function ToursPage() {
 									})}
 								</TableBody>
 							</Table>
+
 						</div>
 					)}
 				</CardContent>
@@ -462,37 +481,66 @@ export default function ToursPage() {
 					{viewModalTour && (
 						<div className="space-y-5 py-4 text-sm">
 							{/* Property Block */}
-							<div className="p-4 bg-muted/40 rounded-xl border border-border space-y-2">
-								<h3 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-									<Building2 className="h-4 w-4 text-blue-600" /> Target Property Details
-								</h3>
-								<div className="text-base font-bold text-foreground">
-									{viewModalTour.propertyAddress === "MLS: " || !viewModalTour.propertyAddress || viewModalTour.propertyAddress === "N/A"
-										? "General / Direct Tour Request"
-										: viewModalTour.propertyAddress}
-								</div>
-								{viewModalTour.propertyId && (
-									<div className="flex items-center gap-2 pt-1">
-										<Badge variant="outline" className="font-mono text-xs">
-											MLS ID: {viewModalTour.propertyId}
-										</Badge>
-										<Button size="sm" variant="outline" asChild className="h-7 text-xs">
+							<div className="p-4 bg-muted/40 rounded-xl border border-border space-y-3">
+								<div className="flex items-center justify-between">
+									<h3 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+										<Building2 className="h-4 w-4 text-blue-600" /> Target Property Details
+									</h3>
+									{viewModalTour.propertyId && (
+										<Button size="sm" variant="outline" asChild className="h-7 text-xs font-semibold text-blue-600 border-blue-200 hover:bg-blue-50">
 											<a
 												href={`/admin/properties?search=${encodeURIComponent(viewModalTour.propertyId)}`}
 												target="_blank"
 												rel="noreferrer"
 											>
-												<ExternalLink className="h-3 w-3 mr-1 text-blue-600" /> View Property
+												<ExternalLink className="h-3 w-3 mr-1" /> View Property
 											</a>
 										</Button>
+									)}
+								</div>
+
+								<div className="text-base font-bold text-foreground">
+									{viewModalTour.propertyAddress === "MLS: " || !viewModalTour.propertyAddress || viewModalTour.propertyAddress === "N/A"
+										? "General / Direct Tour Request"
+										: viewModalTour.propertyAddress}
+								</div>
+
+								{/* Property specs if available */}
+								{viewModalTour.propertyDetails && (
+									<div className="flex items-center gap-3 text-xs text-muted-foreground pt-1 flex-wrap">
+										{viewModalTour.propertyDetails.price && (
+											<span className="font-bold text-foreground text-sm text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-200">
+												{viewModalTour.propertyDetails.price}
+											</span>
+										)}
+										{viewModalTour.propertyDetails.beds && (
+											<span className="bg-background px-2 py-0.5 rounded border">
+												🛏️ {viewModalTour.propertyDetails.beds} Beds
+											</span>
+										)}
+										{viewModalTour.propertyDetails.baths && (
+											<span className="bg-background px-2 py-0.5 rounded border">
+												🛁 {viewModalTour.propertyDetails.baths} Baths
+											</span>
+										)}
+										{viewModalTour.propertyDetails.sqft && (
+											<span className="bg-background px-2 py-0.5 rounded border">
+												📐 {viewModalTour.propertyDetails.sqft}
+											</span>
+										)}
+										{viewModalTour.propertyId && (
+											<Badge variant="outline" className="font-mono text-xs">
+												MLS ID: {viewModalTour.propertyId}
+											</Badge>
+										)}
 									</div>
 								)}
 							</div>
 
-							{/* User Details Block */}
+							{/* User Details Block (Buyer) */}
 							<div className="p-4 bg-muted/40 rounded-xl border border-border space-y-3">
 								<h3 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-									<User className="h-4 w-4 text-blue-600" /> Lead Contact Info
+									<User className="h-4 w-4 text-blue-600" /> Buyer Contact Info
 								</h3>
 								<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 									<div>
@@ -519,6 +567,49 @@ export default function ToursPage() {
 									</div>
 								</div>
 							</div>
+
+							{/* Listing Agent / Seller Representative Contact Block */}
+							<div className="p-4 bg-amber-50/70 dark:bg-amber-950/30 rounded-xl border border-amber-200/90 space-y-3 shadow-xs">
+								<h3 className="font-semibold text-xs uppercase tracking-wider text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
+									<Building2 className="h-4 w-4 text-amber-600" /> Listing Agent & Seller Representative
+								</h3>
+								<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+									<div>
+										<span className="text-muted-foreground block">Listing Agent</span>
+										<span className="font-bold text-foreground text-sm">
+											{viewModalTour.listingAgent?.name || "Gulfshore In-House Listing Agent"}
+										</span>
+									</div>
+									<div>
+										<span className="text-muted-foreground block">Brokerage Office</span>
+										<span className="font-semibold text-foreground">
+											{viewModalTour.listingAgent?.office || "Gulfshore Real Estate LLC"}
+										</span>
+									</div>
+									<div>
+										<span className="text-muted-foreground block">Agent Email</span>
+										<a
+											href={`mailto:${viewModalTour.listingAgent?.email || "listings@gulfshoregroup.com"}`}
+											className="font-semibold text-blue-600 hover:underline flex items-center gap-1 mt-0.5"
+										>
+											<Mail className="h-3.5 w-3.5" />
+											{viewModalTour.listingAgent?.email || "listings@gulfshoregroup.com"}
+										</a>
+									</div>
+									<div>
+										<span className="text-muted-foreground block">Agent Phone</span>
+										<a
+											href={`tel:${viewModalTour.listingAgent?.phone || "(239) 555-0199"}`}
+											className="font-semibold text-foreground flex items-center gap-1 mt-0.5"
+										>
+											<Phone className="h-3.5 w-3.5 text-muted-foreground" />
+											{viewModalTour.listingAgent?.phone || "(239) 555-0199"}
+										</a>
+									</div>
+								</div>
+							</div>
+
+
 
 							{/* Tour Date & Status */}
 							<div className="p-4 bg-muted/40 rounded-xl border border-border space-y-3">

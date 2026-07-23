@@ -359,32 +359,54 @@ export default function LeadProfilePage() {
 						<CardContent>
 							<div className="space-y-3">
 								{lead.inquiryHistory?.length ? (
-									lead.inquiryHistory.map((inquiry: any) => (
-										<div
-											key={inquiry._id}
-											className="p-3 border border-border rounded-lg">
-											<div className="flex flex-col gap-2">
-												<div className="flex items-center justify-between">
-													<Badge variant="outline" className="text-xs font-semibold uppercase tracking-wider">
-														{String(inquiry.type).replaceAll("_", " ")}
-													</Badge>
-													<span className="text-xs text-muted-foreground">
-														{new Date(inquiry.createdAt).toLocaleString()}
-													</span>
+									lead.inquiryHistory.map((inquiry: any) => {
+										const isValuation = inquiry.type === "Home_Valuation";
+										const isTour = inquiry.type === "Tour_Request";
+										return (
+											<div
+												key={inquiry._id || inquiry.id}
+												className={`p-4 rounded-xl border ${
+													isValuation
+														? "bg-amber-50/60 dark:bg-amber-950/20 border-amber-200"
+														: isTour
+														? "bg-blue-50/60 dark:bg-blue-950/20 border-blue-200"
+														: "bg-card border-border"
+												}`}
+											>
+												<div className="flex flex-col gap-2">
+													<div className="flex items-center justify-between">
+														{isValuation ? (
+															<Badge className="bg-amber-600 text-white font-bold text-xs gap-1">
+																🏠 SELLER — HOME VALUATION ESTIMATE
+															</Badge>
+														) : isTour ? (
+															<Badge className="bg-blue-600 text-white font-bold text-xs gap-1">
+																🛒 BUYER — TOUR BOOKING REQUEST
+															</Badge>
+														) : (
+															<Badge variant="outline" className="text-xs font-semibold uppercase tracking-wider">
+																💬 {String(inquiry.type).replaceAll("_", " ")}
+															</Badge>
+														)}
+														<span className="text-xs text-muted-foreground font-medium">
+															{new Date(inquiry.createdAt).toLocaleString()}
+														</span>
+													</div>
+													{inquiry.message && (
+														<p className="text-xs text-gray-800 dark:text-gray-200 bg-white/80 dark:bg-zinc-900/80 p-3 rounded-lg border border-border whitespace-pre-wrap leading-relaxed font-mono">
+															{inquiry.message}
+														</p>
+													)}
 												</div>
-												{inquiry.message && (
-													<p className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-100 whitespace-pre-wrap leading-relaxed">
-														{inquiry.message}
-													</p>
-												)}
 											</div>
-										</div>
-									))
+										);
+									})
 								) : (
 									<p className="text-sm text-muted-foreground">
 										No inquiries yet.
 									</p>
 								)}
+
 							</div>
 						</CardContent>
 					</Card>

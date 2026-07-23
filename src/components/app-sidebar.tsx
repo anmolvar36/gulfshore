@@ -64,9 +64,11 @@ const navigationItems = [
 				icon: Heart,
 				href: "/admin/wishlist",
 			},
-			{ label: "Tours", icon: Calendar, href: "/admin/tours" },
+			{ label: "Tours (Buyers)", icon: Calendar, href: "/admin/tours" },
+			{ label: "Home Valuations (Sellers)", icon: Home, href: "/admin/valuations" },
 		],
 	},
+
 	{
 		id: "properties",
 		label: "Properties",

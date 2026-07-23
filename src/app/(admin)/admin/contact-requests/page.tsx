@@ -289,6 +289,21 @@ export default function ContactRequestsPage() {
 											<td className="py-3 px-4 ">
 												{request.message || "N/A"}
 											</td>
+											<td className="py-3 px-4">
+												{request.refType === "Home_Valuation" ? (
+													<Badge className="bg-amber-100 text-amber-900 border border-amber-300 font-semibold px-2 py-0.5 text-xs inline-flex items-center gap-1">
+														🏠 Seller (Valuation)
+													</Badge>
+												) : request.refType === "Tour_Request" ? (
+													<Badge className="bg-blue-100 text-blue-900 border border-blue-300 font-semibold px-2 py-0.5 text-xs inline-flex items-center gap-1">
+														🛒 Buyer (Tour)
+													</Badge>
+												) : (
+													<Badge className="bg-purple-100 text-purple-900 border border-purple-300 font-semibold px-2 py-0.5 text-xs inline-flex items-center gap-1">
+														💬 Buyer (Inquiry)
+													</Badge>
+												)}
+											</td>
 											<td className="py-3 px-4 ">
 												{!request.ref || request.ref === "null" || request.ref === "N/A" ? (
 													""
@@ -346,18 +361,36 @@ export default function ContactRequestsPage() {
 					</DialogHeader>
 					{selectedRequest && (
 						<div className="space-y-4 py-2">
+							{/* Target Property To Sell (For Sellers) */}
+							{selectedRequest.refType === "Home_Valuation" && (
+								<div className="p-3.5 bg-amber-50 rounded-xl border border-amber-200 space-y-1.5">
+									<span className="text-xs font-bold text-amber-900 uppercase tracking-wider block">
+										🏠 Target Property To Sell (Home Valuation)
+									</span>
+									<p className="text-base font-bold text-gray-900">
+										{selectedRequest.ref && selectedRequest.ref !== "null" ? selectedRequest.ref : "Address Provided In Message"}
+									</p>
+								</div>
+							)}
+
 							<div>
-								<span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</span>
-								<p className="text-sm font-medium text-gray-900 mt-0.5">{selectedRequest.name}</p>
+								<span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+									{selectedRequest.refType === "Home_Valuation" ? "Seller Name" : "Customer Name"}
+								</span>
+								<p className="text-sm font-semibold text-gray-900 mt-0.5">{selectedRequest.name}</p>
 							</div>
 							<div className="grid grid-cols-2 gap-4">
 								<div>
 									<span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</span>
-									<p className="text-sm font-medium text-gray-900 mt-0.5 break-all">{selectedRequest.email}</p>
+									<a href={`mailto:${selectedRequest.email}`} className="text-sm font-semibold text-blue-600 hover:underline mt-0.5 block break-all">
+										{selectedRequest.email}
+									</a>
 								</div>
 								<div>
 									<span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Phone</span>
-									<p className="text-sm font-medium text-gray-900 mt-0.5">{selectedRequest.phone || "N/A"}</p>
+									<a href={`tel:${selectedRequest.phone}`} className="text-sm font-semibold text-gray-900 mt-0.5 block">
+										{selectedRequest.phone || "N/A"}
+									</a>
 								</div>
 							</div>
 							<div className="grid grid-cols-2 gap-4">
@@ -370,26 +403,31 @@ export default function ContactRequestsPage() {
 									</div>
 								</div>
 								<div>
-									<span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Page Ref</span>
-									<p className="text-sm mt-0.5 text-blue-600 hover:underline break-all">
-										{!selectedRequest.ref || selectedRequest.ref === "null" || selectedRequest.ref === "N/A" ? (
-											<span className="text-gray-400 font-normal">-</span>
+									<span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Request Type</span>
+									<div className="mt-1">
+										{selectedRequest.refType === "Home_Valuation" ? (
+											<Badge className="bg-amber-100 text-amber-900 border border-amber-300 font-bold text-xs">
+												🏠 Seller (Home Valuation)
+											</Badge>
 										) : (
-											<a href={getRefLink(selectedRequest.ref)} target="_blank" rel="noreferrer">
-												{selectedRequest.refType || "Link"}
-											</a>
+											<Badge variant="outline" className="text-xs font-semibold">
+												{selectedRequest.refType || "Contact Form"}
+											</Badge>
 										)}
-									</p>
+									</div>
 								</div>
 							</div>
 							<div>
-								<span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Message</span>
-								<p className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-100 mt-1 whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto">
-									{selectedRequest.message || "No message provided."}
+								<span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+									{selectedRequest.refType === "Home_Valuation" ? "Valuation Details & Property Specs" : "Message / Inquiry"}
+								</span>
+								<p className="text-sm text-gray-800 bg-gray-50 p-3 rounded-lg border border-gray-200 mt-1 whitespace-pre-wrap leading-relaxed max-h-56 overflow-y-auto font-mono text-xs">
+									{selectedRequest.message || "No additional message provided."}
 								</p>
 							</div>
 						</div>
 					)}
+
 					<DialogFooter>
 						<Button onClick={() => setDialogOpen(false)}>Close</Button>
 					</DialogFooter>
