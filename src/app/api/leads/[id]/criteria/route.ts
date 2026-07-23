@@ -16,33 +16,18 @@ export async function POST(
 				{ status: 404 }
 			);
 
-		// Store propertyCriteria in a clean JSON object structure while keeping tags clean
-		let currentTags: string[] = [];
-		if (lead.tags) {
-			try {
-				const raw = typeof lead.tags === "string" ? JSON.parse(lead.tags) : lead.tags;
-				if (Array.isArray(raw)) {
-					currentTags = raw.filter((t: any) => typeof t === "string");
-				}
-			} catch {
-				currentTags = [];
-			}
-		}
-
-		const newCriteriaEntry = { ...criteria, _id: `crit_${Date.now()}` };
-
-		// Update lead safely
-		const updated = await prisma.lead.update({
-			where: { id },
+		// Store as a SavedSearch record linked to this lead
+		const saved = await prisma.savedSearch.create({
 			data: {
-				tags: currentTags,
+				userId: lead.id,
+				name: `${criteria.city || "Naples"} Search Criteria`,
+				filters: criteria,
 			},
 		});
 
 		return NextResponse.json({
-			...updated,
-			_id: updated.id,
-			propertyCriteria: [newCriteriaEntry],
+			success: true,
+			data: saved,
 		});
 	} catch (err: any) {
 		console.error("Error saving lead criteria:", err);

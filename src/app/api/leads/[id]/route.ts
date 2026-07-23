@@ -15,6 +15,11 @@ async function getMappedLead(id: string) {
 					createdAt: "desc",
 				},
 			},
+			savedSearch: {
+				orderBy: {
+					createdAt: "desc",
+				},
+			},
 		},
 	});
 
@@ -34,11 +39,28 @@ async function getMappedLead(id: string) {
 		}
 	}
 
+	const mappedCriteria = (lead.savedSearch || []).map((s) => {
+		const f = typeof s.filters === "string" ? JSON.parse(s.filters) : s.filters || {};
+		return {
+			_id: s.id,
+			city: f.city || f.City || "",
+			developmentName: f.developmentName || f.community || "",
+			beds: f.beds || "",
+			baths: f.baths || "",
+			minPrice: f.minPrice || "",
+			maxPrice: f.maxPrice || "",
+			propertyTypes: f.propertyTypes || [],
+			features: f.features || [],
+		};
+	});
+
 	return {
 		...lead,
 		_id: lead.id,
 		fullName: lead.fullName || `${lead.firstName || ""} ${lead.lastName || ""}`.trim() || "Unknown User",
 		tags: parsedTags,
+		propertyCriteria: mappedCriteria,
+
 
 		notes: lead.notes.map((n) => ({
 			_id: n.id,
